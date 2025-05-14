@@ -1,0 +1,7 @@
+{
+  "name": "VBS",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

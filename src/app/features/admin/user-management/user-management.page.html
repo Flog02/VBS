@@ -1,0 +1,106 @@
+<!-- src/app/features/admin/user-management/user-management.page.html -->
+<app-header></app-header>
+
+<ion-content>
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1>User Management</h1>
+      <p>View and manage user accounts.</p>
+    </div>
+    
+    <!-- Filters and Search -->
+    <div class="filters-container">
+      <ion-searchbar 
+        placeholder="Search by name or email..." 
+        [(ngModel)]="searchTerm"
+        (ionChange)="onSearchChange($event)"
+        class="user-search">
+      </ion-searchbar>
+      
+      <div class="filter-actions">
+        <ion-select 
+          interface="popover" 
+          placeholder="User Role" 
+          [(ngModel)]="selectedRole"
+          (ionChange)="onRoleChange($event)">
+          <ion-select-option *ngFor="let option of roleOptions" [value]="option.value">
+            {{ option.label }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+    </div>
+    
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="loading-container">
+      <app-loading-spinner message="Loading users..."></app-loading-spinner>
+    </div>
+    
+    <!-- Users Table -->
+    <div *ngIf="!isLoading" class="users-table-container">
+      <div *ngIf="users.length === 0" class="no-users">
+        <app-empty-state
+          icon="person-outline"
+          title="No Users Found"
+          message="No users match your search criteria."
+          buttonText="Back to Dashboard"
+          buttonLink="/admin">
+        </app-empty-state>
+      </div>
+      
+      <div *ngIf="users.length > 0" class="table-responsive">
+       <!-- Continuation of src/app/features/admin/user-management/user-management.page.html -->
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Registered</th>
+              <th>Last Login</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users">
+              <td>{{ user.displayName || 'Not Set' }}</td>
+              <td>{{ user.email }}</td>
+              <td>
+                <ion-badge [color]="user.role === 'admin' ? 'tertiary' : 'primary'">
+                  {{ user.role }}
+                </ion-badge>
+              </td>
+              <td>{{ formatDate(user.createdAt) }}</td>
+              <td>{{ formatDate(user.lastLoginAt) }}</td>
+              <td class="actions-cell">
+                <ion-button fill="clear" color="primary" (click)="confirmRoleChange(user)">
+                  <ion-icon [name]="user.role === 'admin' ? 'person-outline' : 'shield-outline'"></ion-icon>
+                  {{ user.role === 'admin' ? 'Make Customer' : 'Make Admin' }}
+                </ion-button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Role Change Confirmation Alert -->
+  <ion-alert
+    [isOpen]="showRoleAlert"
+    header="Confirm Role Change"
+    [message]="'Are you sure you want to change ' + (userToUpdate?.displayName || userToUpdate?.email || 'this user') + '\'s role to ' + newRole + '?'"
+    [buttons]="[
+      {
+        text: 'Cancel',
+        role: 'cancel',
+        handler: () => { cancelRoleChange() }
+      },
+      {
+        text: 'Confirm',
+        handler: () => { changeUserRole() }
+      }
+    ]">
+  </ion-alert>
+</ion-content>
+
+<app-footer></app-footer>

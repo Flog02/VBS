@@ -1,0 +1,26 @@
+/* src/app/features/auth/login/login.page.scss */
+.auth-container {
+  min-height: calc(100vh - 200px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  background-color: #f9f9f9;
+}
+
+.auth-content {
+  width: 100%;
+  max-width: 450px;
+}
+
+.auth-card {
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  
+  ion-card-header {
+    background-color: var(--ion-color-primary);
+    color: white;
+    padding: 20px;
+    
+  }}

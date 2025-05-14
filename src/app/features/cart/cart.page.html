@@ -1,0 +1,124 @@
+<!-- src/app/features/cart/cart.page.html -->
+<app-header></app-header>
+
+<ion-content>
+  <div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1>Your Shopping Cart</h1>
+      <p>Review and update your items before checkout</p>
+    </div>
+    
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="loading-container">
+      <app-loading-spinner message="Loading your cart..."></app-loading-spinner>
+    </div>
+    
+    <!-- Empty Cart -->
+    <div *ngIf="!isLoading && (!cart || cart.items.length === 0)" class="empty-cart">
+      <app-empty-state
+        icon="cart-outline"
+        title="Your Cart is Empty"
+        message="You have no items in your shopping cart."
+        buttonText="Start Shopping"
+        buttonLink="/products">
+      </app-empty-state>
+    </div>
+    
+    <!-- Cart Items -->
+    <div *ngIf="!isLoading && cart && cart.items.length > 0" class="cart-content">
+      <!-- Cart Items Table -->
+      <div class="cart-items">
+        <div class="table-responsive">
+          <table class="cart-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Total</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of cart.items">
+                <td class="product-cell">
+                  <div class="product-info">
+                    <div class="product-image">
+                      <img [src]="item.productImage || 'assets/images/product-placeholder.png'" [alt]="item.productName">
+                    </div>
+                    <div class="product-details">
+                      <h3 [routerLink]="['/products', item.productId]">{{ item.productName }}</h3>
+                    </div>
+                  </div>
+                </td>
+                <td class="price-cell">{{ formatPrice(item.price) }}</td>
+                <td class="quantity-cell">
+                  <div class="quantity-control">
+                    <button class="quantity-btn" (click)="decreaseQuantity(item)" [disabled]="item.quantity <= 1">
+                      <ion-icon name="remove-outline"></ion-icon>
+                    </button>
+                    <span class="quantity-value">{{ item.quantity }}</span>
+                    <button class="quantity-btn" (click)="increaseQuantity(item)" [disabled]="item.quantity >= item.stock">
+                      <ion-icon name="add-outline"></ion-icon>
+                    </button>
+                  </div>
+                </td>
+                <td class="total-cell">{{ formatPrice(item.price * item.quantity) }}</td>
+                <td class="action-cell">
+                  <ion-button fill="clear" color="danger" (click)="removeItem(item)">
+                    <ion-icon name="trash-outline"></ion-icon>
+                  </ion-button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Cart Summary -->
+      <div class="cart-summary-container">
+        <div class="cart-actions">
+          <ion-button fill="outline" color="medium" (click)="continueShopping()">
+            Continue Shopping
+          </ion-button>
+          <ion-button fill="outline" color="danger" (click)="clearCart()">
+            Clear Cart
+          </ion-button>
+        </div>
+        
+        <div class="cart-summary">
+          <h2>Order Summary</h2>
+          
+          <div class="summary-row">
+            <span class="summary-label">Subtotal:</span>
+            <span class="summary-value">{{ formatPrice(cart.subtotal) }}</span>
+          </div>
+          
+          <div class="summary-row">
+            <span class="summary-label">Estimated Tax (10%):</span>
+            <span class="summary-value">{{ formatPrice(cart.subtotal * 0.1) }}</span>
+          </div>
+          
+          <div class="divider"></div>
+          
+          <div class="summary-row total">
+            <span class="summary-label">Total:</span>
+            <span class="summary-value">{{ formatPrice(cart.subtotal * 1.1) }}</span>
+          </div>
+          
+          <ion-button 
+            expand="block" 
+            color="primary" 
+            class="checkout-btn"
+            (click)="proceedToCheckout()">
+            Proceed to Checkout
+            <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<app-footer></app-footer>

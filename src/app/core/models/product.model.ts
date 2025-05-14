@@ -1,0 +1,31 @@
+// src/app/core/models/product.model.ts
+export interface Product {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  salePrice?: number;
+  category: string;
+  subcategory?: string;
+  brand: string;
+  images: string[];
+  model3dUrl?: string;
+  specifications: Record<string, any>;
+  stock: number;
+  featured: boolean;
+  rating: number;
+  reviews?: {
+    count: number;
+    items: Review[];
+  };
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Review {
+  userId: string;
+  userName: string;
+  rating: number;
+  comment: string;
+  date: Date;
+}

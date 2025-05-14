@@ -1,0 +1,145 @@
+<!-- src/app/features/admin/product-management/product-management.page.html -->
+<app-header></app-header>
+
+<ion-content>
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1>Product Management</h1>
+      <p>Manage your products, add new products, and update existing ones.</p>
+      
+      <ion-button color="primary" (click)="createNewProduct()">
+        <ion-icon name="add-outline" slot="start"></ion-icon>
+        Add New Product
+      </ion-button>
+    </div>
+    
+    <!-- Filters and Search -->
+    <div class="filters-container">
+      <ion-searchbar 
+        placeholder="Search products..." 
+        [(ngModel)]="searchTerm"
+        (ionChange)="onSearchChange($event)"
+        class="product-search">
+      </ion-searchbar>
+      
+      <div class="filter-actions">
+        <ion-select 
+          interface="popover" 
+          placeholder="Category" 
+          [(ngModel)]="selectedCategory"
+          (ionChange)="onCategoryChange($event)">
+          <ion-select-option *ngFor="let category of categories" [value]="category.id">
+            {{ category.name }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+    </div>
+    
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="loading-container">
+      <app-loading-spinner message="Loading products..."></app-loading-spinner>
+    </div>
+    
+    <!-- Products Table -->
+    <div *ngIf="!isLoading" class="products-table-container">
+      <div *ngIf="products.length === 0" class="no-products">
+        <app-empty-state
+          icon="cube-outline"
+          title="No Products Found"
+          message="No products match your search criteria or you haven't added any products yet."
+          buttonText="Add New Product"
+          (click)="createNewProduct()">
+        </app-empty-state>
+      </div>
+      
+      <div *ngIf="products.length > 0" class="table-responsive">
+        <table class="products-table">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th (click)="changeSortField('name')">
+                Name 
+                <ion-icon *ngIf="getSortIcon('name')" [name]="getSortIcon('name')"></ion-icon>
+              </th>
+              <th (click)="changeSortField('category')">
+                Category
+                <ion-icon *ngIf="getSortIcon('category')" [name]="getSortIcon('category')"></ion-icon>
+              </th>
+              <th (click)="changeSortField('price')">
+                Price
+                <ion-icon *ngIf="getSortIcon('price')" [name]="getSortIcon('price')"></ion-icon>
+              </th>
+              <th (click)="changeSortField('stock')">
+                Stock
+                <ion-icon *ngIf="getSortIcon('stock')" [name]="getSortIcon('stock')"></ion-icon>
+              </th>
+              <th (click)="changeSortField('createdAt')">
+                Created
+                <ion-icon *ngIf="getSortIcon('createdAt')" [name]="getSortIcon('createdAt')"></ion-icon>
+              </th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let product of products">
+              <td class="image-cell">
+                <img [src]="product.images[0] || 'assets/images/product-placeholder.png'" [alt]="product.name">
+              </td>
+              <td class="name-cell">{{ product.name }}</td>
+              <td>{{ getCategoryName(product.category) }}</td>
+              <td>
+                <div class="price-container">
+                  <span *ngIf="product.salePrice" class="sale-price">{{ formatCurrency(product.salePrice) }}</span>
+                  <span [class.original-price]="product.salePrice">{{ formatCurrency(product.price) }}</span>
+                </div>
+              </td>
+              <td>
+                <ion-badge [color]="product.stock > 0 ? 'success' : 'danger'">
+                  {{ product.stock }}
+                </ion-badge>
+              </td>
+              <td>{{ formatDate(product.createdAt) }}</td>
+              <td class="actions-cell">
+                <ion-button fill="clear" color="primary" (click)="editProduct(product)">
+                  <ion-icon name="create-outline"></ion-icon>
+                </ion-button>
+                <ion-button fill="clear" color="danger" (click)="confirmDelete(product)">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </ion-button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Infinite Scroll -->
+      <ion-infinite-scroll *ngIf="products.length > 0" (ionInfinite)="loadProducts($event)" [disabled]="noMoreProducts">
+        <ion-infinite-scroll-content
+          loadingSpinner="dots"
+          loadingText="Loading more products...">
+        </ion-infinite-scroll-content>
+      </ion-infinite-scroll>
+    </div>
+  </div>
+  
+  <!-- Delete Confirmation Alert -->
+  <ion-alert
+    [isOpen]="showDeleteAlert"
+    header="Confirm Delete"
+    [message]="'Are you sure you want to delete ' + (productToDelete?.name || 'this product') + '?'"
+    [buttons]="[
+      {
+        text: 'Cancel',
+        role: 'cancel',
+        handler: () => { cancelDelete() }
+      },
+      {
+        text: 'Delete',
+        role: 'destructive',
+        handler: () => { deleteProduct() }
+      }
+    ]">
+  </ion-alert>
+</ion-content>
+
+<app-footer></app-footer>

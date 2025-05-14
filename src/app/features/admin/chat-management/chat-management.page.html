@@ -1,0 +1,174 @@
+<!-- src/app/features/admin/chat-management/chat-management.page.html -->
+<app-header></app-header>
+
+<ion-content>
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1>Chat Support Management</h1>
+      <p>Handle customer inquiries and support requests.</p>
+    </div>
+    
+    <ion-segment [(ngModel)]="selectedSegment" (ionChange)="segmentChanged($event)">
+      <ion-segment-button value="pending">
+        <ion-label>
+          Pending
+          <ion-badge color="danger" *ngIf="pendingChats.length > 0">{{ pendingChats.length }}</ion-badge>
+        </ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="assigned">
+        <ion-label>
+          Assigned to Me
+          <ion-badge color="primary" *ngIf="assignedChats.length > 0">{{ assignedChats.length }}</ion-badge>
+        </ion-label>
+      </ion-segment-button>
+    </ion-segment>
+    
+    <div class="chat-management-container">
+      <!-- Chat List -->
+      <div class="chat-list">
+        <!-- Loading Spinner -->
+        <div *ngIf="(selectedSegment === 'pending' && isLoadingPending) || (selectedSegment === 'assigned' && isLoadingAssigned)" class="loading-container">
+          <app-loading-spinner message="Loading chats..."></app-loading-spinner>
+        </div>
+        
+        <!-- No Chats -->
+        <div *ngIf="selectedSegment === 'pending' && !isLoadingPending && pendingChats.length === 0" class="no-chats">
+          <app-empty-state
+            icon="chatbubble-outline"
+            title="No Pending Chats"
+            message="There are no pending chats that require assistance."
+            buttonText="View Assigned Chats"
+            (click)="selectedSegment = 'assigned'">
+          </app-empty-state>
+        </div>
+        
+        <div *ngIf="selectedSegment === 'assigned' && !isLoadingAssigned && assignedChats.length === 0" class="no-chats">
+          <app-empty-state
+            icon="chatbubble-outline"
+            title="No Assigned Chats"
+            message="You have no chats assigned to you."
+            buttonText="View Pending Chats"
+            (click)="selectedSegment = 'pending'">
+          </app-empty-state>
+        </div>
+        
+        <!-- Chat List -->
+        <ion-list *ngIf="selectedSegment === 'pending' && !isLoadingPending && pendingChats.length > 0" class="chat-list-items">
+          <ion-item 
+            *ngFor="let chat of pendingChats" 
+            button 
+            [class.selected]="currentChat?.id === chat.id"
+            (click)="selectChat(chat)">
+            <ion-avatar slot="start">
+              <ion-icon name="person-outline"></ion-icon>
+            </ion-avatar>
+            <ion-label>
+              <h2>User {{ chat.userId.substring(0, 6) }}</h2>
+              <p>
+                <ion-text color="medium">{{ formatDate(chat.updatedAt) }}</ion-text>
+              </p>
+            </ion-label>
+            <ion-badge color="danger" slot="end">Pending</ion-badge>
+          </ion-item>
+        </ion-list>
+        
+        <ion-list *ngIf="selectedSegment === 'assigned' && !isLoadingAssigned && assignedChats.length > 0" class="chat-list-items">
+          <ion-item 
+            *ngFor="let chat of assignedChats" 
+            button 
+            [class.selected]="currentChat?.id === chat.id"
+            (click)="selectChat(chat)">
+            <ion-avatar slot="start">
+              <ion-icon name="person-outline"></ion-icon>
+            </ion-avatar>
+            <ion-label>
+              <h2>User {{ chat.userId.substring(0, 6) }}</h2>
+              <p>
+                <ion-text color="medium">{{ formatDate(chat.updatedAt) }}</ion-text>
+              </p>
+            </ion-label>
+            <ion-badge color="primary" slot="end">Active</ion-badge>
+          </ion-item>
+        </ion-list>
+      </div>
+      
+      <!-- Chat View -->
+      <div class="chat-view">
+        <div *ngIf="!currentChat" class="no-chat-selected">
+          <div class="no-chat-content">
+            <ion-icon name="chatbubble-outline"></ion-icon>
+            <h3>No Chat Selected</h3>
+            <p>Select a chat from the list to view and respond to customer messages.</p>
+          </div>
+        </div>
+        
+        <div *ngIf="currentChat" class="chat-container">
+          <div class="chat-header">
+            <div class="user-info">
+              <ion-avatar>
+                <ion-icon name="person-outline"></ion-icon>
+              </ion-avatar>
+              <div class="user-details">
+                <h2>User {{ currentChat.userId.substring(0, 6) }}</h2>
+                <p>
+                  <ion-text color="medium">{{ formatDate(currentChat.createdAt) }}</ion-text>
+                </p>
+              </div>
+            </div>
+            
+            <ion-button color="danger" fill="clear" (click)="confirmCloseChat(currentChat)">
+              <ion-icon name="close-outline" slot="icon-only"></ion-icon>
+              Close Chat
+            </ion-button>
+          </div>
+          
+          <div class="chat-messages">
+            <div *ngFor="let message of currentChat.messages" class="chat-message" [ngClass]="getMessageClass(message)">
+              <div class="message-sender">
+                {{ message.sender === 'user' ? 'Customer' : message.sender === 'bot' ? 'Chatbot' : 'You' }}
+              </div>
+              <div class="message-content">{{ message.content }}</div>
+              <div class="message-time">{{ formatDate(message.timestamp) }}</div>
+            </div>
+          </div>
+          
+          <div class="chat-input">
+            <ion-textarea 
+              placeholder="Type your message..." 
+              autoGrow="true"
+              maxlength="500"
+              rows="2"
+              [(ngModel)]="newMessage"
+              (keyup.enter)="sendMessage()">
+            </ion-textarea>
+            
+            <ion-button color="primary" (click)="sendMessage()" [disabled]="!newMessage.trim()">
+              <ion-icon name="send-outline" slot="icon-only"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Close Chat Confirmation Alert -->
+  <ion-alert
+    [isOpen]="showCloseAlert"
+    header="Close Chat"
+    message="Are you sure you want to close this chat? This action cannot be undone."
+    [buttons]="[
+      {
+        text: 'Cancel',
+        role: 'cancel',
+        handler: () => { cancelCloseChat() }
+      },
+      {
+        text: 'Close Chat',
+        role: 'destructive',
+        handler: () => { closeChat() }
+      }
+    ]">
+  </ion-alert>
+</ion-content>
+
+<app-footer></app-footer>

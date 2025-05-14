@@ -1,0 +1,101 @@
+<!-- src/app/features/auth/login/login.page.html -->
+<app-header></app-header>
+
+<ion-content>
+  <div class="auth-container">
+    <div class="auth-content">
+      <ion-card class="auth-card">
+        <ion-card-header>
+          <ion-card-title>Login to Your Account</ion-card-title>
+        </ion-card-header>
+        
+        <ion-card-content>
+          <!-- Error Message -->
+          <div class="error-message" *ngIf="errorMessage">
+            <ion-text color="danger">{{ errorMessage }}</ion-text>
+          </div>
+          
+          <!-- Login Form -->
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+            <div class="form-group">
+              <ion-item>
+                <ion-icon name="mail-outline" slot="start"></ion-icon>
+                <ion-label position="floating">Email</ion-label>
+                <ion-input 
+                  type="email" 
+                  formControlName="email"
+                  autocomplete="email">
+                </ion-input>
+              </ion-item>
+              <div class="validation-message" *ngIf="f['email'].touched && f['email'].invalid">
+                <ion-text color="danger" *ngIf="f['email'].errors?.['required']">
+                  Email is required
+                </ion-text>
+                <ion-text color="danger" *ngIf="f['email'].errors?.['email']">
+                  Please enter a valid email address
+                </ion-text>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <ion-item>
+                <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+                <ion-label position="floating">Password</ion-label>
+                <ion-input 
+                  [type]="showPassword ? 'text' : 'password'" 
+                  formControlName="password"
+                  autocomplete="current-password">
+                </ion-input>
+                <ion-button 
+                  fill="clear" 
+                  slot="end"
+                  (click)="togglePasswordVisibility()"
+                  tabindex="-1">
+                  <ion-icon [name]="showPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+                </ion-button>
+              </ion-item>
+              <div class="validation-message" *ngIf="f['password'].touched && f['password'].invalid">
+                <ion-text color="danger" *ngIf="f['password'].errors?.['required']">
+                  Password is required
+                </ion-text>
+                <ion-text color="danger" *ngIf="f['password'].errors?.['minlength']">
+                  Password must be at least 6 characters
+                </ion-text>
+              </div>
+            </div>
+            
+            <div class="form-footer">
+              <ion-item lines="none" class="remember-me">
+                <ion-checkbox formControlName="rememberMe"></ion-checkbox>
+                <ion-label>Remember me</ion-label>
+              </ion-item>
+              
+              <a routerLink="/auth/forgot-password" class="forgot-password">
+                Forgot Password?
+              </a>
+            </div>
+            
+            <ion-button 
+              expand="block" 
+              type="submit" 
+              color="primary"
+              [disabled]="isLoading">
+              <ion-spinner name="dots" *ngIf="isLoading"></ion-spinner>
+              <span *ngIf="!isLoading">Login</span>
+            </ion-button>
+          </form>
+          
+          <!-- Register Link -->
+          <div class="register-link">
+            <p>
+              Don't have an account? 
+              <a routerLink="/auth/register">Register now</a>
+            </p>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+</ion-content>
+
+<app-footer></app-footer>

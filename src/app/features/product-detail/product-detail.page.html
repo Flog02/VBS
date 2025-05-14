@@ -1,0 +1,300 @@
+<!-- src/app/features/product-detail/product-detail.page.html -->
+<app-header></app-header>
+
+<ion-content>
+  <div class="page-container">
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="loading-container">
+      <app-loading-spinner message="Loading product details..."></app-loading-spinner>
+    </div>
+    
+    <!-- Product Details -->
+    <div *ngIf="!isLoading && product" class="product-details">
+      <div class="breadcrumb">
+        <a (click)="router.navigate(['/'])">Home</a>
+        <span>›</span>
+        <a (click)="router.navigate(['/products'])">Products</a>
+        <span>›</span>
+        <a (click)="router.navigate(['/products'], { queryParams: { category: product.category } })">
+          {{ product.category | titlecase }}
+        </a>
+        <span>›</span>
+        <span class="current">{{ product.name }}</span>
+      </div>
+      
+      <ion-grid>
+        <ion-row>
+          <!-- Product Images -->
+          <ion-col size="12" size-md="6">
+            <div class="product-images-container">
+              <!-- Image Slider -->
+              <ion-slides #productSlides [options]="slideOpts" class="product-slides">
+                <ion-slide *ngFor="let image of product.images">
+                  <div class="swiper-zoom-container">
+                    <img [src]="image" [alt]="product.name">
+                  </div>
+                </ion-slide>
+                
+                <!-- 3D Model Slide (if available) -->
+                <ion-slide *ngIf="product.model3dUrl">
+                  <div class="product-3d-container">
+                    <app-product-3d-viewer
+                      [modelUrl]="product.model3dUrl"
+                      [productName]="product.name">
+                    </app-product-3d-viewer>
+                  </div>
+                </ion-slide>
+              </ion-slides>
+              
+              <!-- Thumbnail Navigation -->
+              <div class="product-thumbs">
+                <div 
+                  *ngFor="let image of product.images; let i = index" 
+                  class="thumb" 
+                  [class.active]="i === 0"
+                  (click)="slides.slideTo(i)">
+                  <img [src]="image" [alt]="'Thumbnail ' + i">
+                </div>
+                
+                <!-- 3D Model Thumbnail -->
+                <div 
+                  *ngIf="product.model3dUrl"
+                  class="thumb model-thumb"
+                  [class.active]="product.images.length === 0"
+                  (click)="slides.slideTo(product.images.length)">
+                  <ion-icon name="cube-outline"></ion-icon>
+                  <span>3D</span>
+                </div>
+              </div>
+            </div>
+          </ion-col>
+          
+          <!-- Product Info -->
+          <ion-col size="12" size-md="6">
+            <div class="product-info">
+              <h1 class="product-title">{{ product.name }}</h1>
+              
+              <div class="product-meta">
+                <div class="product-brand">
+                  <ion-chip outline color="medium">
+                    <ion-label>{{ product.brand }}</ion-label>
+                  </ion-chip>
+                </div>
+                
+                <div class="product-rating" *ngIf="product.rating > 0">
+                  <span class="stars" [attr.data-rating]="product.rating">
+                    ★★★★★
+                  </span>
+                  <span class="rating-count" *ngIf="product.reviews">
+                    ({{ product.reviews.count }} reviews)
+                  </span>
+                </div>
+              </div>
+              
+              <div class="product-price-container">
+                <div class="product-price">
+                  <ion-text *ngIf="product.salePrice" color="danger" class="sale-price">
+                    ${{ product.salePrice.toFixed(2) }}
+                  </ion-text>
+                  <ion-text [color]="product.salePrice ? 'medium' : 'dark'" [class.original-price]="product.salePrice">
+                    ${{ product.price.toFixed(2) }}
+                  </ion-text>
+                  <ion-badge *ngIf="getDiscountPercentage() > 0" color="success" class="discount-badge">
+                    {{ getDiscountPercentage() }}% OFF
+                  </ion-badge>
+                </div>
+                
+                <div class="product-stock">
+                  <ion-badge color="{{ product.stock > 0 ? 'success' : 'danger' }}">
+                    {{ product.stock > 0 ? 'In Stock' : 'Out of Stock' }}
+                  </ion-badge>
+                </div>
+              </div>
+              
+              <div class="product-description">
+                <p>{{ product.description }}</p>
+              </div>
+              
+              <!-- Add to Cart Section -->
+              <div class="product-actions">
+                <div class="quantity-selector" *ngIf="product.stock > 0">
+                  <button class="quantity-btn" (click)="decreaseQuantity()" [disabled]="quantity <= 1">-</button>
+                  <span class="quantity-value">{{ quantity }}</span>
+                  <button class="quantity-btn" (click)="increaseQuantity()" [disabled]="quantity >= product.stock">+</button>
+                </div>
+                
+                <div class="action-buttons">
+                  <ion-button 
+                    expand="block" 
+                    color="primary" 
+                    class="add-to-cart-btn"
+                    [disabled]="product.stock <= 0"
+                    (click)="addToCart()">
+                    <ion-icon name="cart-outline" slot="start"></ion-icon>
+                    Add to Cart
+                  </ion-button>
+                  
+                  <ion-button 
+                    expand="block" 
+                    color="success" 
+                    class="buy-now-btn"
+                    [disabled]="product.stock <= 0"
+                    (click)="buyNow()">
+                    Buy Now
+                  </ion-button>
+                </div>
+              </div>
+              
+              <!-- Wishlist & Share -->
+              <div class="product-secondary-actions">
+                <ion-button 
+                  fill="clear" 
+                  [color]="isInWishlist ? 'danger' : 'medium'"
+                  (click)="toggleWishlist()">
+                  <ion-icon [name]="isInWishlist ? 'heart' : 'heart-outline'" slot="start"></ion-icon>
+                  {{ isInWishlist ? 'Added to Wishlist' : 'Add to Wishlist' }}
+                </ion-button>
+                
+                <ion-button 
+                  fill="clear" 
+                  color="medium"
+                  (click)="shareProduct()">
+                  <ion-icon name="share-outline" slot="start"></ion-icon>
+                  Share
+                </ion-button>
+              </div>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+      
+      <!-- Product Details Tabs -->
+      <div class="product-tabs">
+        <ion-segment [value]="selectedSegment" (ionChange)="segmentChanged($event)">
+          <ion-segment-button value="details">
+            <ion-label>Details</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="specifications">
+            <ion-label>Specifications</ion-label>
+          </ion-segment-button>
+          <ion-segment-button value="reviews" *ngIf="product.reviews">
+            <ion-label>Reviews ({{ product.reviews.count }})</ion-label>
+          </ion-segment-button>
+        </ion-segment>
+        
+        <div class="segment-content">
+          <!-- Details Tab -->
+          <div *ngIf="selectedSegment === 'details'" class="details-content">
+            <div class="product-features">
+              <h3>Key Features</h3>
+              <ul>
+                <li *ngFor="let i of [1, 2, 3, 4, 5]">
+                  Feature {{ i }} example: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </li>
+              </ul>
+            </div>
+            
+            <div class="product-details-description">
+              <h3>Product Description</h3>
+              <p>{{ product.description }}</p>
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in mauris euismod, rhoncus nisi a, tincidunt quam. Donec volutpat, nibh sit amet luctus ultricies, ipsum elit facilisis nisi, non semper nibh ex ut sapien.</p>
+              <p>Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Cras ornare risus nisi, quis faucibus quam efficitur sit amet. Proin id purus nisi. Vivamus at molestie magna, eu mollis nibh.</p>
+            </div>
+          </div>
+          
+          <!-- Specifications Tab -->
+          <div *ngIf="selectedSegment === 'specifications'" class="specifications-content">
+            <ion-accordion-group>
+              <ion-accordion *ngFor="let spec of product.specifications | keyvalue" value="{{ spec.key }}">
+                <ion-item slot="header">
+                  <ion-label>{{ spec.key | titlecase }}</ion-label>
+                </ion-item>
+                <div slot="content" class="specification-detail">
+                  <p *ngIf="!isObject(spec.value)">{{ spec.value }}</p>
+                  <div *ngIf="isObject(spec.value)">
+                    <div *ngFor="let subSpec of spec.value | keyvalue" class="sub-specification">
+                      <strong>{{ subSpec.key | titlecase }}:</strong> {{ subSpec.value }}
+                    </div>
+                  </div>
+                </div>
+              </ion-accordion>
+            </ion-accordion-group>
+          </div>
+          
+          <!-- Reviews Tab -->
+          <div *ngIf="selectedSegment === 'reviews' && product.reviews" class="reviews-content">
+            <div class="reviews-summary">
+              <div class="rating-summary">
+                <div class="overall-rating">
+                  <div class="rating-number">{{ product.rating.toFixed(1) }}</div>
+                  <div class="rating-stars">
+                    <span class="stars large" [attr.data-rating]="product.rating">★★★★★</span>
+                    <div class="rating-count">{{ product.reviews.count }} reviews</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="write-review">
+                <ion-button color="primary" [routerLink]="['/products', product.id, 'review']">
+                  <ion-icon name="star-outline" slot="start"></ion-icon>
+                  Write a Review
+                </ion-button>
+              </div>
+            </div>
+            
+            <div class="reviews-list">
+              <div *ngFor="let review of product.reviews.items" class="review-item">
+                <div class="review-header">
+                  <div class="reviewer-info">
+                    <div class="reviewer-name">{{ review.userName }}</div>
+                    <div class="review-date">{{ review.date | date }}</div>
+                  </div>
+                  <div class="review-rating">
+                    <span class="stars" [attr.data-rating]="review.rating">★★★★★</span>
+                  </div>
+                </div>
+                <div class="review-content">
+                  <p>{{ review.comment }}</p>
+                </div>
+              </div>
+              
+              <!-- If no reviews -->
+              <div *ngIf="product.reviews.items?.length === 0" class="no-reviews">
+                <p>There are no reviews yet for this product. Be the first to leave a review!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Related Products -->
+      <div class="related-products">
+        <h2>Related Products</h2>
+        
+        <div *ngIf="loadingRelated" class="loading-container">
+          <app-loading-spinner message="Loading related products..."></app-loading-spinner>
+        </div>
+        
+        <ion-grid *ngIf="!loadingRelated && relatedProducts.length > 0">
+          <ion-row>
+            <ion-col size="12" size-sm="6" size-md="3" *ngFor="let relatedProduct of relatedProducts">
+              <app-product-card 
+                [product]="relatedProduct" 
+                (addToCartClicked)="addRelatedToCart($event)">
+              </app-product-card>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+        
+        <div *ngIf="!loadingRelated && relatedProducts.length === 0" class="no-related">
+          <p>No related products found.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Chatbot -->
+  <app-chatbot></app-chatbot>
+</ion-content>
+
+<app-footer></app-footer>

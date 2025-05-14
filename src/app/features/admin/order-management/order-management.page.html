@@ -1,0 +1,94 @@
+<!-- src/app/features/admin/order-management/order-management.page.html -->
+<app-header></app-header>
+
+<ion-content>
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1>Order Management</h1>
+      <p>View and manage customer orders.</p>
+    </div>
+    
+    <!-- Filters and Search -->
+    <div class="filters-container">
+      <ion-searchbar 
+        placeholder="Search by order ID or date..." 
+        [(ngModel)]="searchTerm"
+        (ionChange)="onSearchChange($event)"
+        class="order-search">
+      </ion-searchbar>
+      
+      <div class="filter-actions">
+        <ion-select 
+          interface="popover" 
+          placeholder="Order Status" 
+          [(ngModel)]="selectedStatus"
+          (ionChange)="onStatusChange($event)">
+          <ion-select-option *ngFor="let option of statusOptions" [value]="option.value">
+            {{ option.label }}
+          </ion-select-option>
+        </ion-select>
+      </div>
+    </div>
+    
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="loading-container">
+      <app-loading-spinner message="Loading orders..."></app-loading-spinner>
+    </div>
+    
+    <!-- Orders Table -->
+    <div *ngIf="!isLoading" class="orders-table-container">
+      <div *ngIf="orders.length === 0" class="no-orders">
+        <app-empty-state
+          icon="cart-outline"
+          title="No Orders Found"
+          message="No orders match your search criteria or there are no orders yet."
+          buttonText="Back to Dashboard"
+          buttonLink="/admin">
+        </app-empty-state>
+      </div>
+      
+      <div *ngIf="orders.length > 0" class="table-responsive">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Payment</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of orders">
+              <td class="order-id">{{ order.id.substring(0, 8) }}...</td>
+              <td>{{ formatDate(order.createdAt) }}</td>
+              <td>{{ order.userId.substring(0, 8) }}...</td>
+              <td>{{ order.items.length }}</td>
+              <td>{{ formatCurrency(order.total) }}</td>
+              <td>
+                <span class="status-badge" [ngClass]="getStatusClass(order.status)">
+                  {{ order.status }}
+                </span>
+              </td>
+              <td>
+                <span class="payment-badge" [ngClass]="getPaymentStatusClass(order.paymentStatus)">
+                  {{ order.paymentStatus }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <ion-button fill="clear" color="primary" (click)="viewOrder(order.id)">
+                  <ion-icon name="eye-outline"></ion-icon>
+                </ion-button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<app-footer></app-footer>

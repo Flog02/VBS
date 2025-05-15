@@ -1,0 +1,57 @@
+/* src/app/shared/components/header/header.component.scss */
+.header-container {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.logo {
+  cursor: pointer;
+  
+  h1 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+  }
+}
+
+.search-bar {
+  max-width: 300px;
+  --border-radius: 20px;
+  
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+ion-button {
+  position: relative;
+  
+  ion-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 10px;
+    padding: 3px 6px;
+    border-radius: 50%;
+  }
+}
+
+.user-profile {
+  padding: 20px 16px;
+  display: flex;
+  align-items: center;
+  background-color: var(--ion-color-light);
+  
+  ion-avatar {
+    width: 60px;
+    height: 60px;
+    margin-right: 15px;
+  }
+  
+  .user-info {
+    h3 {
+      margin: 0 0 5px 0;
+      font-weight: 600;
+    }
+  }
+}

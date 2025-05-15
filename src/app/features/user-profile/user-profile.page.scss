@@ -1,0 +1,207 @@
+/* src/app/features/user-profile/user-profile.page.scss */
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.loading-container {
+  min-height: 400px;
+}
+
+.profile-content {
+  padding-bottom: 40px;
+}
+
+.profile-header {
+  background-color: #f9f9f9;
+  padding: 30px 20px;
+  margin: -20px -20px 30px -20px;
+  
+  .profile-info {
+    display: flex;
+    align-items: center;
+    
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: var(--ion-color-primary-tint);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-right: 20px;
+      
+      ion-icon {
+        font-size: 40px;
+        color: white;
+      }
+    }
+    
+    .profile-name {
+      h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0 0 5px 0;
+        color: var(--ion-color-dark);
+      }
+      
+      p {
+        margin: 0;
+        color: var(--ion-color-medium);
+      }
+    }
+  }
+}
+
+.message-container {
+  margin-bottom: 20px;
+  
+  .success-message,
+  .error-message {
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-align: center;
+  }
+  
+  .success-message {
+    background-color: #ecffec;
+  }
+  
+  .error-message {
+    background-color: #ffecec;
+  }
+}
+
+.address-section {
+  margin-top: 20px;
+  
+  h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: var(--ion-color-dark);
+  }
+}
+
+.validation-error {
+  font-size: 0.8rem;
+  color: var(--ion-color-danger);
+  margin-top: 5px;
+  padding-left: 10px;
+}
+
+.orders-list {
+  .order-card {
+    margin-bottom: 20px;
+    
+    ion-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      
+      ion-card-title {
+        font-size: 1.1rem;
+      }
+      
+      .order-date {
+        font-size: 0.85rem;
+        color: var(--ion-color-medium);
+      }
+      
+      .order-status {
+        ion-badge {
+          padding: 5px 10px;
+          border-radius: 15px;
+          text-transform: capitalize;
+        }
+      }
+    }
+    
+    .order-items {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      
+      .item-count {
+        font-size: 0.9rem;
+        color: var(--ion-color-medium);
+      }
+      
+      .items-preview {
+        display: flex;
+        align-items: center;
+        
+        .item-preview {
+          width: 50px;
+          height: 50px;
+          border-radius: 5px;
+          overflow: hidden;
+          margin-left: -10px;
+          border: 2px solid white;
+          
+          &:first-child {
+            margin-left: 0;
+          }
+          
+          img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+        }
+        
+        .more-items {
+          font-size: 0.8rem;
+          color: var(--ion-color-medium);
+          margin-left: 10px;
+        }
+      }
+    }
+    
+    .order-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      
+      .total-amount {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--ion-color-dark);
+      }
+    }
+  }
+}
+
+// Status badge colors
+.status-pending {
+  background-color: #FFC107;
+  color: #000;
+}
+
+.status-processing {
+  background-color: #2196F3;
+  color: white;
+}
+
+.status-shipped {
+  background-color: #3F51B5;
+  color: white;
+}
+
+.status-ready {
+  background-color: #00BCD4;
+  color: white;
+}
+
+.status-completed {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.status-cancelled {
+  background-color: #F44336;
+  color: white;
+}

@@ -27,6 +27,7 @@ import { WishlistService } from '../../core/services/wishlist.service';
 import { User } from '../../core/models/user.model';
 import { Order } from '../../core/models/order.model';
 import { Product } from '../../core/models/product.model';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-user-profile',
@@ -34,6 +35,7 @@ import { Product } from '../../core/models/product.model';
   styleUrls: ['./user-profile.page.scss'],
   standalone: true,
   imports: [
+    FormsModule,
     CommonModule,
     ReactiveFormsModule,
     RouterModule,

@@ -1,3 +1,50 @@
+<!-- src/app/features/wishlist/wishlist.page.html -->
+<app-header></app-header>
+
+<ion-content>
+  <div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1>My Wishlist</h1>
+      <p>Save and organize your favorite products</p>
+    </div>
+    
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="loading-container">
+      <app-loading-spinner message="Loading your wishlist..."></app-loading-spinner>
+    </div>
+    
+    <!-- Empty Wishlist -->
+    <div *ngIf="!isLoading && wishlistProducts.length === 0" class="empty-wishlist">
+      <app-empty-state
+        icon="heart-outline"
+        title="Your Wishlist is Empty"
+        message="You have no items in your wishlist. Start adding products you like!"
+        buttonText="Start Shopping"
+        buttonLink="/products">
+      </app-empty-state>
+    </div>
+    
+    <!-- Wishlist Items -->
+    <div *ngIf="!isLoading && wishlistProducts.length > 0" class="wishlist-content">
+      <div class="wishlist-actions">
+        <div class="count-info">
+          <span>{{ wishlistProducts.length }} item{{ wishlistProducts.length > 1 ? 's' : '' }} in your wishlist</span>
+        </div>
+        
+        <div class="action-buttons">
+          <ion-button fill="outline" color="medium" (click)="continueShopping()">
+            Continue Shopping
+          </ion-button>
+          
+          <ion-button fill="outline" color="danger" (click)="clearWishlist()">
+            Clear Wishlist
+          </ion-button>
+        </div>
+      </div>
+      
+      <ion-grid>
+        <ion-row>
 <!-- continuation of src/app/features/wishlist/wishlist.page.html -->
           <ion-col size="12" size-sm="6" size-md="4" size-lg="3" *ngFor="let product of wishlistProducts">
             <div class="wishlist-item">

@@ -19,7 +19,7 @@ import { ProductCardComponent } from '../../shared/components/product-card/produ
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { ProductFilterComponent, FilterOptions } from '../../shared/components/product-filter/product-filter.component';
-import { ChatbotComponent } from '../../shared/components/chatbot/chatbot.component';
+import { ChatbotPage } from 'src/app/shared/components/chatbot/chatbot.page';
 import { ProductService } from '../../core/services/product.service';
 import { CartService } from '../../core/services/cart.service';
 import { Product } from '../../core/models/product.model';
@@ -38,7 +38,7 @@ import { Product } from '../../core/models/product.model';
     IonSelect, IonSelectOption, IonChip, IonLabel, IonInfiniteScroll,
     IonInfiniteScrollContent, IonBadge, IonModal,
     HeaderComponent, FooterComponent, ProductCardComponent, LoadingSpinnerComponent,
-    EmptyStateComponent, ProductFilterComponent, ChatbotComponent
+    EmptyStateComponent, ProductFilterComponent, ChatbotPage
   ]
 })
 export class ProductsPage implements OnInit {
@@ -91,7 +91,7 @@ export class ProductsPage implements OnInit {
   constructor(
     private productService: ProductService,
     private cartService: CartService,
-    private router: Router,
+    public router: Router,
     private route: ActivatedRoute
   ) {
     addIcons({funnelOutline,closeCircleOutline,cartOutline,filterOutline,gridOutline,listOutline,arrowUpOutline,arrowDownOutline});

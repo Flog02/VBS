@@ -1,0 +1,12 @@
+<!-- src/app/shared/components/empty-state/empty-state.component.html -->
+<div class="empty-state-container">
+  <div class="empty-state-content">
+    <ion-icon [name]="icon" class="empty-state-icon"></ion-icon>
+    <h2 class="empty-state-title">{{ title }}</h2>
+    <p class="empty-state-message">{{ message }}</p>
+    <ion-button *ngIf="buttonText" (click)="navigate()" color="primary" class="empty-state-button">
+      <ion-icon name="add-circle-outline" slot="start" *ngIf="buttonText.toLowerCase().includes('add')"></ion-icon>
+      {{ buttonText }}
+    </ion-button>
+  </div>
+</div>

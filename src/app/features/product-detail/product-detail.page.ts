@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { 
   IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
   IonButton, IonIcon, IonGrid, IonRow, IonCol, IonText, IonBadge, IonChip,
-  IonLabel, IonSlides, IonSlide, IonSegment, IonSegmentButton,
+  IonLabel, IonicSlides, IonSegment, IonSegmentButton,
   IonAccordionGroup, IonAccordion, IonItem
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -19,12 +19,12 @@ import { FooterComponent } from '../../shared/components/footer/footer.component
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { Product3dViewerComponent } from '../../shared/components/product-3d-viewer/product-3d-viewer.component';
 import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
-import { ChatbotComponent } from '../../shared/components/chatbot/chatbot.component';
 import { ProductService } from '../../core/services/product.service';
 import { CartService } from '../../core/services/cart.service';
 import { WishlistService } from '../../core/services/wishlist.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Product } from '../../core/models/product.model';
+import { ChatbotPage } from 'src/app/shared/components/chatbot/chatbot.page';
 
 @Component({
   selector: 'app-product-detail',
@@ -36,10 +36,10 @@ import { Product } from '../../core/models/product.model';
     RouterModule,
     IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
     IonButton, IonIcon, IonGrid, IonRow, IonCol, IonText, IonBadge, IonChip,
-    IonLabel, IonSlides, IonSlide, IonSegment, IonSegmentButton,
+    IonLabel, IonSegment, IonSegmentButton,
     IonAccordionGroup, IonAccordion, IonItem,
     HeaderComponent, FooterComponent, LoadingSpinnerComponent, 
-    Product3dViewerComponent, ProductCardComponent, ChatbotComponent
+    Product3dViewerComponent, ProductCardComponent, ChatbotPage
   ]
 })
 export class ProductDetailPage implements OnInit {

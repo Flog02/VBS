@@ -34,9 +34,9 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { Chat,ChatMessage } from 'src/app/core/models/chat.model';
 import { RouterLink } from '@angular/router';
 @Component({
-  selector: 'app-chat',
-  templateUrl: './chat.page.html',
-  styleUrls: ['./chat.page.scss'],
+  selector: 'app-chatbot',
+  templateUrl: './chatbot.page.html',
+  styleUrls: ['./chatbot.page.scss'],
   standalone: true,
   imports: [IonBadge, 
     RouterLink,
@@ -63,7 +63,7 @@ import { RouterLink } from '@angular/router';
     LoadingSpinnerComponent
   ]
 })
-export class ChatPage implements OnInit, AfterViewChecked {
+export class ChatbotPage implements OnInit, AfterViewChecked {
   @ViewChild('chatContent') chatContent!: IonContent;
   @ViewChild('messageInput') messageInput!: ElementRef;
   

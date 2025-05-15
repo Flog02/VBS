@@ -1,0 +1,41 @@
+/* src/app/shared/components/empty-state/empty-state.component.scss */
+.empty-state-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  min-height: 300px;
+}
+
+.empty-state-content {
+  text-align: center;
+  max-width: 400px;
+}
+
+.empty-state-icon {
+  font-size: 5rem;
+  color: var(--ion-color-medium);
+  margin-bottom: 15px;
+}
+
+.empty-state-title {
+  font-size: 1.5rem;
+  color: var(--ion-color-dark);
+  margin-bottom: 10px;
+}
+
+.empty-state-message {
+  font-size: 1rem;
+  color: var(--ion-color-medium);
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.empty-state-button {
+  --border-radius: 8px;
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  --padding-start: 15px;
+  --padding-end: 15px;
+  font-weight: 600;
+}

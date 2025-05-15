@@ -13,12 +13,11 @@ import {
   locationOutline, timeOutline, cardOutline
 } from 'ionicons/icons';
 
-import { HeaderComponent } from '../../../shared/components/header/header.component';
-import { FooterComponent } from '../../../shared/components/footer/footer.component';
-import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
-import { OrderService } from '../../../core/services/order.service';
-import { Order } from '../../../core/models/order.model';
-
+import { HeaderComponent } from 'src/app/shared/components/header/header.component';
+import { FooterComponent } from 'src/app/shared/components/footer/footer.component';
+import { LoadingSpinnerComponent } from 'src/app/shared/components/loading-spinner/loading-spinner.component';
+import { OrderService } from 'src/app/core/services/order.service';
+import { Order } from 'src/app/core/models/order.model';
 @Component({
   selector: 'app-order-detail',
   templateUrl: './order-detail.page.html',

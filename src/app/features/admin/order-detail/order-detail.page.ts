@@ -11,7 +11,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  arrowBackOutline, printOutline, emailOutline, 
+  arrowBackOutline, printOutline, mailOutline, 
   checkmarkCircleOutline, closeCircleOutline
 } from 'ionicons/icons';
 
@@ -65,7 +65,7 @@ export class OrderDetailPage implements OnInit {
     private orderService: OrderService,
     private adminService: AdminService
   ) {
-    addIcons({arrowBackOutline,printOutline,mailOutline,emailOutline,checkmarkCircleOutline,closeCircleOutline});
+    addIcons({arrowBackOutline,printOutline,mailOutline,checkmarkCircleOutline,closeCircleOutline});
   }
   
   ngOnInit() {

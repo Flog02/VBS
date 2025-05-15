@@ -1,4 +1,3 @@
-// src/app/features/admin/chat-management/chat-management.page.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -7,8 +6,7 @@ import {
   IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, 
   IonCardTitle, IonCardContent, IonItem, IonLabel, IonInput, 
   IonSelect, IonSelectOption, IonSearchbar, IonBadge, IonAlert,
-  IonSegment, IonSegmentButton, IonAvatar, IonText, IonTextarea
-} from '@ionic/angular/standalone';
+  IonSegment, IonSegmentButton, IonAvatar, IonText, IonTextarea, IonList } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
   chatbubbleOutline, personOutline, closeOutline, 
@@ -27,7 +25,7 @@ import { Chat, ChatMessage } from '../../../core/models/chat.model';
   templateUrl: './chat-management.page.html',
   styleUrls: ['./chat-management.page.scss'],
   standalone: true,
-  imports: [
+  imports: [IonList, 
     CommonModule,
     FormsModule,
     IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton, 
@@ -163,7 +161,7 @@ export class ChatManagementPage implements OnInit {
         }
         
         // Remove from the appropriate list
-        if (this.chatToClose.agentId) {
+        if (this.chatToClose?.agentId) {
           this.assignedChats = this.assignedChats.filter(c => c.id !== this.chatToClose?.id);
         } else {
           this.pendingChats = this.pendingChats.filter(c => c.id !== this.chatToClose?.id);

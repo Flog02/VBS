@@ -17,6 +17,7 @@ import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner
 import { ChatbotService } from '../../core/services/chatbot.service';
 import { AuthService } from '../../core/services/auth.service';
 import { Chat, ChatMessage } from '../../core/models/chat.model';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-chat',
@@ -26,7 +27,7 @@ import { Chat, ChatMessage } from '../../core/models/chat.model';
   imports: [
     CommonModule,
     FormsModule,
-    IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
+    IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,RouterLink,
     IonButton, IonIcon, IonCard, IonCardHeader, IonCardContent, IonFooter,
     IonTextarea, IonSpinner,
     HeaderComponent, FooterComponent, LoadingSpinnerComponent

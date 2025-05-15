@@ -4,9 +4,8 @@ import { Router, RouterModule } from '@angular/router';
 import { 
   IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton,
   IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardHeader,
-  IonCardTitle, IonCardContent, IonBadge, IonSlides, IonSlide, IonText,
-  IonSearchbar, AnimationController
-} from '@ionic/angular/standalone';
+  IonCardTitle, IonCardContent, IonBadge, IonText,
+  IonSearchbar, AnimationController, IonItem, IonInput } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
   arrowForwardOutline, searchOutline, phonePortraitOutline, tvOutline,
@@ -17,27 +16,28 @@ import { HeaderComponent } from '../../shared/components/header/header.component
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
-import { ChatbotComponent } from '../../shared/components/chatbot/chatbot.component';
+import { ChatbotPage } from 'src/app/shared/components/chatbot/chatbot.page';
 import { ProductService } from '../../core/services/product.service';
 import { CartService } from '../../core/services/cart.service';
 import { StoreLocationService } from '../../core/services/store-location.service';
 import { Product } from '../../core/models/product.model';
 import { StoreLocation } from '../../core/models/store-location.model';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
   standalone: true,
-  imports: [
+  imports: [IonInput, IonItem, 
     CommonModule,
     RouterModule,
     IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton,
     IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardHeader,
-    IonCardTitle, IonCardContent, IonBadge, IonSlides, IonSlide, IonText,
+    IonCardTitle, IonCardContent, IonBadge, IonText,
     IonSearchbar,
     HeaderComponent, FooterComponent, ProductCardComponent, LoadingSpinnerComponent,
-    ChatbotComponent
+    ChatbotPage,FormsModule
   ]
 })
 export class HomePage implements OnInit {

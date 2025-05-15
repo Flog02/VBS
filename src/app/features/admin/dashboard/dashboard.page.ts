@@ -15,14 +15,14 @@ import { FooterComponent } from '../../../shared/components/footer/footer.compon
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { AdminService } from '../../../core/services/admin.service';
 import { Order } from '../../../core/models/order.model';
-
+import { RouterLink } from '@angular/router';
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
   standalone: true,
   imports: [
-    CommonModule,
+    CommonModule,RouterLink,
     IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton,
     IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonItem, IonLabel,
     IonList, IonIcon, IonBadge, IonGrid, IonRow, IonCol, IonButton,

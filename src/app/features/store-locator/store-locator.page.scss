@@ -1,0 +1,275 @@
+/* src/app/features/store-locator/store-locator.page.scss */
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.page-header {
+  margin-bottom: 20px;
+  
+  h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin-bottom: 5px;
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+}
+
+.loading-container {
+  min-height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Store Locator Layout */
+.store-locator-container {
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.stores-list-col {
+  padding: 0;
+  background-color: white;
+  border-right: 1px solid #eaeaea;
+  
+  @media (max-width: 767px) {
+    border-right: none;
+    border-bottom: 1px solid #eaeaea;
+  }
+}
+
+.map-col {
+  padding: 0;
+}
+
+/* Store Search and List */
+.store-search {
+  padding: 10px;
+  border-bottom: 1px solid #eaeaea;
+  
+  ion-searchbar {
+    --background: #f5f5f5;
+    --border-radius: 8px;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.no-stores {
+  padding: 20px;
+  text-align: center;
+  color: var(--ion-color-medium);
+}
+
+.stores-list {
+  max-height: 500px;
+  overflow-y: auto;
+  
+  ion-list {
+    padding: 0;
+  }
+  
+  ion-item {
+    --padding-start: 0;
+    --inner-padding-end: 0;
+    
+    &.selected {
+      --background: #f0f7ff;
+      --color: var(--ion-color-primary);
+      
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background-color: var(--ion-color-primary);
+      }
+    }
+  }
+}
+
+.store-list-item {
+  width: 100%;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  .store-info {
+    h3 {
+      margin: 0 0 5px 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+    }
+    
+    p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--ion-color-medium);
+    }
+  }
+}
+
+/* Map Container */
+.map-container {
+  width: 100%;
+  height: 400px;
+  
+  .map-content {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+/* Store Details */
+.store-details {
+  padding: 20px;
+  
+  ion-card {
+    margin: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+  
+  ion-card-header {
+    padding-bottom: 0;
+    
+    ion-card-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+  }
+}
+
+.store-detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.store-address {
+  display: flex;
+  gap: 15px;
+  
+  ion-icon {
+    font-size: 1.5rem;
+    color: var(--ion-color-primary);
+    margin-top: 2px;
+  }
+  
+  p {
+    margin: 0 0 5px 0;
+    color: var(--ion-color-dark);
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+.store-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    
+    ion-icon {
+      font-size: 1.3rem;
+      color: var(--ion-color-primary);
+    }
+    
+    a {
+      color: var(--ion-color-primary);
+      text-decoration: none;
+      
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.store-hours {
+  h4 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 10px 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+    
+    ion-icon {
+      font-size: 1.3rem;
+      color: var(--ion-color-primary);
+    }
+  }
+  
+  .hours-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .hours-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    font-size: 0.95rem;
+    
+    &.today {
+      font-weight: 600;
+      color: var(--ion-color-primary);
+      background-color: rgba(var(--ion-color-primary-rgb), 0.1);
+      padding: 5px 8px;
+      border-radius: 4px;
+    }
+    
+    .day {
+      min-width: 100px;
+    }
+  }
+}
+
+.store-actions {
+  margin-top: 10px;
+  
+  ion-button {
+    --border-radius: 8px;
+    margin: 0;
+  }
+}
+
+/* Google Maps Info Window Styling */
+::ng-deep .gm-style .gm-style-iw-c {
+  padding: 12px !important;
+}
+
+::ng-deep .info-window {
+  h3 {
+    margin: 0 0 5px 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--ion-color-dark);
+  }
+  
+  p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--ion-color-medium);
+  }
+}

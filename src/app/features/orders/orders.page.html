@@ -1,0 +1,98 @@
+<!-- src/app/features/orders/orders.page.html -->
+<app-header></app-header>
+
+<ion-content>
+  <div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1>My Orders</h1>
+      <p>View and track your orders</p>
+    </div>
+    
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="loading-container">
+      <app-loading-spinner message="Loading your orders..."></app-loading-spinner>
+    </div>
+    
+    <!-- Empty Orders -->
+    <div *ngIf="!isLoading && orders.length === 0" class="empty-orders">
+      <app-empty-state
+        icon="bag-outline"
+        title="No Orders Yet"
+        message="You haven't placed any orders yet."
+        buttonText="Start Shopping"
+        buttonLink="/products">
+      </app-empty-state>
+    </div>
+    
+    <!-- Orders List -->
+    <div *ngIf="!isLoading && orders.length > 0" class="orders-list">
+      <ion-grid>
+        <ion-row>
+          <ion-col size="12" *ngFor="let order of orders">
+            <ion-card class="order-card">
+              <ion-card-header>
+                <div class="order-header">
+                  <div class="order-info">
+                    <div class="order-number">
+                      <span class="label">Order #:</span>
+                      <span class="value">{{ order.id.substring(0, 8) }}</span>
+                    </div>
+                    
+                    <div class="order-date">
+                      <span class="label">Placed on:</span>
+                      <span class="value">{{ formatDate(order.createdAt) }}</span>
+                    </div>
+                  </div>
+                  
+                  <div class="order-status">
+                    <ion-badge [ngClass]="getStatusClass(order.status)">
+                      {{ order.status }}
+                    </ion-badge>
+                  </div>
+                </div>
+              </ion-card-header>
+              
+              <ion-card-content>
+                <div class="order-items">
+                  <div class="items-preview">
+                    <div class="item-images">
+                      <div class="item-image" *ngFor="let item of order.items.slice(0, 3)">
+                        <img [src]="item.productImage || 'assets/images/product-placeholder.png'" [alt]="item.productName">
+                      </div>
+                      
+                      <div class="more-items" *ngIf="order.items.length > 3">
+                        <ion-icon name="ellipsis-horizontal-outline"></ion-icon>
+                        <span>+{{ order.items.length - 3 }} more</span>
+                      </div>
+                    </div>
+                    
+                    <div class="items-summary">
+                      <div class="item-count">
+                        <span>{{ order.items.length }} {{ order.items.length === 1 ? 'item' : 'items' }}</span>
+                      </div>
+                      
+                      <div class="order-total">
+                        <span class="label">Total:</span>
+                        <span class="value">{{ formatCurrency(order.total) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="order-actions">
+                    <ion-button fill="clear" color="primary" (click)="viewOrderDetails(order.id)">
+                      <ion-icon name="eye-outline" slot="start"></ion-icon>
+                      View Details
+                    </ion-button>
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </div>
+</ion-content>
+
+<app-footer></app-footer>

@@ -1,0 +1,253 @@
+<!-- src/app/features/admin/product-form/product-form.component.html -->
+<form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+  <ion-grid>
+    <ion-row>
+      <!-- Basic Information -->
+      <ion-col size="12" size-md="6">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Basic Information</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <!-- Product Name -->
+            <ion-item>
+              <ion-label position="floating">Product Name *</ion-label>
+              <ion-input formControlName="name" placeholder="Enter product name"></ion-input>
+            </ion-item>
+            <div class="validation-error" *ngIf="f['name'].touched && f['name'].invalid">
+              <span *ngIf="f['name'].errors?.['required']">Product name is required</span>
+              <span *ngIf="f['name'].errors?.['minlength']">Product name must be at least 3 characters</span>
+            </div>
+            
+            <!-- Product Description -->
+            <ion-item>
+              <ion-label position="floating">Description *</ion-label>
+              <ion-textarea 
+                formControlName="description" 
+                placeholder="Enter product description"
+                rows="4">
+              </ion-textarea>
+            </ion-item>
+            <div class="validation-error" *ngIf="f['description'].touched && f['description'].invalid">
+              <span *ngIf="f['description'].errors?.['required']">Description is required</span>
+              <span *ngIf="f['description'].errors?.['minlength']">Description must be at least 10 characters</span>
+            </div>
+            
+            <!-- Category -->
+            <ion-item>
+              <ion-label position="floating">Category *</ion-label>
+              <ion-select formControlName="category" placeholder="Select category">
+                <ion-select-option *ngFor="let category of categories" [value]="category.id">
+                  {{ category.name }}
+                </ion-select-option>
+              </ion-select>
+            </ion-item>
+            <div class="validation-error" *ngIf="f['category'].touched && f['category'].invalid">
+              <span *ngIf="f['category'].errors?.['required']">Category is required</span>
+            </div>
+            
+            <!-- Subcategory -->
+            <ion-item>
+              <ion-label position="floating">Subcategory</ion-label>
+              <ion-input formControlName="subcategory" placeholder="Enter subcategory"></ion-input>
+            </ion-item>
+            
+            <!-- Brand -->
+            <ion-item>
+              <ion-label position="floating">Brand *</ion-label>
+              <ion-input formControlName="brand" placeholder="Enter brand name"></ion-input>
+            </ion-item>
+            <div class="validation-error" *ngIf="f['brand'].touched && f['brand'].invalid">
+              <span *ngIf="f['brand'].errors?.['required']">Brand is required</span>
+            </div>
+          </ion-card-content>
+        </ion-card>
+        
+        <!-- Pricing and Stock -->
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Pricing and Stock</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <!-- Regular Price -->
+            <ion-item>
+              <ion-label position="floating">Regular Price *</ion-label>
+              <ion-input type="number" formControlName="price" placeholder="0.00"></ion-input>
+            </ion-item>
+            <div class="validation-error" *ngIf="f['price'].touched && f['price'].invalid">
+              <span *ngIf="f['price'].errors?.['required']">Price is required</span>
+              <span *ngIf="f['price'].errors?.['min']">Price must be greater than 0</span>
+            </div>
+            
+            <!-- Sale Price -->
+            <ion-item>
+              <ion-label position="floating">Sale Price</ion-label>
+              <ion-input type="number" formControlName="salePrice" placeholder="0.00"></ion-input>
+            </ion-item>
+            
+            <!-- Stock -->
+            <ion-item>
+              <ion-label position="floating">Stock Quantity *</ion-label>
+              <ion-input type="number" formControlName="stock" placeholder="0"></ion-input>
+            </ion-item>
+            <div class="validation-error" *ngIf="f['stock'].touched && f['stock'].invalid">
+              <span *ngIf="f['stock'].errors?.['required']">Stock quantity is required</span>
+              <span *ngIf="f['stock'].errors?.['min']">Stock must be 0 or greater</span>
+            </div>
+            
+            <!-- Rating -->
+            <ion-item>
+              <ion-label position="floating">Rating (0-5) *</ion-label>
+              <ion-input type="number" formControlName="rating" placeholder="0"></ion-input>
+            </ion-item>
+            <div class="validation-error" *ngIf="f['rating'].touched && f['rating'].invalid">
+              <span *ngIf="f['rating'].errors?.['required']">Rating is required</span>
+              <span *ngIf="f['rating'].errors?.['min'] || f['rating'].errors?.['max']">Rating must be between 0 and 5</span>
+            </div>
+            
+            <!-- Featured -->
+            <ion-item lines="none">
+              <ion-label>Featured Product</ion-label>
+              <ion-toggle formControlName="featured"></ion-toggle>
+            </ion-item>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+      
+      <!-- Media and Specifications -->
+      <ion-col size="12" size-md="6">
+        <!-- Product Images -->
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Product Images</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="image-previews">
+              <div class="image-preview-container" *ngFor="let url of imagePreviewUrls; let i = index">
+                <div class="image-preview">
+                  <img [src]="url" alt="Product image preview">
+                  <ion-button fill="clear" color="danger" class="remove-image-btn" (click)="removeImage(i)">
+                    <ion-icon name="close-outline"></ion-icon>
+                  </ion-button>
+                </div>
+              </div>
+              
+              <div class="image-upload-container">
+                <label class="image-upload-label">
+                  <input type="file" accept="image/*" multiple (change)="onFileChange($event)" hidden>
+                  <div class="upload-placeholder">
+                    <ion-icon name="image-outline"></ion-icon>
+                    <span>Add Images</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            
+            <div class="upload-hint">
+              <p>Upload multiple product images. First image will be the main product image.</p>
+            </div>
+          </ion-card-content>
+        </ion-card>
+        
+        <!-- 3D Model -->
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>3D Model (Optional)</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <div class="model-upload">
+              <div *ngIf="modelPreviewUrl" class="model-preview">
+                <div class="model-info">
+                  <span>{{ modelPreviewUrl }}</span>
+                  <ion-button fill="clear" color="danger" (click)="removeModel()">
+                    <ion-icon name="close-outline"></ion-icon>
+                  </ion-button>
+                </div>
+                
+                <div *ngIf="modelUploadProgress > 0 && modelUploadProgress < 100" class="upload-progress">
+                  <div class="progress-bar" [style.width.%]="modelUploadProgress"></div>
+                </div>
+              </div>
+              
+              <div *ngIf="!modelPreviewUrl" class="model-upload-container">
+                <label class="model-upload-label">
+                  <input type="file" accept=".glb,.gltf" (change)="onModelFileChange($event)" hidden>
+                  <div class="upload-placeholder">
+                    <ion-icon name="cube-outline"></ion-icon>
+                    <span>Upload 3D Model</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            
+            <div class="upload-hint">
+              <p>Upload a 3D model in GLB or GLTF format for 3D product visualization.</p>
+            </div>
+          </ion-card-content>
+        </ion-card>
+        
+        <!-- Specifications -->
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>
+              Specifications
+              <ion-button fill="clear" color="primary" (click)="addSpecification()">
+                <ion-icon name="add-outline"></ion-icon>
+                Add Spec
+              </ion-button>
+            </ion-card-title>
+          </ion-card-header>
+          <ion-card-content formGroupName="specifications">
+            <div *ngIf="specKeys.length === 0" class="no-specs">
+              <p>No specifications added yet. Click 'Add Spec' to add product specifications.</p>
+            </div>
+            
+            <div *ngFor="let key of specKeys; let i = index" class="spec-item">
+              <div class="spec-row">
+                <ion-item class="spec-key">
+                  <ion-label position="floating">Specification</ion-label>
+                  <ion-input 
+                    [value]="key" 
+                    (ionBlur)="updateSpecKey(i, $event)"
+                    placeholder="e.g. Processor">
+                  </ion-input>
+                </ion-item>
+                
+                <ion-item class="spec-value">
+                  <ion-label position="floating">Value</ion-label>
+                  <ion-input 
+                    [formControlName]="key"
+                    placeholder="e.g. Snapdragon 888">
+                  </ion-input>
+                </ion-item>
+                
+                <ion-button fill="clear" color="danger" (click)="removeSpecification(i)">
+                  <ion-icon name="trash-outline"></ion-icon>
+                </ion-button>
+              </div>
+            </div>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+    
+    <!-- Form Actions -->
+    <ion-row>
+      <ion-col>
+        <div class="form-actions">
+          <ion-button color="medium" (click)="cancel()" [disabled]="isSubmitting">
+            Cancel
+          </ion-button>
+          
+          <ion-button type="submit" color="primary" [disabled]="isSubmitting">
+            <ion-spinner name="dots" *ngIf="isSubmitting"></ion-spinner>
+            <span *ngIf="!isSubmitting">
+              <ion-icon name="save-outline" slot="start"></ion-icon>
+              {{ isEdit ? 'Update Product' : 'Create Product' }}
+            </span>
+          </ion-button>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</form>

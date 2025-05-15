@@ -1,0 +1,54 @@
+<!-- src/app/shared/components/product-card/product-card.component.html -->
+<ion-card class="product-card" (click)="navigateToProduct()">
+  <div class="product-image-container">
+    <img [src]="product.images[0] || 'assets/images/product-placeholder.png'" [alt]="product.name" class="product-image">
+    
+    <div class="product-badges">
+      <ion-badge *ngIf="product.stock <= 0" color="danger" class="badge-out-of-stock">Out of Stock</ion-badge>
+      <ion-badge *ngIf="getDiscountPercentage() > 0" color="success" class="badge-discount">{{ getDiscountPercentage() }}% OFF</ion-badge>
+    </div>
+    
+    <div class="product-actions">
+      <ion-button fill="clear" (click)="toggleWishlist($event)" [color]="isInWishlist ? 'danger' : 'light'">
+        <ion-icon [name]="isInWishlist ? 'heart' : 'heart-outline'"></ion-icon>
+      </ion-button>
+      
+      <ion-button fill="clear" color="light" (click)="navigateToProduct()">
+        <ion-icon name="eye-outline"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+  
+  <ion-card-header>
+    <ion-card-subtitle>{{ product.brand }}</ion-card-subtitle>
+    <ion-card-title>{{ product.name }}</ion-card-title>
+  </ion-card-header>
+  
+  <ion-card-content>
+    <div class="product-price">
+      <ion-text *ngIf="product.salePrice" color="danger" class="sale-price">
+        ${{ product.salePrice.toFixed(2) }}
+      </ion-text>
+      <ion-text [color]="product.salePrice ? 'medium' : 'dark'" [class.original-price]="product.salePrice">
+        ${{ product.price.toFixed(2) }}
+      </ion-text>
+    </div>
+    
+    <div class="product-rating" *ngIf="product.rating > 0">
+      <span class="stars" [attr.data-rating]="product.rating">
+        ★★★★★
+      </span>
+      <small *ngIf="product.reviews">({{ product.reviews.count }})</small>
+    </div>
+    
+    <ion-button 
+      expand="block" 
+      color="primary" 
+      class="add-to-cart-btn"
+      [disabled]="product.stock <= 0"
+      (click)="addToCart($event)">
+      <ion-icon name="cart-outline" slot="start"></ion-icon>
+      {{ product.stock > 0 ? 'Add to Cart' : 'Out of Stock' }}
+    </ion-button>
+  </ion-card-content>
+</ion-card>

@@ -1,0 +1,135 @@
+<!-- src/app/features/chat/chat.page.html -->
+<app-header></app-header>
+
+<ion-content #chatContent>
+  <div class="page-container">
+    <div class="page-header">
+      <h1>Customer Support</h1>
+      <p>Chat with our support team for help with your orders or products</p>
+    </div>
+    
+    <div class="chat-container">
+      <!-- Chat History -->
+      <div class="chat-sidebar">
+        <div class="sidebar-header">
+          <h2>Chat History</h2>
+          <ion-button color="primary" (click)="startNewChat()" [disabled]="!isLoggedIn">
+            <ion-icon name="add-outline" slot="start"></ion-icon>
+            New Chat
+          </ion-button>
+        </div>
+        
+        <div *ngIf="!isLoggedIn" class="login-message">
+          <p>Please log in to start a chat with our support team.</p>
+          <ion-button routerLink="/auth/login" [queryParams]="{returnUrl: '/chat'}">
+            Login
+          </ion-button>
+        </div>
+        
+        <div *ngIf="isLoggedIn && chatHistory.length === 0" class="no-history">
+          <p>No previous conversations found.</p>
+        </div>
+        
+        <div *ngIf="isLoggedIn && chatHistory.length > 0" class="history-list">
+          <div *ngFor="let chat of chatHistory" class="history-item">
+            <div class="history-date">{{ formatDate(chat.createdAt) }}</div>
+            <div class="history-preview">{{ chat.messages[chat.messages.length - 1].content | slice:0:50 }}{{ chat.messages[chat.messages.length - 1].content.length > 50 ? '...' : '' }}</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Chat Panel -->
+      <div class="chat-panel">
+        <!-- Loading -->
+        <div *ngIf="isLoading" class="loading-container">
+          <app-loading-spinner message="Loading chat..."></app-loading-spinner>
+        </div>
+        
+        <!-- No Active Chat -->
+        <div *ngIf="!isLoading && !currentChat && isLoggedIn" class="no-chat">
+          <div class="no-chat-content">
+            <ion-icon name="chatbubble-outline"></ion-icon>
+            <h3>No Active Chat</h3>
+            <p>Start a new conversation with our support team.</p>
+            <ion-button color="primary" (click)="startNewChat()">
+              Start New Chat
+            </ion-button>
+          </div>
+        </div>
+        
+        <!-- Login Prompt -->
+        <div *ngIf="!isLoading && !isLoggedIn" class="login-prompt">
+          <div class="login-prompt-content">
+            <ion-icon name="person-outline"></ion-icon>
+            <h3>Login Required</h3>
+            <p>Please login to chat with our support team.</p>
+            <ion-button routerLink="/auth/login" [queryParams]="{returnUrl: '/chat'}">
+              Login
+            </ion-button>
+          </div>
+        </div>
+        
+        <!-- Active Chat -->
+        <div *ngIf="!isLoading && currentChat" class="active-chat">
+          <!-- Chat Header -->
+          <div class="chat-header">
+            <div class="chat-status">
+              <ion-icon [name]="currentChat.agentId ? 'happy-outline' : 'cube-outline'"></ion-icon>
+              <span>{{ currentChat.agentId ? 'Talking with Customer Support' : 'Chatbot Assistant' }}</span>
+            </div>
+            
+            <div *ngIf="!currentChat.agentId" class="escalate-option">
+              <ion-button fill="clear" color="primary" (click)="escalateToHuman()">
+                Talk to a Human
+              </ion-button>
+            </div>
+          </div>
+          
+          <!-- Chat Messages -->
+          <div class="chat-messages">
+            <div *ngFor="let message of currentChat.messages" [ngClass]="getMessageClass(message)">
+              <div class="message-avatar">
+                <ion-icon [name]="getMessageIcon(message.sender)"></ion-icon>
+              </div>
+              <div class="message-content">
+                <div class="message-text">{{ message.content }}</div>
+                <div class="message-time">{{ formatDate(message.timestamp) }}</div>
+              </div>
+            </div>
+            
+            <div *ngIf="sendingMessage" class="message user sending">
+              <div class="message-avatar">
+                <ion-icon name="person-outline"></ion-icon>
+              </div>
+              <div class="message-content">
+                <div class="message-text">
+                  <ion-spinner name="dots" color="light"></ion-spinner>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Chat Input -->
+          <div class="chat-input-container">
+            <ion-textarea
+              #messageInput
+              [(ngModel)]="message"
+              placeholder="Type your message..."
+              autoGrow="true"
+              maxlength="500"
+              rows="1"
+              (keyup.enter)="sendMessage()"
+              [disabled]="sendingMessage">
+            </ion-textarea>
+            
+            <ion-button fill="clear" color="primary" (click)="sendMessage()" [disabled]="!message.trim() || sendingMessage">
+              <ion-icon name="send-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<app-footer></app-footer>

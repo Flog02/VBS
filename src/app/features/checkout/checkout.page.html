@@ -1,0 +1,369 @@
+<!-- src/app/features/checkout/checkout.page.html -->
+<app-header></app-header>
+
+<ion-content>
+  <div class="page-container">
+    <div class="page-header">
+      <h1>Checkout</h1>
+      <p>Complete your order by providing the information below</p>
+    </div>
+    
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="loading-container">
+      <app-loading-spinner message="Loading checkout information..."></app-loading-spinner>
+    </div>
+    
+    <!-- Checkout Form -->
+    <div *ngIf="!isLoading && cart && cart.items.length > 0" class="checkout-content">
+      <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
+        <ion-grid>
+          <ion-row>
+            <!-- Left Column - Checkout Details -->
+            <ion-col size="12" size-md="8">
+              <!-- Delivery Method -->
+              <ion-card>
+                <ion-card-header>
+                  <ion-card-title>Delivery Method</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                  <ion-radio-group formControlName="deliveryMethod">
+                    <ion-item>
+                      <ion-label>Ship to my address</ion-label>
+                      <ion-radio slot="start" value="shipping"></ion-radio>
+                    </ion-item>
+                    
+                    <ion-item>
+                      <ion-label>Pick up at store</ion-label>
+                      <ion-radio slot="start" value="pickup"></ion-radio>
+                    </ion-item>
+                  </ion-radio-group>
+                  
+                  <!-- Store Location Selection (for pickup) -->
+                  <div *ngIf="checkoutForm.get('deliveryMethod')?.value === 'pickup'" class="store-selection">
+                    <ion-item>
+                      <ion-label position="floating">Select Store Location</ion-label>
+                      <ion-select formControlName="storeLocation" placeholder="Choose a store">
+                        <ion-select-option *ngFor="let store of storeLocations" [value]="store.id">
+                          {{ store.name }} - {{ store.address.city }}, {{ store.address.state }}
+                        </ion-select-option>
+                      </ion-select>
+                    </ion-item>
+                    <div class="validation-error" *ngIf="f['storeLocation'].touched && f['storeLocation'].invalid">
+                      <span *ngIf="f['storeLocation'].errors?.['required']">Please select a store location</span>
+                    </div>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+              
+              <!-- Contact Information -->
+              <ion-card>
+                <ion-card-header>
+                  <ion-card-title>Contact Information</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                  <ion-grid>
+                    <ion-row>
+                      <ion-col size="12" size-md="6">
+                        <ion-item>
+                          <ion-label position="floating">First Name *</ion-label>
+                          <ion-input formControlName="firstName"></ion-input>
+                        </ion-item>
+                        <div class="validation-error" *ngIf="f['firstName'].touched && f['firstName'].invalid">
+                          <span *ngIf="f['firstName'].errors?.['required']">First name is required</span>
+                        </div>
+                      </ion-col>
+                      
+                      <ion-col size="12" size-md="6">
+                        <ion-item>
+                          <ion-label position="floating">Last Name *</ion-label>
+                          <ion-input formControlName="lastName"></ion-input>
+                        </ion-item>
+                        <div class="validation-error" *ngIf="f['lastName'].touched && f['lastName'].invalid">
+                          <span *ngIf="f['lastName'].errors?.['required']">Last name is required</span>
+                        </div>
+                      </ion-col>
+                    </ion-row>
+                    
+                    <ion-row>
+                      <ion-col size="12" size-md="6">
+                        <ion-item>
+                          <ion-label position="floating">Email *</ion-label>
+                          <ion-input type="email" formControlName="email"></ion-input>
+                        </ion-item>
+                        <div class="validation-error" *ngIf="f['email'].touched && f['email'].invalid">
+                          <span *ngIf="f['email'].errors?.['required']">Email is required</span>
+                          <span *ngIf="f['email'].errors?.['email']">Please enter a valid email</span>
+                        </div>
+                      </ion-col>
+                      
+                      <ion-col size="12" size-md="6">
+                        <ion-item>
+                          <ion-label position="floating">Phone *</ion-label>
+                          <ion-input type="tel" formControlName="phone"></ion-input>
+                        </ion-item>
+                        <div class="validation-error" *ngIf="f['phone'].touched && f['phone'].invalid">
+                          <span *ngIf="f['phone'].errors?.['required']">Phone number is required</span>
+                        </div>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
+                </ion-card-content>
+              </ion-card>
+              
+              <!-- Shipping Address (if shipping) -->
+              <ion-card *ngIf="checkoutForm.get('deliveryMethod')?.value === 'shipping'">
+                <ion-card-header>
+                  <ion-card-title>Shipping Address</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                  <ion-item>
+                    <ion-label position="floating">Address *</ion-label>
+                    <ion-input formControlName="address"></ion-input>
+                  </ion-item>
+                  <div class="validation-error" *ngIf="f['address'].touched && f['address'].invalid">
+                    <span *ngIf="f['address'].errors?.['required']">Address is required</span>
+                  </div>
+                  
+                  <ion-grid>
+                    <ion-row>
+                      <ion-col size="12" size-md="6">
+                        <ion-item>
+                          <ion-label position="floating">City *</ion-label>
+                          <ion-input formControlName="city"></ion-input>
+                        </ion-item>
+                        <div class="validation-error" *ngIf="f['city'].touched && f['city'].invalid">
+                          <span *ngIf="f['city'].errors?.['required']">City is required</span>
+                        </div>
+                      </ion-col>
+                      
+                      <ion-col size="12" size-md="6">
+                        <ion-item>
+                          <ion-label position="floating">State/Province *</ion-label>
+                          <ion-input formControlName="state"></ion-input>
+                        </ion-item>
+                        <div class="validation-error" *ngIf="f['state'].touched && f['state'].invalid">
+                          <span *ngIf="f['state'].errors?.['required']">State is required</span>
+                        </div>
+                      </ion-col>
+                    </ion-row>
+                    
+                    <ion-row>
+                      <ion-col size="12" size-md="6">
+                        <ion-item>
+                          <ion-label position="floating">ZIP/Postal Code *</ion-label>
+                          <ion-input formControlName="zip"></ion-input>
+                        </ion-item>
+                        <div class="validation-error" *ngIf="f['zip'].touched && f['zip'].invalid">
+                          <span *ngIf="f['zip'].errors?.['required']">Postal code is required</span>
+                        </div>
+                      </ion-col>
+                      
+                      <ion-col size="12" size-md="6">
+                        <ion-item>
+                          <ion-label position="floating">Country *</ion-label>
+                          <ion-select formControlName="country">
+                            <ion-select-option *ngFor="let country of countries" [value]="country.code">
+                              {{ country.name }}
+                            </ion-select-option>
+                          </ion-select>
+                        </ion-item>
+                        <div class="validation-error" *ngIf="f['country'].touched && f['country'].invalid">
+                          <span *ngIf="f['country'].errors?.['required']">Country is required</span>
+                        </div>
+                      </ion-col>
+                    </ion-row>
+                  </ion-grid>
+                </ion-card-content>
+              </ion-card>
+              
+              <!-- Payment Method -->
+              <ion-card>
+                <ion-card-header>
+                  <ion-card-title>Payment Method</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                  <ion-radio-group formControlName="paymentMethod">
+                    <ion-item>
+                      <ion-label>Credit Card</ion-label>
+                      <ion-radio slot="start" value="credit_card"></ion-radio>
+                      <ion-icon name="card-outline" slot="end"></ion-icon>
+                    </ion-item>
+                    
+                    <ion-item>
+                      <ion-label>PayPal</ion-label>
+                      <ion-radio slot="start" value="paypal"></ion-radio>
+                    </ion-item>
+                    
+                    <ion-item>
+                      <ion-label>Cash on Pickup</ion-label>
+                      <ion-radio slot="start" value="cash" [disabled]="checkoutForm.get('deliveryMethod')?.value !== 'pickup'"></ion-radio>
+                      <ion-icon name="cash-outline" slot="end"></ion-icon>
+                    </ion-item>
+                  </ion-radio-group>
+                  
+                  <!-- Credit Card Details -->
+                  <div *ngIf="checkoutForm.get('paymentMethod')?.value === 'credit_card'" class="card-details">
+                    <ion-item>
+                      <ion-label position="floating">Card Number *</ion-label>
+                      <ion-input type="text" formControlName="cardNumber" placeholder="1234 5678 9012 3456" maxlength="16"></ion-input>
+                    </ion-item>
+                    <div class="validation-error" *ngIf="f['cardNumber'].touched && f['cardNumber'].invalid">
+                      <span *ngIf="f['cardNumber'].errors?.['required']">Card number is required</span>
+                      <span *ngIf="f['cardNumber'].errors?.['pattern']">Please enter a valid 16-digit card number</span>
+                    </div>
+                    
+                    <ion-item>
+                      <ion-label position="floating">Cardholder Name *</ion-label>
+                      <ion-input formControlName="cardName"></ion-input>
+                    </ion-item>
+                    <div class="validation-error" *ngIf="f['cardName'].touched && f['cardName'].invalid">
+                      <span *ngIf="f['cardName'].errors?.['required']">Cardholder name is required</span>
+                    </div>
+                    
+                    <ion-grid>
+                      <ion-row>
+                        <ion-col size="4">
+                          <ion-item>
+                            <ion-label position="floating">Month *</ion-label>
+                            <ion-input formControlName="expiryMonth" placeholder="MM" maxlength="2"></ion-input>
+                          </ion-item>
+                          <div class="validation-error" *ngIf="f['expiryMonth'].touched && f['expiryMonth'].invalid">
+                            <span *ngIf="f['expiryMonth'].errors?.['required']">Required</span>
+                            <span *ngIf="f['expiryMonth'].errors?.['pattern']">Invalid</span>
+                          </div>
+                        </ion-col>
+                        
+                        <ion-col size="4">
+                          <ion-item>
+                            <ion-label position="floating">Year *</ion-label>
+                            <ion-input formControlName="expiryYear" placeholder="YY" maxlength="2"></ion-input>
+                          </ion-item>
+                          <div class="validation-error" *ngIf="f['expiryYear'].touched && f['expiryYear'].invalid">
+                            <span *ngIf="f['expiryYear'].errors?.['required']">Required</span>
+                            <span *ngIf="f['expiryYear'].errors?.['pattern']">Invalid</span>
+                          </div>
+                        </ion-col>
+                        
+                        <ion-col size="4">
+                          <ion-item>
+                            <ion-label position="floating">CVV *</ion-label>
+                            <ion-input formControlName="cvv" type="password" maxlength="4"></ion-input>
+                          </ion-item>
+                          <div class="validation-error" *ngIf="f['cvv'].touched && f['cvv'].invalid">
+                            <span *ngIf="f['cvv'].errors?.['required']">Required</span>
+                            <span *ngIf="f['cvv'].errors?.['pattern']">Invalid</span>
+                          </div>
+                        </ion-col>
+                      </ion-row>
+                    </ion-grid>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+              
+              <!-- Terms and Conditions -->
+              <ion-card>
+                <ion-card-content>
+                  <ion-item lines="none" class="terms-checkbox">
+                    <ion-checkbox formControlName="termsAccepted"></ion-checkbox>
+                    <ion-label>
+                      I agree to the <a href="/terms" target="_blank">Terms and Conditions</a> and <a href="/privacy" target="_blank">Privacy Policy</a>
+                    </ion-label>
+                  </ion-item>
+                  <div class="validation-error" *ngIf="f['termsAccepted'].touched && f['termsAccepted'].invalid">
+                    <span *ngIf="f['termsAccepted'].errors?.['required']">You must accept the terms and conditions</span>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
+            
+            <!-- Right Column - Order Summary -->
+            <ion-col size="12" size-md="4">
+              <ion-card class="order-summary">
+                <ion-card-header>
+                  <ion-card-title>Order Summary</ion-card-title>
+                </ion-card-header>
+                <ion-card-content>
+                  <!-- Order Items -->
+                  <div class="order-items">
+                    <div *ngFor="let item of cart.items" class="order-item">
+                      <div class="item-image">
+                        <img [src]="item.productImage || 'assets/images/product-placeholder.png'" [alt]="item.productName">
+                      </div>
+                      <div class="item-details">
+                        <div class="item-name">{{ item.productName }}</div>
+                        <div class="item-meta">
+                          <span class="item-price">{{ formatCurrency(item.price) }}</span>
+                          <span class="item-quantity">x {{ item.quantity }}</span>
+                        </div>
+                      </div>
+                      <div class="item-total">
+                        {{ formatCurrency(item.price * item.quantity) }}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <!-- Order Totals -->
+                  <div class="order-totals">
+                    <div class="total-row">
+                      <div class="total-label">Subtotal</div>
+                      <div class="total-value">{{ formatCurrency(cart.subtotal) }}</div>
+                    </div>
+                    
+                    <div class="total-row">
+                      <div class="total-label">Tax (10%)</div>
+                      <div class="total-value">{{ formatCurrency(getTaxAmount()) }}</div>
+                    </div>
+                    
+                    <div class="total-row shipping-row" *ngIf="checkoutForm.get('deliveryMethod')?.value === 'shipping'">
+                      <div class="total-label">Shipping</div>
+                      <div class="total-value">{{ formatCurrency(0) }}</div>
+                    </div>
+                    
+                    <div class="total-row grand-total">
+                      <div class="total-label">Total</div>
+                      <div class="total-value">{{ formatCurrency(getTotalAmount()) }}</div>
+                    </div>
+                  </div>
+                  
+                  <!-- Place Order Button -->
+                  <ion-button 
+                    expand="block" 
+                    color="primary" 
+                    type="submit" 
+                    class="place-order-btn"
+                    [disabled]="isProcessing || checkoutForm.invalid">
+                    <ion-spinner name="dots" *ngIf="isProcessing"></ion-spinner>
+                    <span *ngIf="!isProcessing">
+                      Place Order
+                      <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+                    </span>
+                  </ion-button>
+                  
+                  <div class="order-note">
+                    <p>Your order will be processed securely. You can review your order before finalizing.</p>
+                  </div>
+                </ion-card-content>
+              </ion-card>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Order Success Alert -->
+  <ion-alert
+    [isOpen]="showSuccessAlert"
+    header="Order Placed Successfully!"
+    message="Your order has been placed successfully. Your order number is: {{orderNumber}}"
+    [buttons]="[
+      {
+        text: 'View Order',
+        handler: () => { navigateToOrderConfirmation() }
+      }
+    ]"
+    [backdropDismiss]="false">
+  </ion-alert>
+</ion-content>
+
+<app-footer></app-footer>

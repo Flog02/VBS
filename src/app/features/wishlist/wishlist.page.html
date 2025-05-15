@@ -1,0 +1,49 @@
+<!-- continuation of src/app/features/wishlist/wishlist.page.html -->
+          <ion-col size="12" size-sm="6" size-md="4" size-lg="3" *ngFor="let product of wishlistProducts">
+            <div class="wishlist-item">
+              <div class="wishlist-item-card">
+                <div class="wishlist-image" [routerLink]="['/products', product.id]">
+                  <img [src]="product.images[0] || 'assets/images/product-placeholder.png'" [alt]="product.name">
+                  <ion-badge *ngIf="product.stock <= 0" color="danger" class="out-of-stock">Out of Stock</ion-badge>
+                  <ion-badge *ngIf="product.salePrice && product.salePrice < product.price" color="success" class="discount-badge">
+                    {{ ((product.price - product.salePrice) / product.price * 100) | number:'1.0-0' }}% OFF
+                  </ion-badge>
+                </div>
+                
+                <div class="wishlist-info">
+                  <h3 class="product-name" [routerLink]="['/products', product.id]">{{ product.name }}</h3>
+                  <div class="product-brand">{{ product.brand }}</div>
+                  
+                  <div class="product-price">
+                    <span *ngIf="product.salePrice" class="sale-price">{{ formatPrice(product.salePrice) }}</span>
+                    <span [class.original-price]="product.salePrice">{{ formatPrice(product.price) }}</span>
+                  </div>
+                  
+                  <div class="wishlist-actions">
+                    <ion-button 
+                      expand="block" 
+                      color="primary" 
+                      [disabled]="product.stock <= 0"
+                      (click)="addToCart(product)">
+                      <ion-icon name="cart-outline" slot="start"></ion-icon>
+                      Add to Cart
+                    </ion-button>
+                    
+                    <ion-button 
+                      fill="clear" 
+                      color="danger"
+                      (click)="removeFromWishlist(product)">
+                      <ion-icon name="trash-outline"></ion-icon>
+                    </ion-button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </div>
+</ion-content>
+
+<app-footer></app-footer>

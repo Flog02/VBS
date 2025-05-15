@@ -179,3 +179,125 @@
                     <div class="total-label">Total</div>
                     <div class="total-value">{{ formatCurrency(order.total) }}</div>
                   </div>
+                  <!-- Continuation of src/app/features/admin/order-detail/order-detail.page.html -->
+                </div>
+              </ion-card-content>
+            </ion-card>
+            
+            <!-- Shipping/Pickup Information -->
+            <ion-card>
+              <ion-card-header>
+                <ion-card-title>
+                  {{ order.pickupOption ? 'Pickup Information' : 'Shipping Information' }}
+                </ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <div *ngIf="order.pickupOption">
+                  <div class="pickup-info">
+                    <h3>Pickup Location</h3>
+                    <p>{{ order.pickupLocation || 'No specific location selected' }}</p>
+                    
+                    <ion-text color="primary">
+                      <p>Customer will pick up the order at the store.</p>
+                    </ion-text>
+                  </div>
+                </div>
+                
+                <div *ngIf="!order.pickupOption && order.shippingAddress">
+                  <div class="shipping-info">
+                    <h3>Shipping Address</h3>
+                    <p>{{ order.shippingAddress.street }}</p>
+                    <p>{{ order.shippingAddress.city }}, {{ order.shippingAddress.state }} {{ order.shippingAddress.zip }}</p>
+                    <p>{{ order.shippingAddress.country }}</p>
+                  </div>
+                </div>
+                
+                <div *ngIf="!order.pickupOption && !order.shippingAddress">
+                  <ion-text color="danger">
+                    <p>No shipping address provided.</p>
+                  </ion-text>
+                </div>
+              </ion-card-content>
+            </ion-card>
+            
+            <!-- Order Timeline -->
+            <ion-card>
+              <ion-card-header>
+                <ion-card-title>Order Timeline</ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <div class="order-timeline">
+                  <div class="timeline-item">
+                    <div class="timeline-dot completed"></div>
+                    <div class="timeline-content">
+                      <div class="timeline-title">Order Placed</div>
+                      <div class="timeline-date">{{ formatDate(order.createdAt) }}</div>
+                    </div>
+                  </div>
+                  
+                  <div class="timeline-item" [ngClass]="{'completed': ['processing', 'shipped', 'ready-for-pickup', 'completed'].includes(order.status)}">
+                    <div class="timeline-dot" [ngClass]="{'completed': ['processing', 'shipped', 'ready-for-pickup', 'completed'].includes(order.status)}"></div>
+                    <div class="timeline-content">
+                      <div class="timeline-title">Processing</div>
+                      <div class="timeline-date" *ngIf="['processing', 'shipped', 'ready-for-pickup', 'completed'].includes(order.status)">
+                        {{ formatDate(order.updatedAt) }}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="timeline-item" [ngClass]="{'completed': ['shipped', 'ready-for-pickup', 'completed'].includes(order.status)}">
+                    <div class="timeline-dot" [ngClass]="{'completed': ['shipped', 'ready-for-pickup', 'completed'].includes(order.status)}"></div>
+                    <div class="timeline-content">
+                      <div class="timeline-title">{{ order.pickupOption ? 'Ready for Pickup' : 'Shipped' }}</div>
+                      <div class="timeline-date" *ngIf="['shipped', 'ready-for-pickup', 'completed'].includes(order.status)">
+                        {{ formatDate(order.updatedAt) }}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="timeline-item" [ngClass]="{'completed': ['completed'].includes(order.status)}">
+                    <div class="timeline-dot" [ngClass]="{'completed': ['completed'].includes(order.status)}"></div>
+                    <div class="timeline-content">
+                      <div class="timeline-title">Completed</div>
+                      <div class="timeline-date" *ngIf="['completed'].includes(order.status)">
+                        {{ formatDate(order.updatedAt) }}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="timeline-item cancelled" *ngIf="order.status === 'cancelled'">
+                    <div class="timeline-dot cancelled"></div>
+                    <div class="timeline-content">
+                      <div class="timeline-title">Cancelled</div>
+                      <div class="timeline-date">{{ formatDate(order.updatedAt) }}</div>
+                    </div>
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+    </div>
+  </div>
+  
+  <!-- Status Update Confirmation Alert -->
+  <ion-alert
+    [isOpen]="showStatusAlert"
+    header="Update Order Status"
+    [message]="'Are you sure you want to change the order status to ' + selectedStatus + '?'"
+    [buttons]="[
+      {
+        text: 'Cancel',
+        role: 'cancel',
+        handler: () => { cancelStatusUpdate() }
+      },
+      {
+        text: 'Update',
+        handler: () => { updateOrderStatus() }
+      }
+    ]">
+  </ion-alert>
+</ion-content>
+
+<app-footer></app-footer>

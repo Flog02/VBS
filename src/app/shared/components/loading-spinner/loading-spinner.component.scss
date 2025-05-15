@@ -1,0 +1,35 @@
+// src/app/shared/components/loading-spinner/loading-spinner.component.scss
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  
+  &.full-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    z-index: 9999;
+  }
+}
+
+.spinner-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  
+  ion-spinner {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+.spinner-message {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--ion-color-medium);
+}

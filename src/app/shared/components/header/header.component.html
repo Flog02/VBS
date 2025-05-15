@@ -1,0 +1,116 @@
+<!-- src/app/shared/components/header/header.component.html -->
+<ion-header class="header-container">
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    
+    <ion-title class="logo" (click)="router.navigate(['/'])">
+      <h1>VBS</h1>
+    </ion-title>
+    
+    <ion-searchbar 
+      [(ngModel)]="searchTerm" 
+      (keyup.enter)="onSearch()"
+      placeholder="Search products..."
+      animated
+      slot="end" 
+      class="search-bar">
+    </ion-searchbar>
+    
+    <ion-buttons slot="end">
+      <ion-button (click)="router.navigate(['/wishlist'])">
+        <ion-icon name="heart-outline"></ion-icon>
+        <ion-badge *ngIf="wishlistItemsCount > 0" color="danger">{{ wishlistItemsCount }}</ion-badge>
+      </ion-button>
+      
+      <ion-button (click)="router.navigate(['/cart'])">
+        <ion-icon name="cart-outline"></ion-icon>
+        <ion-badge *ngIf="cartItemsCount > 0" color="danger">{{ cartItemsCount }}</ion-badge>
+      </ion-button>
+      
+      <ion-button (click)="navigateToAuth()">
+        <ion-icon name="person-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<!-- Side Menu -->
+<ion-menu side="start" contentId="main-content">
+  <ion-header>
+    <ion-toolbar color="primary">
+      <ion-title>VBS</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  
+  <ion-content>
+    <!-- User Profile Section (if logged in) -->
+    <div class="user-profile" *ngIf="currentUser">
+      <ion-avatar>
+        <img src="assets/images/default-avatar.png" alt="Profile Image">
+      </ion-avatar>
+      <div class="user-info">
+        <h3>{{ currentUser.displayName || 'User' }}</h3>
+        <ion-chip *ngIf="isAdmin" color="tertiary" size="small">Admin</ion-chip>
+      </div>
+    </div>
+
+    <ion-list>
+      <ion-item button (click)="router.navigate(['/'])">
+        <ion-icon name="home-outline" slot="start"></ion-icon>
+        <ion-label>Home</ion-label>
+      </ion-item>
+      
+      <ion-item button (click)="router.navigate(['/products'])">
+        <ion-icon name="grid-outline" slot="start"></ion-icon>
+        <ion-label>Products</ion-label>
+      </ion-item>
+      
+      <ion-item button (click)="router.navigate(['/stores'])">
+        <ion-icon name="location-outline" slot="start"></ion-icon>
+        <ion-label>Stores</ion-label>
+      </ion-item>
+      
+      <ion-item button (click)="router.navigate(['/chat'])">
+        <ion-icon name="chatbubble-outline" slot="start"></ion-icon>
+        <ion-label>Chat Support</ion-label>
+      </ion-item>
+      
+      <!-- Authenticated User Options -->
+      <ng-container *ngIf="currentUser">
+        <ion-item button (click)="router.navigate(['/profile'])">
+          <ion-icon name="person-outline" slot="start"></ion-icon>
+          <ion-label>My Profile</ion-label>
+        </ion-item>
+        
+        <ion-item button (click)="router.navigate(['/orders'])">
+          <ion-icon name="bag-outline" slot="start"></ion-icon>
+          <ion-label>My Orders</ion-label>
+        </ion-item>
+        
+        <ion-item button (click)="router.navigate(['/wishlist'])">
+          <ion-icon name="heart-outline" slot="start"></ion-icon>
+          <ion-label>Wishlist</ion-label>
+        </ion-item>
+        
+        <!-- Admin Options -->
+        <ion-item *ngIf="isAdmin" button (click)="goToAdmin()">
+          <ion-icon name="settings-outline" slot="start"></ion-icon>
+          <ion-label>Admin Dashboard</ion-label>
+        </ion-item>
+        
+        <ion-item button (click)="logout()">
+          <ion-icon name="log-out-outline" slot="start"></ion-icon>
+          <ion-label>Logout</ion-label>
+        </ion-item>
+      </ng-container>
+      
+      <!-- Anonymous User Options -->
+      <ion-item *ngIf="!currentUser" button (click)="router.navigate(['/auth/login'])">
+        <ion-icon name="log-in-outline" slot="start"></ion-icon>
+        <ion-label>Login / Register</ion-label>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-menu>

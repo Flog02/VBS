@@ -1,0 +1,333 @@
+<!-- src/app/features/user-profile/user-profile.page.html -->
+<app-header></app-header>
+
+<ion-content>
+  <div class="page-container">
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="loading-container">
+      <app-loading-spinner message="Loading your profile..."></app-loading-spinner>
+    </div>
+    
+    <!-- User Profile -->
+    <div *ngIf="!isLoading && user" class="profile-content">
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div class="profile-info">
+          <div class="profile-avatar">
+            <ion-icon name="person-outline"></ion-icon>
+          </div>
+          <div class="profile-name">
+            <h2>{{ user.displayName || 'User' }}</h2>
+            <p>{{ user.email }}</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Segment Tabs -->
+      <ion-segment [(ngModel)]="selectedSegment" (ionChange)="segmentChanged($event)">
+        <ion-segment-button value="profile">
+          <ion-icon name="person-outline"></ion-icon>
+          <ion-label>Profile</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="security">
+          <ion-icon name="lock-closed-outline"></ion-icon>
+          <ion-label>Security</ion-label>
+        </ion-segment-button>
+        <ion-segment-button value="orders">
+          <ion-icon name="bag-outline"></ion-icon>
+          <ion-label>Orders</ion-label>
+        </ion-segment-button>
+      </ion-segment>
+      
+      <!-- Profile Tab -->
+      <div *ngIf="selectedSegment === 'profile'" class="profile-section">
+        <!-- Success/Error Messages -->
+        <div class="message-container">
+          <div *ngIf="successMessage" class="success-message">
+            <ion-text color="success">{{ successMessage }}</ion-text>
+          </div>
+          
+          <div *ngIf="errorMessage" class="error-message">
+            <ion-text color="danger">{{ errorMessage }}</ion-text>
+          </div>
+        </div>
+        
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Personal Information</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+              <!-- Name -->
+              <ion-item>
+                <ion-icon name="person-outline" slot="start"></ion-icon>
+                <ion-label position="floating">Full Name</ion-label>
+                <ion-input formControlName="displayName"></ion-input>
+              </ion-item>
+              <div class="validation-error" *ngIf="pf['displayName'].touched && pf['displayName'].invalid">
+                <span *ngIf="pf['displayName'].errors?.['required']">Full name is required</span>
+                <span *ngIf="pf['displayName'].errors?.['minlength']">Full name must be at least 3 characters</span>
+              </div>
+              
+              <!-- Email -->
+              <ion-item>
+                <ion-icon name="mail-outline" slot="start"></ion-icon>
+                <ion-label position="floating">Email</ion-label>
+                <ion-input formControlName="email" readonly></ion-input>
+              </ion-item>
+              
+              <!-- Phone Number -->
+              <ion-item>
+                <ion-icon name="call-outline" slot="start"></ion-icon>
+                <ion-label position="floating">Phone Number</ion-label>
+                <ion-input formControlName="phoneNumber"></ion-input>
+              </ion-item>
+              
+              <!-- Address Section -->
+              <div class="address-section" formGroupName="address">
+                <h4>Address Information</h4>
+                
+                <!-- Street -->
+                <ion-item>
+                  <ion-icon name="home-outline" slot="start"></ion-icon>
+                  <ion-label position="floating">Street Address</ion-label>
+                  <ion-input formControlName="street"></ion-input>
+                </ion-item>
+                
+                <!-- City -->
+                <ion-item>
+                  <ion-icon name="location-outline" slot="start"></ion-icon>
+                  <ion-label position="floating">City</ion-label>
+                  <ion-input formControlName="city"></ion-input>
+                </ion-item>
+                
+                <!-- State/Province -->
+                <ion-item>
+                  <ion-icon name="location-outline" slot="start"></ion-icon>
+                  <ion-label position="floating">State/Province</ion-label>
+                  <ion-input formControlName="state"></ion-input>
+                </ion-item>
+                
+                <!-- Zip/Postal Code -->
+                <ion-item>
+                  <ion-icon name="location-outline" slot="start"></ion-icon>
+                  <ion-label position="floating">Zip/Postal Code</ion-label>
+                  <ion-input formControlName="zip"></ion-input>
+                </ion-item>
+                
+                <!-- Country -->
+                <ion-item>
+                  <ion-icon name="location-outline" slot="start"></ion-icon>
+                  <ion-label position="floating">Country</ion-label>
+                  <ion-input formControlName="country"></ion-input>
+                </ion-item>
+              </div>
+              
+              <!-- Submit Button -->
+              <ion-button 
+                expand="block" 
+                type="submit" 
+                color="primary"
+                [disabled]="isSaving">
+                <ion-spinner name="dots" *ngIf="isSaving"></ion-spinner>
+                <span *ngIf="!isSaving">
+                  <ion-icon name="save-outline" slot="start"></ion-icon>
+                  Save Changes
+                </span>
+              </ion-button>
+            </form>
+          </ion-card-content>
+        </ion-card>
+      </div>
+      
+      <!-- Security Tab -->
+      <div *ngIf="selectedSegment === 'security'" class="security-section">
+        <!-- Success/Error Messages -->
+        <div class="message-container">
+          <div *ngIf="successMessage" class="success-message">
+            <ion-text color="success">{{ successMessage }}</ion-text>
+          </div>
+          
+          <div *ngIf="errorMessage" class="error-message">
+            <ion-text color="danger">{{ errorMessage }}</ion-text>
+          </div>
+        </div>
+        
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Change Password</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+              <!-- Current Password -->
+              <ion-item>
+                <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+                <ion-label position="floating">Current Password</ion-label>
+                <ion-input 
+                  [type]="showOldPassword ? 'text' : 'password'" 
+                  formControlName="oldPassword">
+                </ion-input>
+                <ion-button 
+                  fill="clear" 
+                  slot="end"
+                  (click)="toggleOldPasswordVisibility()"
+                  tabindex="-1">
+                  <ion-icon [name]="showOldPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+                </ion-button>
+              </ion-item>
+              <div class="validation-error" *ngIf="passf['oldPassword'].touched && passf['oldPassword'].invalid">
+                <span *ngIf="passf['oldPassword'].errors?.['required']">Current password is required</span>
+                <span *ngIf="passf['oldPassword'].errors?.['minlength']">Password must be at least 6 characters</span>
+              </div>
+              
+              <!-- New Password -->
+              <ion-item>
+                <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+                <ion-label position="floating">New Password</ion-label>
+                <ion-input 
+                  [type]="showNewPassword ? 'text' : 'password'" 
+                  formControlName="newPassword">
+                </ion-input>
+                <ion-button 
+                  fill="clear" 
+                  slot="end"
+                  (click)="toggleNewPasswordVisibility()"
+                  tabindex="-1">
+                  <ion-icon [name]="showNewPassword ? 'eye-off-outline' : 'eye-outline'"></ion-icon>
+                </ion-button>
+              </ion-item>
+              <div class="validation-error" *ngIf="passf['newPassword'].touched && passf['newPassword'].invalid">
+                <span *ngIf="passf['newPassword'].errors?.['required']">New password is required</span>
+                <span *ngIf="passf['newPassword'].errors?.['minlength']">Password must be at least 6 characters</span>
+              </div>
+              
+              <!-- Confirm Password -->
+              <ion-item>
+                <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+                <ion-label position="floating">Confirm New Password</ion-label>
+                <ion-input 
+                  [type]="showNewPassword ? 'text' : 'password'" 
+                  formControlName="confirmPassword">
+                </ion-input>
+              </ion-item>
+              <div class="validation-error" *ngIf="passf['confirmPassword'].touched && passf['confirmPassword'].invalid">
+                <span *ngIf="passf['confirmPassword'].errors?.['required']">Please confirm your password</span>
+                <span *ngIf="passf['confirmPassword'].errors?.['passwordMismatch']">Passwords do not match</span>
+              </div>
+              
+              <!-- Submit Button -->
+              <ion-button 
+                expand="block" 
+                type="submit" 
+                color="primary"
+                [disabled]="isSaving">
+                <ion-spinner name="dots" *ngIf="isSaving"></ion-spinner>
+                <span *ngIf="!isSaving">
+                  <ion-icon name="save-outline" slot="start"></ion-icon>
+                  Change Password
+                </span>
+              </ion-button>
+            </form>
+          </ion-card-content>
+        </ion-card>
+        
+        <!-- Account Actions -->
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title>Account Actions</ion-card-title>
+          </ion-card-header>
+          <ion-card-content>
+            <ion-button 
+              expand="block" 
+              color="danger"
+              (click)="confirmLogout()">
+              <ion-icon name="log-out-outline" slot="start"></ion-icon>
+              Logout
+            </ion-button>
+          </ion-card-content>
+        </ion-card>
+      </div>
+      
+      <!-- Orders Tab -->
+      <div *ngIf="selectedSegment === 'orders'" class="orders-section">
+        <!-- Loading Spinner -->
+        <div *ngIf="isLoadingOrders" class="loading-container">
+          <app-loading-spinner message="Loading your orders..."></app-loading-spinner>
+        </div>
+        
+        <!-- No Orders -->
+        <div *ngIf="!isLoadingOrders && orders.length === 0" class="no-orders">
+          <app-empty-state
+            icon="bag-outline"
+            title="No Orders Found"
+            message="You haven't placed any orders yet."
+            buttonText="Start Shopping"
+            buttonLink="/products">
+          </app-empty-state>
+        </div>
+        
+        <!-- Orders List -->
+        <div *ngIf="!isLoadingOrders && orders.length > 0" class="orders-list">
+          <ion-card *ngFor="let order of orders" class="order-card">
+            <ion-card-header>
+              <ion-card-title>Order #{{ order.id.substring(0, 8) }}</ion-card-title>
+              <div class="order-date">{{ formatDate(order.createdAt) }}</div>
+              <div class="order-status">
+                <ion-badge [ngClass]="getOrderStatusClass(order.status)">
+                  {{ order.status }}
+                </ion-badge>
+              </div>
+            </ion-card-header>
+            <ion-card-content>
+              <div class="order-items">
+                <div class="item-count">
+                  <span>{{ order.items.length }} item{{ order.items.length > 1 ? 's' : '' }}</span>
+                </div>
+                
+                <div class="items-preview">
+                  <div *ngFor="let item of order.items.slice(0, 3)" class="item-preview">
+                    <img [src]="item.productImage || 'assets/images/product-placeholder.png'" [alt]="item.productName">
+                  </div>
+                  <div *ngIf="order.items.length > 3" class="more-items">
+                    +{{ order.items.length - 3 }} more
+                  </div>
+                </div>
+              </div>
+              
+              <div class="order-total">
+                <span>Total:</span>
+                <span class="total-amount">{{ formatCurrency(order.total) }}</span>
+              </div>
+              
+              <div class="order-actions">
+                <ion-button fill="outline" color="primary" [routerLink]="['/orders', order.id]">
+                  View Details
+                </ion-button>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Logout Confirmation Alert -->
+  <ion-alert
+    [isOpen]="showLogoutAlert"
+    header="Confirm Logout"
+    message="Are you sure you want to logout?"
+    [buttons]="[
+      {
+        text: 'Cancel',
+        role: 'cancel',
+        handler: () => { cancelLogout() }
+      },
+      {
+        text: 'Logout',
+        handler: () => { logout() }
+      }
+    ]">
+  </ion-alert>
+</ion-content>
+
+<app-footer></app-footer>

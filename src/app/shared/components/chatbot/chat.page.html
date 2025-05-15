@@ -1,0 +1,120 @@
+<!-- src/app/features/chat/chat.page.html -->
+<app-header></app-header>
+
+<ion-content #chatContent>
+  <div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1>Chat Support</h1>
+      <p>Get real-time assistance with our customer support team</p>
+    </div>
+    
+    <!-- Login First Message -->
+    <ion-card *ngIf="!isLoggedIn" class="login-card">
+      <ion-card-header>
+        <ion-card-title>Login Required</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <p>Please login to start a chat with our support team.</p>
+        <ion-button expand="block" color="primary" [routerLink]="['/auth/login']" [queryParams]="{ returnUrl: '/chat' }">
+          Login to Continue
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+    
+    <!-- Chat Interface -->
+    <div *ngIf="isLoggedIn" class="chat-interface">
+      <!-- Loading Spinner -->
+      <div *ngIf="isLoading && !currentChat" class="loading-container">
+        <app-loading-spinner message="Connecting to support..."></app-loading-spinner>
+      </div>
+      
+      <!-- Start New Chat -->
+      <div *ngIf="!isLoading && !currentChat" class="no-chat">
+        <div class="no-chat-content">
+          <ion-icon name="chatbubble-outline"></ion-icon>
+          <h2>Start a Conversation</h2>
+          <p>Connect with our customer support team for assistance.</p>
+          <ion-button color="primary" (click)="startNewChat()">
+            Start Chat
+          </ion-button>
+        </div>
+      </div>
+      
+      <!-- Chat Messages -->
+      <div *ngIf="currentChat" class="chat-container">
+        <div class="chat-header">
+          <div class="chat-info">
+            <h2>Chat Support</h2>
+            <p>
+              <ion-text color="medium">
+                Chat ID: {{ currentChat.id.substring(0, 8) }} | 
+                {{ formatDate(currentChat.createdAt) }}
+              </ion-text>
+            </p>
+          </div>
+          
+          <div class="chat-status" *ngIf="currentChat.agentId">
+            <ion-badge color="success">
+              Human Agent Connected
+            </ion-badge>
+          </div>
+        </div>
+        
+        <div class="chat-messages">
+          <div *ngFor="let message of currentChat.messages" class="chat-message" [ngClass]="getMessageClass(message)">
+            <div class="message-icon">
+              <ion-icon [name]="getMessageIcon(message.sender)"></ion-icon>
+            </div>
+            <div class="message-content">
+              <div class="message-text">{{ message.content }}</div>
+              <div class="message-time">{{ formatDate(message.timestamp) }}</div>
+            </div>
+          </div>
+          
+          <div *ngIf="isLoading" class="chat-message message-bot typing">
+            <div class="message-icon">
+              <ion-icon [name]="getMessageIcon('bot')"></ion-icon>
+            </div>
+            <div class="message-content">
+              <div class="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<!-- Chat Input -->
+<ion-footer *ngIf="isLoggedIn && currentChat">
+  <ion-toolbar>
+    <div class="chat-input-container">
+      <ion-textarea
+        #messageInput
+        [(ngModel)]="message"
+        placeholder="Type your message..."
+        autoGrow="true"
+        maxlength="500"
+        rows="1"
+        class="chat-input">
+      </ion-textarea>
+      
+      <ion-button fill="clear" color="primary" (click)="sendMessage()" [disabled]="!message.trim()">
+        <ion-icon name="paper-plane-outline"></ion-icon>
+      </ion-button>
+    </div>
+    
+    <div class="chat-actions" *ngIf="!currentChat?.agentId">
+      <button class="escalate-button" (click)="escalateToHuman()">
+        Talk to a human agent
+      </button>
+    </div>
+  </ion-toolbar>
+</ion-footer>
+
+<app-footer></app-footer>

@@ -1,0 +1,211 @@
+<!-- src/app/features/products/products.page.html -->
+<app-header></app-header>
+
+<ion-content>
+  <div class="page-container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <h1>Our Products</h1>
+        <p *ngIf="!category && !searchTerm">Browse our wide selection of electronics</p>
+        <p *ngIf="category">Category: {{ getCategoryName(category) }}</p>
+        <p *ngIf="searchTerm">Search results for: "{{ searchTerm }}"</p>
+      </div>
+    </div>
+    
+    <!-- Filter and Sort Controls -->
+    <div class="controls-container">
+      <div class="controls-left">
+        <ion-searchbar 
+          [value]="searchTerm" 
+          placeholder="Search products..." 
+          (ionChange)="onSearch($event)"
+          class="product-search">
+        </ion-searchbar>
+      </div>
+      
+      <div class="controls-right">
+        <ion-button fill="clear" color="medium" class="view-toggle-btn" (click)="toggleViewMode()">
+          <ion-icon [name]="viewMode === 'grid' ? 'list-outline' : 'grid-outline'"></ion-icon>
+        </ion-button>
+        
+        <div class="sort-control">
+          <ion-select [value]="sortBy" placeholder="Sort by" (ionChange)="changeSortBy($event)" interface="popover">
+            <ion-select-option value="createdAt">Newest</ion-select-option>
+            <ion-select-option value="price">Price</ion-select-option>
+            <ion-select-option value="name">Name</ion-select-option>
+            <ion-select-option value="rating">Rating</ion-select-option>
+          </ion-select>
+          
+          <ion-button fill="clear" color="medium" (click)="toggleSortDirection()">
+            <ion-icon [name]="sortDirection === 'asc' ? 'arrow-up-outline' : 'arrow-down-outline'"></ion-icon>
+          </ion-button>
+        </div>
+        
+        <ion-button color="primary" (click)="openFilterModal()" class="filter-btn">
+          <ion-icon name="funnel-outline" slot="start"></ion-icon>
+          Filter
+          <ion-badge *ngIf="filterApplied" color="light">{{ 
+            (activeFilters.categories.length || 0) + 
+            (activeFilters.brands.length || 0) + 
+            (activeFilters.rating > 0 ? 1 : 0) + 
+            (activeFilters.availability ? 1 : 0) + 
+            ((activeFilters.priceRange.min > 0 || activeFilters.priceRange.max < 5000) ? 1 : 0)
+          }}</ion-badge>
+        </ion-button>
+      </div>
+    </div>
+    
+    <!-- Active Filters -->
+    <div class="active-filters" *ngIf="filterApplied">
+      <div class="filters-label">Active Filters:</div>
+      
+      <div class="filter-chips">
+        <ion-chip *ngFor="let cat of activeFilters.categories" (click)="removeFilter('category', cat)">
+          <ion-label>{{ getCategoryName(cat) }}</ion-label>
+          <ion-icon name="close-circle-outline"></ion-icon>
+        </ion-chip>
+        
+        <ion-chip *ngFor="let brand of activeFilters.brands" (click)="removeFilter('brand', brand)">
+          <ion-label>{{ getBrandName(brand) }}</ion-label>
+          <ion-icon name="close-circle-outline"></ion-icon>
+        </ion-chip>
+        
+        <ion-chip *ngIf="activeFilters.priceRange.min > 0 || activeFilters.priceRange.max < 5000" (click)="removeFilter('price')">
+          <ion-label>${{ activeFilters.priceRange.min }} - ${{ activeFilters.priceRange.max }}</ion-label>
+          <ion-icon name="close-circle-outline"></ion-icon>
+        </ion-chip>
+        
+        <ion-chip *ngIf="activeFilters.rating > 0" (click)="removeFilter('rating')">
+          <ion-label>{{ activeFilters.rating }}+ Stars</ion-label>
+          <ion-icon name="close-circle-outline"></ion-icon>
+        </ion-chip>
+        
+        <ion-chip *ngIf="activeFilters.availability" (click)="removeFilter('availability')">
+          <ion-label>In Stock Only</ion-label>
+          <ion-icon name="close-circle-outline"></ion-icon>
+        </ion-chip>
+        
+        <ion-button fill="clear" size="small" color="medium" (click)="removeFilter('all')">
+          Clear All
+        </ion-button>
+      </div>
+    </div>
+    
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="loading-container">
+      <app-loading-spinner message="Loading products..."></app-loading-spinner>
+    </div>
+    
+    <!-- Products Grid/List -->
+    <div *ngIf="!isLoading" class="products-container">
+      <!-- Empty State -->
+      <div *ngIf="products.length === 0" class="empty-state-container">
+        <app-empty-state 
+          icon="search-outline"
+          title="No Products Found"
+          [message]="searchTerm ? 
+                    'We couldn\'t find any products matching your search criteria.' : 
+                    'No products available in this category.'"
+          buttonText="Clear Filters"
+          *ngIf="filterApplied || searchTerm"
+          (click)="resetFilters()">
+        </app-empty-state>
+        
+        <app-empty-state 
+          icon="cube-outline"
+          title="No Products Available"
+          message="There are currently no products available in this category."
+          buttonText="Browse All Products"
+          *ngIf="!filterApplied && !searchTerm"
+          (click)="router.navigate(['/products'])">
+        </app-empty-state>
+      </div>
+      
+      <!-- Products Grid View -->
+      <ion-grid *ngIf="products.length > 0 && viewMode === 'grid'">
+        <ion-row>
+          <ion-col size="12" size-sm="6" size-md="4" size-lg="3" *ngFor="let product of products">
+            <app-product-card [product]="product" (addToCartClicked)="addToCart($event)"></app-product-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+      
+      <!-- Products List View -->
+      <div *ngIf="products.length > 0 && viewMode === 'list'" class="product-list">
+        <div class="product-list-item" *ngFor="let product of products" (click)="router.navigate(['/products', product.id])">
+          <div class="product-list-image">
+            <img [src]="product.images[0] || 'assets/images/product-placeholder.png'" [alt]="product.name">
+            <ion-badge *ngIf="product.stock <= 0" color="danger" class="badge-out-of-stock">Out of Stock</ion-badge>
+            <ion-badge *ngIf="product.salePrice && product.salePrice < product.price" color="success" class="badge-discount">
+              {{ ((product.price - product.salePrice) / product.price * 100) | number:'1.0-0' }}% OFF
+            </ion-badge>
+          </div>
+          
+          <div class="product-list-details">
+            <div class="product-list-header">
+              <h3>{{ product.name }}</h3>
+              <p class="product-brand">{{ product.brand }}</p>
+            </div>
+            
+            <div class="product-list-description">
+              <p>{{ product.description | slice:0:150 }}{{ product.description.length > 150 ? '...' : '' }}</p>
+            </div>
+            
+            <div class="product-list-meta">
+              <div class="product-price">
+                <ion-text *ngIf="product.salePrice" color="danger" class="sale-price">
+                  ${{ product.salePrice.toFixed(2) }}
+                </ion-text>
+                <ion-text [color]="product.salePrice ? 'medium' : 'dark'" [class.original-price]="product.salePrice">
+                  ${{ product.price.toFixed(2) }}
+                </ion-text>
+              </div>
+              
+              <div class="product-rating" *ngIf="product.rating > 0">
+                <span class="stars" [attr.data-rating]="product.rating">
+                  ★★★★★
+                </span>
+                <small *ngIf="product.reviews">({{ product.reviews.count }})</small>
+              </div>
+            </div>
+            
+            <div class="product-list-actions">
+              <ion-button color="primary" (click)="addToCart(product); $event.stopPropagation()" [disabled]="product.stock <= 0">
+                <ion-icon name="cart-outline" slot="start"></ion-icon>
+                {{ product.stock > 0 ? 'Add to Cart' : 'Out of Stock' }}
+              </ion-button>
+              
+              <ion-button fill="outline" color="primary" (click)="router.navigate(['/products', product.id]); $event.stopPropagation()">
+                View Details
+              </ion-button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Infinite Scroll -->
+      <ion-infinite-scroll (ionInfinite)="loadProducts($event)" [disabled]="!moreProductsAvailable || loadingMore">
+        <ion-infinite-scroll-content loadingSpinner="dots" loadingText="Loading more products...">
+        </ion-infinite-scroll-content>
+      </ion-infinite-scroll>
+    </div>
+  </div>
+  
+  <!-- Filter Modal -->
+  <ion-modal #filterModal trigger="open-filter-modal" [initialBreakpoint]="1" [breakpoints]="[0, 1]">
+    <ng-template>
+      <app-product-filter
+        [availableCategories]="availableCategories"
+        [availableBrands]="availableBrands"
+        (filterChange)="onFilterChange($event)"
+        (closeFilter)="closeFilterModal()">
+      </app-product-filter>
+    </ng-template>
+  </ion-modal>
+  
+  <!-- Chatbot -->
+  <app-chatbot></app-chatbot>
+</ion-content>
+
+<app-footer></app-footer>

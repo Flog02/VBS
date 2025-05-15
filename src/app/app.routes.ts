@@ -1,4 +1,7 @@
+// src/app/app.routes.ts
 import { Routes } from '@angular/router';
+import { AuthGuard } from './core/guards/auth.guard';
+import { AdminGuard } from './core/guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -18,6 +21,11 @@ export const routes: Routes = [
     path: 'products/:id',
     loadComponent: () => import('./features/product-detail/product-detail.page').then(m => m.ProductDetailPage)
   },
+  // {
+  //   path: 'products/:id/review',
+  //   loadComponent: () => import('./features/product-review/product-review.page').then(m => m.ProductReviewPage),
+  //   canActivate: [AuthGuard]
+  // },
   {
     path: 'cart',
     loadComponent: () => import('./features/cart/cart.page').then(m => m.CartPage)
@@ -25,7 +33,7 @@ export const routes: Routes = [
   {
     path: 'checkout',
     loadComponent: () => import('./features/checkout/checkout.page').then(m => m.CheckoutPage),
-    canActivate: ['authGuard']
+    canActivate: [AuthGuard]
   },
   {
     path: 'auth',
@@ -47,22 +55,22 @@ export const routes: Routes = [
   {
     path: 'profile',
     loadComponent: () => import('./features/user-profile/user-profile.page').then(m => m.UserProfilePage),
-    canActivate: ['authGuard']
+    canActivate: [AuthGuard]
   },
   {
     path: 'orders',
     loadComponent: () => import('./features/orders/orders.page').then(m => m.OrdersPage),
-    canActivate: ['authGuard']
+    canActivate: [AuthGuard]
   },
   {
     path: 'orders/:id',
-    loadComponent: () => import('./features/orders/order-detail/order-detail.page').then(m => m.OrderDetailPage),
-    canActivate: ['authGuard']
+    loadComponent: () => import('./features/order-detail/order-detail.page').then(m => m.OrderDetailPage),
+    canActivate: [AuthGuard]
   },
   {
     path: 'wishlist',
     loadComponent: () => import('./features/wishlist/wishlist.page').then(m => m.WishlistPage),
-    canActivate: ['authGuard']
+    canActivate: [AuthGuard]
   },
   {
     path: 'chat',
@@ -84,8 +92,20 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/product-management/product-management.page').then(m => m.ProductManagementPage)
       },
       {
+        path: 'products/new',
+        loadComponent: () => import('./features/admin/product-form/product-form.component').then(m => m.ProductFormComponent)
+      },
+      {
+        path: 'products/edit/:id',
+        loadComponent: () => import('./features/admin/product-form/product-form.component').then(m => m.ProductFormComponent)
+      },
+      {
         path: 'orders',
         loadComponent: () => import('./features/admin/order-management/order-management.page').then(m => m.OrderManagementPage)
+      },
+      {
+        path: 'orders/:id',
+        loadComponent: () => import('./features/admin/order-detail/order-detail.page').then(m => m.OrderDetailPage)
       },
       {
         path: 'users',
@@ -96,10 +116,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/chat-management/chat-management.page').then(m => m.ChatManagementPage)
       }
     ],
-    canActivate: ['adminGuard']
+    canActivate: [AdminGuard]
   },
   {
     path: '**',
-    loadComponent: () => import('./shared/components/not-found/not-found.component').then(m => m.NotFoundComponent)
+    loadComponent: () => import('./features/home/home.page').then(m => m.HomePage)
+
+    // loadComponent: () => import('./shared/components/not-found/not-found.component').then(m => m.NotFoundComponent)
   }
 ];

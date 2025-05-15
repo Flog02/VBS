@@ -117,32 +117,38 @@ export class ProductService {
     );
   }
 
-  getProductsByIds(ids: string[]): Observable<Product[]> {
-    if (!ids.length) {
-      return of([]);
-    }
 
-    // Need to batch in groups of 10 due to Firestore limitations
-    const batchSize = 10;
-    const batches: Observable<Product[]>[] = [];
-
-    for (let i = 0; i < ids.length; i += batchSize) {
-      const batch = ids.slice(i, i + batchSize);
-      const batchQuery = query(
-        this.productsCollection,
-        where('id', 'in', batch)
-      );
-      batches.push(collectionData(batchQuery, { idField: 'id' }).pipe(
-        map(items => items as unknown as Product[])
-      ));
-    }
-
-    return batches.length > 0 
-      ? combineLatest(batches).pipe(
-          map(results => results.flat())
-        )
-      : of([]);
+getProductsByIds(ids: string[]): Observable<Product[]> {
+  if (!ids.length) {
+    return of([]);
   }
+
+  // Need to batch in groups of 10 due to Firestore limitations
+  const batchSize = 10;
+  const batches: Observable<Product[]>[] = [];
+
+  for (let i = 0; i < ids.length; i += batchSize) {
+    const batch = ids.slice(i, i + batchSize);
+    const batchQuery = query(
+      this.productsCollection,
+      where('id', 'in', batch)
+    );
+    batches.push(collectionData(batchQuery, { idField: 'id' }).pipe(
+      map(items => items as unknown as Product[])
+    ));
+  }
+
+  return batches.length > 0 
+    ? combineLatest(batches).pipe(
+        map(results => {
+          // Alternative to flat() - using reduce to flatten the array
+          return results.reduce((accumulator, currentValue) => {
+            return accumulator.concat(currentValue);
+          }, [] as Product[]);
+        })
+      )
+    : of([]);
+}
 
   searchProducts(searchTerm: string): Observable<Product[]> {
     // In a real app, you'd use Algolia, Elasticsearch, or Firestore's full-text search

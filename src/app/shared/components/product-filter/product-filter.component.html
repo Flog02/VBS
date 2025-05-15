@@ -1,0 +1,141 @@
+<div class="filter-container">
+  <div class="filter-header">
+    <h2>
+      <ion-icon name="filter-outline"></ion-icon>
+      Filter Products
+    </h2>
+    <div class="filter-actions">
+      <ion-button fill="clear" color="medium" (click)="resetFilters()">
+        Reset
+      </ion-button>
+    </div>
+  </div>
+
+  <ion-accordion-group>
+    <!-- Categories Filter -->
+    <ion-accordion value="categories">
+      <ion-item slot="header" color="light">
+        <ion-label>Categories</ion-label>
+      </ion-item>
+      
+      <div class="accordion-content" slot="content">
+        <ion-list lines="none">
+          <ion-item *ngFor="let category of availableCategories">
+            <ion-checkbox 
+              [checked]="isCategorySelected(category.id)"
+              (ionChange)="toggleCategory(category.id)"
+              labelPlacement="end">
+              {{ category.name }}
+            </ion-checkbox>
+          </ion-item>
+        </ion-list>
+      </div>
+    </ion-accordion>
+    
+    <!-- Brands Filter -->
+    <ion-accordion value="brands">
+      <ion-item slot="header" color="light">
+        <ion-label>Brands</ion-label>
+      </ion-item>
+      
+      <div class="accordion-content" slot="content">
+        <ion-list lines="none">
+          <ion-item *ngFor="let brand of availableBrands">
+            <ion-checkbox 
+              [checked]="isBrandSelected(brand.id)"
+              (ionChange)="toggleBrand(brand.id)"
+              labelPlacement="end">
+              {{ brand.name }}
+            </ion-checkbox>
+          </ion-item>
+        </ion-list>
+      </div>
+    </ion-accordion>
+    
+    <!-- Price Range Filter -->
+    <ion-accordion value="price">
+      <ion-item slot="header" color="light">
+        <ion-label>Price Range</ion-label>
+      </ion-item>
+      
+      <div class="accordion-content" slot="content">
+        <div class="price-range-container">
+          <div class="price-labels">
+            <span class="min-price">{{ formatPriceLabel(filters.priceRange.min) }}</span>
+            <span class="max-price">{{ formatPriceLabel(filters.priceRange.max) }}</span>
+          </div>
+          
+          <ion-range
+            [(ngModel)]="filters.priceRange.min"
+            min="0"
+            max="5000"
+            pin="true"
+            ticks="true"
+            snaps="false"
+            label="Min Price">
+          </ion-range>
+          
+          <ion-range
+            [(ngModel)]="filters.priceRange.max"
+            min="0"
+            max="5000"
+            pin="true"
+            ticks="true"
+            snaps="false"
+            label="Max Price">
+          </ion-range>
+        </div>
+      </div>
+    </ion-accordion>
+    
+    <!-- Rating Filter -->
+    <ion-accordion value="rating">
+      <ion-item slot="header" color="light">
+        <ion-label>Rating</ion-label>
+      </ion-item>
+      
+      <div class="accordion-content" slot="content">
+        <div class="rating-options">
+          <div 
+            *ngFor="let rating of ratingOptions" 
+            class="rating-option"
+            [class.selected]="isRatingSelected(rating)"
+            (click)="setRating(rating)">
+            <div class="stars">
+              <ion-icon *ngFor="let i of [1,2,3,4,5]" 
+                [name]="i <= rating ? 'star' : 'star-outline'">
+              </ion-icon>
+            </div>
+            <div class="rating-label">{{ rating }}+ Stars</div>
+          </div>
+        </div>
+      </div>
+    </ion-accordion>
+    
+    <!-- Availability Filter -->
+    <ion-accordion value="availability">
+      <ion-item slot="header" color="light">
+        <ion-label>Availability</ion-label>
+      </ion-item>
+      
+      <div class="accordion-content" slot="content">
+        <ion-item lines="none">
+          <ion-toggle 
+            [(ngModel)]="filters.availability"
+            labelPlacement="start">
+            In Stock Only
+          </ion-toggle>
+        </ion-item>
+      </div>
+    </ion-accordion>
+  </ion-accordion-group>
+  
+  <div class="filter-footer">
+    <ion-button expand="block" color="medium" (click)="cancelFilters()">
+      Cancel
+    </ion-button>
+    <ion-button expand="block" color="primary" (click)="applyFilters()">
+      Apply Filters
+    </ion-button>
+  </div>
+</div>

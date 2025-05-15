@@ -5,16 +5,16 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "your-app.firebaseapp.com",
-    projectId: "your-app",
-    storageBucket: "your-app.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID",
-    measurementId: "YOUR_MEASUREMENT_ID"
+    apiKey: "AIzaSyA3IhYwnwpzrpTOS7QfZGx02oD1yDrh6rw",
+    authDomain: "vbsfirebase.firebaseapp.com",
+    projectId: "vbsfirebase",
+    storageBucket: "vbsfirebase.appspot.com",
+    messagingSenderId: "127152613448",
+    appId: "1:127152613448:web:42f6d0036be7025178d07d",
+    measurementId: "G-070PZBFH6V"
   },
   xrweb: {
-    appKey: "YOUR_8THWALL_APP_KEY"
+    appKey: "YOUR_8THWALL_APP_KEY" // Keep original 8thWall key value
   }
 };
 

@@ -57,25 +57,34 @@
     </div>
 
     <ion-list>
-      <ion-item button (click)="router.navigate(['/'])">
+        <a href="/">
+            <ion-item button>
         <ion-icon name="home-outline" slot="start"></ion-icon>
         <ion-label>Home</ion-label>
       </ion-item>
+        </a>
       
-      <ion-item button (click)="router.navigate(['/products'])">
+      <a href="/products">
+         <ion-item button>
         <ion-icon name="grid-outline" slot="start"></ion-icon>
         <ion-label>Products</ion-label>
       </ion-item>
-      
-      <ion-item button (click)="router.navigate(['/stores'])">
+      </a>
+     
+      <a href="/stores">
+        <ion-item button>
         <ion-icon name="location-outline" slot="start"></ion-icon>
         <ion-label>Stores</ion-label>
       </ion-item>
+      </a>
       
-      <ion-item button (click)="router.navigate(['/chat'])">
+      <a href="/chat">
+        <ion-item button>
         <ion-icon name="chatbubble-outline" slot="start"></ion-icon>
         <ion-label>Chat Support</ion-label>
       </ion-item>
+      </a>
+      
       
       <!-- Authenticated User Options -->
       <ng-container *ngIf="currentUser">

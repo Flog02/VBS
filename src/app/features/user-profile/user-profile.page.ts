@@ -222,6 +222,21 @@ export class UserProfilePage implements OnInit {
       }
     );
   }
+  logoutAlertButtons = [
+  {
+    text: 'Cancel',
+    role: 'cancel',
+    handler: () => {
+      this.cancelLogout();
+    }
+  },
+  {
+    text: 'Logout',
+    handler: () => {
+      this.logout();
+    }
+  }
+];
   
   changePassword() {
     if (this.passwordForm.invalid) {

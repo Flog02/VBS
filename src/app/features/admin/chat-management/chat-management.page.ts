@@ -176,6 +176,23 @@ export class ChatManagementPage implements OnInit {
       }
     );
   }
+  closeChatAlertButtons = [
+  {
+    text: 'Cancel',
+    role: 'cancel',
+    handler: () => {
+      this.cancelCloseChat();
+    }
+  },
+  {
+    text: 'Close Chat',
+    role: 'destructive',
+    handler: () => {
+      this.closeChat();
+    }
+  }
+];
+
   
   cancelCloseChat() {
     this.chatToClose = null;

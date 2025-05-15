@@ -85,22 +85,12 @@
   </div>
   
   <!-- Role Change Confirmation Alert -->
-  <ion-alert
-    [isOpen]="showRoleAlert"
-    header="Confirm Role Change"
-    [message]="'Are you sure you want to change ' + (userToUpdate?.displayName || userToUpdate?.email || 'this user') + '\'s role to ' + newRole + '?'"
-    [buttons]="[
-      {
-        text: 'Cancel',
-        role: 'cancel',
-        handler: () => { cancelRoleChange() }
-      },
-      {
-        text: 'Confirm',
-        handler: () => { changeUserRole() }
-      }
-    ]">
-  </ion-alert>
+ <ion-alert
+  [isOpen]="showRoleAlert"
+  header="Confirm Role Change"
+  [message]="'Are you sure you want to change ' + (userToUpdate?.displayName || userToUpdate?.email || 'this user') + '\'s role to ' + newRole + '?'"
+  [buttons]="roleChangeAlertButtons">
+</ion-alert>
 </ion-content>
 
 <app-footer></app-footer>

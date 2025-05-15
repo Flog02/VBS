@@ -86,6 +86,22 @@ export class ProductManagementPage implements OnInit {
   ngOnInit() {
     this.loadProducts();
   }
+  deleteAlertButtons = [
+  {
+    text: 'Cancel',
+    role: 'cancel',
+    handler: () => {
+      this.cancelDelete();
+    }
+  },
+  {
+    text: 'Delete',
+    role: 'destructive',
+    handler: () => {
+      this.deleteProduct();
+    }
+  }
+];
   
   loadProducts(event?: any) {
     if (!event) {

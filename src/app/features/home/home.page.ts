@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { 
@@ -23,22 +23,26 @@ import { StoreLocationService } from '../../core/services/store-location.service
 import { Product } from '../../core/models/product.model';
 import { StoreLocation } from '../../core/models/store-location.model';
 import { FormsModule } from '@angular/forms';
+// Import Swiper core and required modules
+import { register } from 'swiper/element/bundle';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.page.html',
   styleUrls: ['./home.page.scss'],
   standalone: true,
-  imports: [IonInput, IonItem, 
+  imports: [
     CommonModule,
     RouterModule,
+    FormsModule,
     IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton,
     IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardHeader,
     IonCardTitle, IonCardContent, IonBadge, IonText,
-    IonSearchbar,
+    IonSearchbar, IonItem, IonInput,
     HeaderComponent, FooterComponent, ProductCardComponent, LoadingSpinnerComponent,
-    ChatbotPage,FormsModule
-  ]
+    ChatbotPage
+  ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA] // Add this for Swiper custom elements
 })
 export class HomePage implements OnInit {
   featuredProducts: Product[] = [];
@@ -53,7 +57,7 @@ export class HomePage implements OnInit {
   
   searchQuery = '';
   
-  // Hero Slider Options
+  // Hero Slider Options (for Swiper)
   heroSlideOpts = {
     slidesPerView: 1,
     spaceBetween: 0,
@@ -63,12 +67,11 @@ export class HomePage implements OnInit {
     },
     loop: true,
     pagination: {
-      el: '.swiper-pagination',
       clickable: true,
     }
   };
   
-  // Product Slider Options
+  // Product Slider Options (for Swiper)
   productSlideOpts = {
     slidesPerView: 1,
     spaceBetween: 10,
@@ -110,8 +113,27 @@ export class HomePage implements OnInit {
     private storeLocationService: StoreLocationService,
     private animationCtrl: AnimationController,
     public router: Router
-  ) {// Continuation of src/app/features/home/home.page.ts
-    addIcons({arrowForwardOutline,chevronForwardOutline,cubeOutline,flashOutline,shieldCheckmarkOutline,headsetOutline,callOutline,mailOutline,searchOutline,phonePortraitOutline,tvOutline,watchOutline,laptopOutline,storefront});
+  ) {
+    // Register Swiper custom elements
+    register();
+    
+    // Add Ionicons
+    addIcons({
+      arrowForwardOutline,
+      chevronForwardOutline,
+      cubeOutline,
+      flashOutline,
+      shieldCheckmarkOutline,
+      headsetOutline,
+      callOutline,
+      mailOutline,
+      searchOutline,
+      phonePortraitOutline,
+      tvOutline,
+      watchOutline,
+      laptopOutline,
+      storefront
+    });
   }
   
   ngOnInit() {

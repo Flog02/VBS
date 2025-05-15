@@ -153,22 +153,11 @@
   
   <!-- Close Chat Confirmation Alert -->
   <ion-alert
-    [isOpen]="showCloseAlert"
-    header="Close Chat"
-    message="Are you sure you want to close this chat? This action cannot be undone."
-    [buttons]="[
-      {
-        text: 'Cancel',
-        role: 'cancel',
-        handler: () => { cancelCloseChat() }
-      },
-      {
-        text: 'Close Chat',
-        role: 'destructive',
-        handler: () => { closeChat() }
-      }
-    ]">
-  </ion-alert>
+  [isOpen]="showCloseAlert"
+  header="Close Chat"
+  message="Are you sure you want to close this chat? This action cannot be undone."
+  [buttons]="closeChatAlertButtons">
+</ion-alert>
 </ion-content>
 
 <app-footer></app-footer>

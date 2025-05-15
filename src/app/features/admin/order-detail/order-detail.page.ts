@@ -139,6 +139,23 @@ export class OrderDetailPage implements OnInit {
     }
     this.showStatusAlert = false;
   }
+  // Add this property to your component class
+statusUpdateAlertButtons = [
+  {
+    text: 'Cancel',
+    role: 'cancel',
+    handler: () => {
+      this.cancelStatusUpdate();
+    }
+  },
+  {
+    text: 'Update',
+    handler: () => {
+      this.updateOrderStatus();
+    }
+  }
+];
+
   
   printOrder() {
     window.print();

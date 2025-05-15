@@ -6,16 +6,18 @@ import {
   addDoc, 
   updateDoc, 
   getDocs, 
+  getDoc, // Add this import
   query, 
   where, 
   orderBy, 
   limit, 
-  serverTimestamp 
+  serverTimestamp,
+  DocumentReference
 } from '@angular/fire/firestore';
 import { Functions, httpsCallable } from '@angular/fire/functions';
 import { BehaviorSubject, Observable, from, of } from 'rxjs';
 import { map, switchMap, take, tap } from 'rxjs/operators';
-import { Chat,ChatMessage } from '../models/chat.model';
+import { Chat, ChatMessage } from '../models/chat.model';
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -200,11 +202,12 @@ export class ChatbotService {
   }
 
   private refreshChat(chatId: string): Observable<void> {
-    const chatDoc = doc(this.firestore, `chats/${chatId}`);
-    return from(chatDoc.get()).pipe(
-      map(doc => {
-        if (doc.exists()) {
-          const chatData = doc.data() as Omit<Chat, 'id'>;
+    // Fix: Use getDoc instead of calling .get() on the reference
+    const chatDocRef = doc(this.firestore, `chats/${chatId}`);
+    return from(getDoc(chatDocRef)).pipe(
+      map(docSnapshot => {
+        if (docSnapshot.exists()) {
+          const chatData = docSnapshot.data() as Omit<Chat, 'id'>;
           this.currentChatSubject.next({
             id: chatId,
             ...chatData

@@ -1,4 +1,3 @@
-// src/app/core/services/product.service.ts
 import { Injectable } from '@angular/core';
 import { 
   Firestore, 
@@ -12,11 +11,14 @@ import {
   query, 
   where, 
   orderBy, 
-  limit, 
+  limit as limitTo, 
   startAfter, 
   getDocs, 
   serverTimestamp, 
-  addDoc 
+  addDoc,
+  DocumentData,
+  QueryDocumentSnapshot,
+  DocumentSnapshot
 } from '@angular/fire/firestore';
 import { Storage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from '@angular/fire/storage';
 import { Observable, from, combineLatest, of } from 'rxjs';
@@ -39,8 +41,11 @@ export class ProductService {
     sortBy: string = 'createdAt', 
     sortDirection: 'asc' | 'desc' = 'desc',
     pageSize: number = 10,
-    lastVisible?: any
-  ): Observable<{ products: Product[], lastVisible: any }> {
+    lastVisible?: QueryDocumentSnapshot<DocumentData>
+  ): Observable<{ 
+    products: Product[], 
+    lastVisible: QueryDocumentSnapshot<DocumentData> | null 
+  }> {
     let productsQuery: any;
     
     if (category) {
@@ -48,13 +53,13 @@ export class ProductService {
         this.productsCollection,
         where('category', '==', category),
         orderBy(sortBy, sortDirection),
-        limit(pageSize)
+        limitTo(pageSize)
       );
     } else {
       productsQuery = query(
         this.productsCollection,
         orderBy(sortBy, sortDirection),
-        limit(pageSize)
+        limitTo(pageSize)
       );
     }
     
@@ -68,35 +73,48 @@ export class ProductService {
 
     return from(getDocs(productsQuery)).pipe(
       map(snapshot => {
-        const products = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        })) as Product[];
+        const products = snapshot.docs.map(docSnapshot => {
+          // Get the document data as a JavaScript object first
+          const data = docSnapshot.data() as DocumentData;
+          
+          // Then create a new object with id and all data properties
+          return {
+            id: docSnapshot.id,
+            ...data
+          } as unknown as Product;
+        });
         
         // Get the last visible document
         const lastVisibleDoc = snapshot.docs.length > 0 ? 
           snapshot.docs[snapshot.docs.length - 1] : 
           null;
           
-        return { products, lastVisible: lastVisibleDoc };
+        return { 
+          products, 
+          lastVisible: lastVisibleDoc as QueryDocumentSnapshot<DocumentData> | null
+        };
       })
     );
   }
 
-  getFeaturedProducts(limit: number = 6): Observable<Product[]> {
+  getFeaturedProducts(maxItems: number = 6): Observable<Product[]> {
     const featuredQuery = query(
       this.productsCollection,
       where('featured', '==', true),
       orderBy('createdAt', 'desc'),
-      limit(limit)
+      limitTo(maxItems)
     );
 
-    return collectionData(featuredQuery, { idField: 'id' }) as Observable<Product[]>;
+    return collectionData(featuredQuery, { idField: 'id' }).pipe(
+      map(items => items as unknown as Product[])
+    );
   }
 
   getProductById(id: string): Observable<Product> {
     const productDoc = doc(this.firestore, `products/${id}`);
-    return docData(productDoc, { idField: 'id' }) as Observable<Product>;
+    return docData(productDoc, { idField: 'id' }).pipe(
+      map(item => item as unknown as Product)
+    );
   }
 
   getProductsByIds(ids: string[]): Observable<Product[]> {
@@ -106,7 +124,7 @@ export class ProductService {
 
     // Need to batch in groups of 10 due to Firestore limitations
     const batchSize = 10;
-    const batches = [];
+    const batches: Observable<Product[]>[] = [];
 
     for (let i = 0; i < ids.length; i += batchSize) {
       const batch = ids.slice(i, i + batchSize);
@@ -114,12 +132,14 @@ export class ProductService {
         this.productsCollection,
         where('id', 'in', batch)
       );
-      batches.push(collectionData(batchQuery, { idField: 'id' }));
+      batches.push(collectionData(batchQuery, { idField: 'id' }).pipe(
+        map(items => items as unknown as Product[])
+      ));
     }
 
     return batches.length > 0 
       ? combineLatest(batches).pipe(
-          map(results => results.flat() as Product[])
+          map(results => results.flat())
         )
       : of([]);
   }
@@ -131,10 +151,12 @@ export class ProductService {
       this.productsCollection,
       where('name', '>=', searchTerm),
       where('name', '<=', searchTerm + '\uf8ff'),
-      limit(20)
+      limitTo(20)
     );
 
-    return collectionData(searchQuery, { idField: 'id' }) as Observable<Product[]>;
+    return collectionData(searchQuery, { idField: 'id' }).pipe(
+      map(items => items as unknown as Product[])
+    );
   }
 
   createProduct(product: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Observable<string> {
@@ -161,6 +183,7 @@ export class ProductService {
     // First get the product to delete its images
     return docData(productDoc, { idField: 'id' }).pipe(
       take(1),
+      map(data => data as unknown as Product),
       switchMap((product: Product) => {
         // Delete all product images
         const deleteImagePromises = product.images.map(imageUrl => {

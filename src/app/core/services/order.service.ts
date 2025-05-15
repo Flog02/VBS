@@ -11,7 +11,7 @@ import {
   query, 
   where, 
   orderBy, 
-  limit, 
+  limit as limitTo, // Renamed the import to avoid naming conflict
   serverTimestamp 
 } from '@angular/fire/firestore';
 import { Functions, httpsCallable } from '@angular/fire/functions';
@@ -35,7 +35,7 @@ export class OrderService {
     private cartService: CartService
   ) {}
 
-  getOrdersByUser(limit: number = 10): Observable<Order[]> {
+  getOrdersByUser(limitCount: number = 10): Observable<Order[]> {
     return this.authService.currentUser$.pipe(
       switchMap(user => {
         if (!user) {
@@ -46,7 +46,7 @@ export class OrderService {
           this.ordersCollection,
           where('userId', '==', user.uid),
           orderBy('createdAt', 'desc'),
-          limit(limit)
+          limitTo(limitCount)
         );
         
         return collectionData(ordersQuery, { idField: 'id' }) as Observable<Order[]>;
@@ -59,7 +59,7 @@ export class OrderService {
     return docData(orderDoc, { idField: 'id' }) as Observable<Order>;
   }
 
-  getAllOrders(status?: string, limit: number = 20): Observable<Order[]> {
+  getAllOrders(status?: string, limitCount: number = 20): Observable<Order[]> {
     let ordersQuery;
     
     if (status) {
@@ -67,13 +67,13 @@ export class OrderService {
         this.ordersCollection,
         where('status', '==', status),
         orderBy('createdAt', 'desc'),
-        limit(limit)
+        limitTo(limitCount)
       );
     } else {
       ordersQuery = query(
         this.ordersCollection,
         orderBy('createdAt', 'desc'),
-        limit(limit)
+        limitTo(limitCount)
       );
     }
     

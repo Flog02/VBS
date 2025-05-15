@@ -81,6 +81,14 @@ export class CheckoutPage implements OnInit {
       checkmarkCircleOutline, arrowForwardOutline, chevronForwardOutline
     });
   }
+  successAlertButtons = [
+  {
+    text: 'View Order',
+    handler: () => {
+      this.navigateToOrderConfirmation();
+    }
+  }
+];
   
   ngOnInit() {
     this.createForm();

@@ -66,6 +66,21 @@ export class UserManagementPage implements OnInit {
       shieldOutline, alertCircleOutline
     });
   }
+  roleChangeAlertButtons = [
+  {
+    text: 'Cancel',
+    role: 'cancel',
+    handler: () => {
+      this.cancelRoleChange();
+    }
+  },
+  {
+    text: 'Confirm',
+    handler: () => {
+      this.changeUserRole();
+    }
+  }
+];
   
   ngOnInit() {
     this.loadUsers();

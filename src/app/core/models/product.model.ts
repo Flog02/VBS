@@ -29,3 +29,6 @@ export interface Review {
   comment: string;
   date: Date;
 }
+export interface ProductSpecification {
+  [key: string]: string | { [key: string]: string };
+}

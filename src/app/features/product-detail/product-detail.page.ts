@@ -1,11 +1,10 @@
-// src/app/features/product-detail/product-detail.page.ts
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, CUSTOM_ELEMENTS_SCHEMA, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { 
   IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
   IonButton, IonIcon, IonGrid, IonRow, IonCol, IonText, IonBadge, IonChip,
-  IonLabel, IonicSlides, IonSegment, IonSegmentButton,
+  IonLabel, IonSegment, IonSegmentButton,
   IonAccordionGroup, IonAccordion, IonItem
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
@@ -23,14 +22,17 @@ import { ProductService } from '../../core/services/product.service';
 import { CartService } from '../../core/services/cart.service';
 import { WishlistService } from '../../core/services/wishlist.service';
 import { AuthService } from '../../core/services/auth.service';
-import { Product } from '../../core/models/product.model';
+import { Product, ProductSpecification } from '../../core/models/product.model';
 import { ChatbotPage } from 'src/app/shared/components/chatbot/chatbot.page';
+import { register } from 'swiper/element/bundle';
+import { Swiper } from 'swiper';
 
 @Component({
   selector: 'app-product-detail',
   templateUrl: './product-detail.page.html',
   styleUrls: ['./product-detail.page.scss'],
   standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   imports: [
     CommonModule,
     RouterModule,
@@ -42,8 +44,12 @@ import { ChatbotPage } from 'src/app/shared/components/chatbot/chatbot.page';
     Product3dViewerComponent, ProductCardComponent, ChatbotPage
   ]
 })
-export class ProductDetailPage implements OnInit {
-  @ViewChild('productSlides') slides: any; // IonSlides
+export class ProductDetailPage implements OnInit, AfterViewInit {
+  @ViewChild('productSlides') swiperElement: ElementRef | undefined;
+  private swiper: Swiper | undefined;
+  
+  // Add activeSlideIndex property
+  activeSlideIndex = 0;
   
   product: Product | null = null;
   isLoading = true;
@@ -58,7 +64,15 @@ export class ProductDetailPage implements OnInit {
   slideOpts = {
     slidesPerView: 1,
     spaceBetween: 0,
-    zoom: true
+    zoom: true,
+    pagination: true,
+    on: {
+      slideChange: () => {
+        if (this.swiper) {
+          this.activeSlideIndex = this.swiper.activeIndex;
+        }
+      }
+    }
   };
   
   constructor(
@@ -69,6 +83,9 @@ export class ProductDetailPage implements OnInit {
     private wishlistService: WishlistService,
     private authService: AuthService
   ) {
+    // Register Swiper custom elements
+    register();
+    
     addIcons({ 
       cartOutline, heartOutline, heart, informationCircleOutline,
       starOutline, shareOutline, cubeOutline, chevronForwardOutline
@@ -82,6 +99,55 @@ export class ProductDetailPage implements OnInit {
       this.isLoggedIn = isLoggedIn;
     });
   }
+  
+  ngAfterViewInit() {
+    // Initialize Swiper after view is initialized
+    setTimeout(() => {
+      if (this.swiperElement?.nativeElement) {
+        this.swiper = this.swiperElement.nativeElement.swiper;
+        
+        // Listen for Swiper events
+        this.swiperElement.nativeElement.addEventListener('swiper-slide-change', () => {
+          if (this.swiper) {
+            this.activeSlideIndex = this.swiper.activeIndex;
+          }
+        });
+      }
+    }, 500); // Small delay to ensure Swiper is properly initialized
+  }
+  
+  // Add slideTo method
+  slideTo(index: number) {
+    if (this.swiper) {
+      this.swiper.slideTo(index);
+    }
+  }
+  /**
+ * Safely get product specifications with proper typing
+ */
+getProductSpecifications(): ProductSpecification {
+  if (this.product && this.product.specifications) {
+    return this.product.specifications;
+  }
+  return {};
+}
+
+/**
+ * Convert specification value to an object for keyvalue pipe
+ */
+getSpecificationDetails(value: any): { [key: string]: string } {
+  if (typeof value === 'object' && value !== null) {
+    return value as { [key: string]: string };
+  }
+  return {};
+}
+
+/**
+ * Check if a value is an object
+ */
+isObject(val: any): boolean {
+  return typeof val === 'object' && val !== null;
+}
   
   loadProduct() {
     this.isLoading = true;
@@ -174,8 +240,6 @@ export class ProductDetailPage implements OnInit {
     }
   }
   
-  // Continuation of src/app/features/product-detail/product-detail.page.ts
-  
   buyNow() {
     this.addToCart();
     this.router.navigate(['/cart']);
@@ -247,7 +311,5 @@ export class ProductDetailPage implements OnInit {
     );
   }
   
-  isObject(val: any): boolean {
-    return typeof val === 'object' && val !== null;
-  }
+
 }

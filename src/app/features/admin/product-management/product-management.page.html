@@ -123,23 +123,12 @@
   </div>
   
   <!-- Delete Confirmation Alert -->
-  <ion-alert
-    [isOpen]="showDeleteAlert"
-    header="Confirm Delete"
-    [message]="'Are you sure you want to delete ' + (productToDelete?.name || 'this product') + '?'"
-    [buttons]="[
-      {
-        text: 'Cancel',
-        role: 'cancel',
-        handler: () => { cancelDelete() }
-      },
-      {
-        text: 'Delete',
-        role: 'destructive',
-        handler: () => { deleteProduct() }
-      }
-    ]">
-  </ion-alert>
+<ion-alert
+  [isOpen]="showDeleteAlert"
+  header="Confirm Delete"
+  [message]="'Are you sure you want to delete ' + (productToDelete?.name || 'this product') + '?'"
+  [buttons]="deleteAlertButtons">
+</ion-alert>
 </ion-content>
 
 <app-footer></app-footer>

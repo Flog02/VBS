@@ -352,18 +352,13 @@
   </div>
   
   <!-- Order Success Alert -->
-  <ion-alert
-    [isOpen]="showSuccessAlert"
-    header="Order Placed Successfully!"
-    message="Your order has been placed successfully. Your order number is: {{orderNumber}}"
-    [buttons]="[
-      {
-        text: 'View Order',
-        handler: () => { navigateToOrderConfirmation() }
-      }
-    ]"
-    [backdropDismiss]="false">
-  </ion-alert>
+<ion-alert
+  [isOpen]="showSuccessAlert"
+  header="Order Placed Successfully!"
+  message="Your order has been placed successfully. Your order number is: {{orderNumber}}"
+  [buttons]="successAlertButtons"
+  [backdropDismiss]="false">
+</ion-alert>
 </ion-content>
 
 <app-footer></app-footer>

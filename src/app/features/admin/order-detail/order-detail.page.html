@@ -282,22 +282,13 @@
   </div>
   
   <!-- Status Update Confirmation Alert -->
-  <ion-alert
-    [isOpen]="showStatusAlert"
-    header="Update Order Status"
-    [message]="'Are you sure you want to change the order status to ' + selectedStatus + '?'"
-    [buttons]="[
-      {
-        text: 'Cancel',
-        role: 'cancel',
-        handler: () => { cancelStatusUpdate() }
-      },
-      {
-        text: 'Update',
-        handler: () => { updateOrderStatus() }
-      }
-    ]">
-  </ion-alert>
+<ion-alert
+  [isOpen]="showStatusAlert"
+  header="Update Order Status"
+  [message]="'Are you sure you want to change the order status to ' + selectedStatus + '?'"
+  [buttons]="statusUpdateAlertButtons">
+</ion-alert>
+
 </ion-content>
 
 <app-footer></app-footer>

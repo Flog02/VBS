@@ -312,22 +312,12 @@
   </div>
   
   <!-- Logout Confirmation Alert -->
-  <ion-alert
-    [isOpen]="showLogoutAlert"
-    header="Confirm Logout"
-    message="Are you sure you want to logout?"
-    [buttons]="[
-      {
-        text: 'Cancel',
-        role: 'cancel',
-        handler: () => { cancelLogout() }
-      },
-      {
-        text: 'Logout',
-        handler: () => { logout() }
-      }
-    ]">
-  </ion-alert>
+ <ion-alert
+  [isOpen]="showLogoutAlert"
+  header="Confirm Logout"
+  message="Are you sure you want to logout?"
+  [buttons]="logoutAlertButtons">
+</ion-alert>
 </ion-content>
 
 <app-footer></app-footer>

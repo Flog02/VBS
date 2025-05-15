@@ -151,7 +151,7 @@ export class ProductsPage implements OnInit {
       }
       
       this.productService.getProducts(
-        this.category, 
+        this.category ?? undefined, 
         this.sortBy, 
         this.sortDirection, 
         10, 
@@ -260,12 +260,12 @@ export class ProductsPage implements OnInit {
     switch (type) {
       case 'category':
         if (value) {
-          this.activeFilters.categories = this.activeFilters.categories.filter(c => c !== value);
+          this.activeFilters.categories = this.activeFilters.categories.filter((c: string) => c !== value);
         }
         break;
       case 'brand':
         if (value) {
-          this.activeFilters.brands = this.activeFilters.brands.filter(b => b !== value);
+          this.activeFilters.brands = this.activeFilters.brands.filter((b: string) => b !== value);
         }
         break;
       case 'price':

@@ -1,10 +1,10 @@
-<!-- src/app/features/home/home.page.html -->
+<!-- Updated home.page.html with Swiper instead of ion-slides -->
 <app-header></app-header>
 
 <ion-content>
-  <!-- Hero Slider -->
-  <ion-slides pager="true" [options]="heroSlideOpts" class="hero-slider">
-    <ion-slide>
+  <!-- Hero Slider using Swiper -->
+  <swiper-container pager="true" [options]="heroSlideOpts" class="hero-slider">
+    <swiper-slide>
       <div class="slide-content slide-1">
         <div class="slide-overlay"></div>
         <div class="slide-text">
@@ -16,9 +16,9 @@
           </ion-button>
         </div>
       </div>
-    </ion-slide>
+    </swiper-slide>
     
-    <ion-slide>
+    <swiper-slide>
       <div class="slide-content slide-2">
         <div class="slide-overlay"></div>
         <div class="slide-text">
@@ -30,9 +30,9 @@
           </ion-button>
         </div>
       </div>
-    </ion-slide>
+    </swiper-slide>
     
-    <ion-slide>
+    <swiper-slide>
       <div class="slide-content slide-3">
         <div class="slide-overlay"></div>
         <div class="slide-text">
@@ -44,8 +44,8 @@
           </ion-button>
         </div>
       </div>
-    </ion-slide>
-  </ion-slides>
+    </swiper-slide>
+  </swiper-container>
   
   <!-- Main Content Container -->
   <div class="home-container">
@@ -97,11 +97,11 @@
         <app-loading-spinner message="Loading featured products..."></app-loading-spinner>
       </div>
       
-      <ion-slides *ngIf="!isLoadingFeatured && featuredProducts.length > 0" [options]="productSlideOpts" class="product-slider">
-        <ion-slide *ngFor="let product of featuredProducts">
+      <swiper-container *ngIf="!isLoadingFeatured && featuredProducts.length > 0" [options]="productSlideOpts" class="product-slider">
+        <swiper-slide *ngFor="let product of featuredProducts">
           <app-product-card [product]="product" (addToCartClicked)="addToCart($event)"></app-product-card>
-        </ion-slide>
-      </ion-slides>
+        </swiper-slide>
+      </swiper-container>
     </section>
     
     <!-- Promotional Banner -->
@@ -132,11 +132,11 @@
         <app-loading-spinner message="Loading latest products..."></app-loading-spinner>
       </div>
       
-      <ion-slides *ngIf="!isLoadingLatest && latestProducts.length > 0" [options]="productSlideOpts" class="product-slider">
-        <ion-slide *ngFor="let product of latestProducts">
+      <swiper-container *ngIf="!isLoadingLatest && latestProducts.length > 0" [options]="productSlideOpts" class="product-slider">
+        <swiper-slide *ngFor="let product of latestProducts">
           <app-product-card [product]="product" (addToCartClicked)="addToCart($event)"></app-product-card>
-        </ion-slide>
-      </ion-slides>
+        </swiper-slide>
+      </swiper-container>
     </section>
     
     <!-- Why Choose Us Section -->
@@ -195,11 +195,11 @@
         <app-loading-spinner message="Loading bestselling products..."></app-loading-spinner>
       </div>
       
-      <ion-slides *ngIf="!isLoadingBestselling && bestsellingProducts.length > 0" [options]="productSlideOpts" class="product-slider">
-        <ion-slide *ngFor="let product of bestsellingProducts">
+      <swiper-container *ngIf="!isLoadingBestselling && bestsellingProducts.length > 0" [options]="productSlideOpts" class="product-slider">
+        <swiper-slide *ngFor="let product of bestsellingProducts">
           <app-product-card [product]="product" (addToCartClicked)="addToCart($event)"></app-product-card>
-        </ion-slide>
-      </ion-slides>
+        </swiper-slide>
+      </swiper-container>
     </section>
     
     <!-- Store Locations Section -->

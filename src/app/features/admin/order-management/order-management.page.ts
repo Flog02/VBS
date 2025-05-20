@@ -32,14 +32,11 @@ import { Order } from '../../../core/models/order.model';
     CommonModule,
     FormsModule,
     RouterModule,
-    IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton, 
-    IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, 
-    IonCardTitle, IonCardContent, IonItem, IonLabel, IonInput, 
-    IonSelect, IonSelectOption, IonSearchbar, IonBadge, 
-    IonInfiniteScroll, IonInfiniteScrollContent, IonSkeletonText,
-    IonChip,
-    HeaderComponent, FooterComponent, LoadingSpinnerComponent, EmptyStateComponent
-  ]
+    IonContent,
+    IonButton, IonIcon,
+    IonSelect, IonSelectOption, IonSearchbar,
+    HeaderComponent, LoadingSpinnerComponent, EmptyStateComponent
+]
 })
 export class OrderManagementPage implements OnInit {
   orders: Order[] = [];

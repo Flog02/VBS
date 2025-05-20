@@ -1,0 +1,297 @@
+// src/app/features/admin/order-management/order-management.page.scss
+
+// Variables
+:host {
+  --table-border-color: rgba(0, 0, 0, 0.1);
+  --table-header-bg: rgba(0, 0, 0, 0.02);
+  --row-hover-bg: rgba(0, 0, 0, 0.02);
+  --badge-border-radius: 12px;
+  --section-padding: 16px;
+}
+
+// Main container
+.admin-container {
+  padding: var(--section-padding);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+// Admin header
+.admin-header {
+  margin-bottom: 24px;
+  
+  h1 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    font-weight: 600;
+  }
+  
+  p {
+    margin: 0;
+    color: var(--ion-color-medium);
+  }
+}
+
+// Filters and search
+.filters-container {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  
+  .order-search {
+    flex: 1;
+    min-width: 300px;
+    margin: 0;
+    --border-radius: 8px;
+    --background: var(--ion-color-light);
+    --icon-color: var(--ion-color-medium);
+    --placeholder-color: var(--ion-color-medium);
+  }
+  
+  .filter-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    
+    ion-select {
+      background: var(--ion-color-light);
+      border-radius: 8px;
+      padding: 0 12px;
+      --padding-top: 10px;
+      --padding-bottom: 10px;
+      --placeholder-color: var(--ion-color-medium);
+      --placeholder-opacity: 1;
+      min-width: 180px;
+    }
+  }
+}
+
+// Loading container
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 60px 0;
+}
+
+// Orders table
+.orders-table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  
+  .table-responsive {
+    overflow-x: auto;
+    width: 100%;
+  }
+  
+  .orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 14px;
+      border-bottom: 1px solid var(--table-border-color);
+    }
+    
+    th {
+      background-color: var(--table-header-bg);
+      font-weight: 600;
+      color: var(--ion-color-medium);
+      text-transform: uppercase;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    
+    tr:hover {
+      background-color: var(--row-hover-bg);
+    }
+    
+    .order-id {
+      font-weight: 500;
+      font-family: monospace;
+    }
+    
+    .actions-cell {
+      white-space: nowrap;
+      text-align: center;
+      
+      ion-button {
+        margin: 0;
+        --padding-start: 8px;
+        --padding-end: 8px;
+        height: 36px;
+      }
+    }
+  }
+  
+  // Empty state
+  .no-orders {
+    padding: 40px 0;
+  }
+}
+
+// Status badges
+.status-badge, .payment-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: var(--badge-border-radius);
+  font-size: 12px;
+  text-transform: capitalize;
+  font-weight: 500;
+  
+  // Status badge colors
+  &.status-pending {
+    background-color: rgba(255, 196, 9, 0.1);
+    color: #FFC409; // warning color
+  }
+  
+  &.status-processing {
+    background-color: rgba(56, 128, 255, 0.1);
+    color: #3880FF; // primary color
+  }
+  
+  &.status-shipped, &.status-ready-for-pickup {
+    background-color: rgba(105, 36, 193, 0.1);
+    color: #6924C1; // tertiary color
+  }
+  
+  &.status-completed {
+    background-color: rgba(45, 211, 111, 0.1);
+    color: #2DD36F; // success color
+  }
+  
+  &.status-cancelled {
+    background-color: rgba(235, 68, 90, 0.1);
+    color: #EB445A; // danger color
+  }
+  
+  // Payment badge colors
+  &.payment-paid {
+    background-color: rgba(45, 211, 111, 0.1);
+    color: #2DD36F; // success color
+  }
+  
+  &.payment-pending {
+    background-color: rgba(255, 196, 9, 0.1);
+    color: #FFC409; // warning color
+  }
+  
+  &.payment-failed {
+    background-color: rgba(235, 68, 90, 0.1);
+    color: #EB445A; // danger color
+  }
+}
+
+// Animation
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.orders-table-container {
+  animation: fadeIn 0.3s ease-out;
+}
+
+// Responsive adjustments
+@media (max-width: 992px) {
+  .orders-table {
+    th, td {
+      padding: 12px 10px;
+    }
+    
+    th:nth-child(3), 
+    td:nth-child(3) {
+      display: none; // Hide customer column on medium screens
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .filters-container {
+    flex-direction: column;
+    align-items: stretch;
+    
+    .order-search {
+      width: 100%;
+    }
+    
+    .filter-actions {
+      width: 100%;
+      
+      ion-select {
+        flex: 1;
+      }
+    }
+  }
+  
+  .orders-table {
+    th:nth-child(4), 
+    td:nth-child(4), 
+    th:nth-child(7), 
+    td:nth-child(7) {
+      display: none; // Hide items and payment columns on small screens
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .orders-table {
+    th:nth-child(2), 
+    td:nth-child(2) {
+      display: none; // Hide date column on very small screens
+    }
+    
+    .actions-cell {
+      padding: 8px;
+    }
+  }
+  
+  .admin-header {
+    h1 {
+      font-size: 22px;
+    }
+  }
+}
+
+// Print styles
+@media print {
+  ion-header, ion-footer, .filters-container {
+    display: none !important;
+  }
+  
+  .admin-container {
+    padding: 0;
+  }
+  
+  .orders-table-container {
+    box-shadow: none;
+  }
+  
+  .orders-table {
+    border: 1px solid #ddd;
+    
+    th {
+      background-color: #f5f5f5 !important;
+      color: #333 !important;
+    }
+    
+    .actions-cell {
+      display: none;
+    }
+  }
+  
+  .status-badge, .payment-badge {
+    border: 1px solid currentColor;
+  }
+}

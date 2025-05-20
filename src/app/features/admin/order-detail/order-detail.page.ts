@@ -32,13 +32,13 @@ import { User } from '../../../core/models/user.model';
     CommonModule,
     FormsModule,
     RouterModule,
-    IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
-    IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, 
-    IonCardTitle, IonCardContent, IonItem, IonLabel, IonInput, 
+    IonContent,
+    IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardHeader,
+    IonCardTitle, IonCardContent,
     IonSelect, IonSelectOption, IonBadge, IonAlert,
-    IonList, IonListHeader, IonText,
-    HeaderComponent, FooterComponent, LoadingSpinnerComponent
-  ]
+    IonText,
+    HeaderComponent, LoadingSpinnerComponent
+]
 })
 export class OrderDetailPage implements OnInit {
   order: Order | null = null;

@@ -33,14 +33,13 @@ import { Product } from '../../../core/models/product.model';
     CommonModule,
     FormsModule,
     RouterModule,
-    IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton, 
-    IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, 
-    IonCardTitle, IonCardContent, IonItem, IonLabel, IonInput, 
-    IonSelect, IonSelectOption, IonSearchbar, IonBadge, 
-    IonInfiniteScroll, IonInfiniteScrollContent, IonSkeletonText,
-    IonChip, IonAlert,
+    IonContent,
+    IonButton, IonIcon,
+    IonSelect, IonSelectOption, IonSearchbar, IonBadge,
+    IonInfiniteScroll, IonInfiniteScrollContent,
+    IonAlert,
     HeaderComponent, FooterComponent, LoadingSpinnerComponent, EmptyStateComponent
-  ]
+]
 })
 export class ProductManagementPage implements OnInit {
   products: Product[] = [];

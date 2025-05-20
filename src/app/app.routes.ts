@@ -10,6 +10,10 @@ export const routes: Routes = [
     pathMatch: 'full',
   },
   {
+  path: 'debug',
+  loadComponent: () => import('./debug/debug.component').then(m=>m.DebugComponent)
+},
+  {
     path: 'home',
     loadComponent: () => import('./features/home/home.page').then(m => m.HomePage)
   },
@@ -120,12 +124,9 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    loadComponent: () => import('./features/home/home.page').then(m => m.HomePage)
+    loadComponent: () => import('./features/home/home.page').then(m=>m.HomePage)
 
     // loadComponent: () => import('./shared/components/not-found/not-found.component').then(m => m.NotFoundComponent)
   },
-  {
-  path: 'debug',
-  loadComponent: () => import('./debug/debug.component').then(m=>m.DebugComponent)
-},
+  
 ];

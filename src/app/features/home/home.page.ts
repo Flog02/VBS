@@ -35,13 +35,11 @@ import { register } from 'swiper/element/bundle';
     CommonModule,
     RouterModule,
     FormsModule,
-    IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton,
-    IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardHeader,
-    IonCardTitle, IonCardContent, IonBadge, IonText,
+    IonContent,
+    IonButton, IonIcon,
     IonSearchbar, IonItem, IonInput,
-    HeaderComponent, FooterComponent, ProductCardComponent, LoadingSpinnerComponent,
-    ChatbotPage
-  ],
+    HeaderComponent, ProductCardComponent, LoadingSpinnerComponent
+],
   schemas: [CUSTOM_ELEMENTS_SCHEMA] // Add this for Swiper custom elements
 })
 export class HomePage implements OnInit {

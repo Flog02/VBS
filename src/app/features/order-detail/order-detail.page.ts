@@ -26,11 +26,11 @@ import { Order } from 'src/app/core/models/order.model';
   imports: [
     CommonModule,
     RouterModule,
-    IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
+    IonContent,
     IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardHeader,
     IonCardTitle, IonCardContent, IonItem, IonLabel, IonBadge, IonList,
-    HeaderComponent, FooterComponent, LoadingSpinnerComponent
-  ]
+    HeaderComponent, LoadingSpinnerComponent
+]
 })
 export class OrderDetailPage implements OnInit {
   order: Order | null = null;

@@ -13,7 +13,10 @@ import { getAnalytics, provideAnalytics } from '@angular/fire/analytics';
 import { routes } from './app/app.routes';
 import { AppComponent } from './app/app.component';
 import { environment } from './environments/environment';
+// main.ts
+import { getDatabase, provideDatabase } from '@angular/fire/database';
 
+// Add this to your providers array
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
@@ -21,6 +24,7 @@ bootstrapApplication(AppComponent, {
     provideRouter(routes, withPreloading(PreloadAllModules)),
     
     // Firebase providers - add them directly instead of using importProvidersFrom
+    provideDatabase(() => getDatabase()),
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore()),

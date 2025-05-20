@@ -88,20 +88,24 @@
       
       <!-- Authenticated User Options -->
       <ng-container *ngIf="currentUser">
-        <ion-item button (click)="router.navigate(['/profile'])">
+        <a href="/profile">
+       <ion-item button>
           <ion-icon name="person-outline" slot="start"></ion-icon>
           <ion-label>My Profile</ion-label>
-        </ion-item>
-        
-        <ion-item button (click)="router.navigate(['/orders'])">
+        </ion-item></a>
+     
+        <a href="/orders">
+           <ion-item button>
           <ion-icon name="bag-outline" slot="start"></ion-icon>
           <ion-label>My Orders</ion-label>
         </ion-item>
-        
-        <ion-item button (click)="router.navigate(['/wishlist'])">
+        </a>
+       
+        <a href="/wishlist"><ion-item button>
           <ion-icon name="heart-outline" slot="start"></ion-icon>
           <ion-label>Wishlist</ion-label>
-        </ion-item>
+        </ion-item></a>
+        
         
         <!-- Admin Options -->
         <ion-item *ngIf="isAdmin" button (click)="goToAdmin()">
@@ -116,10 +120,13 @@
       </ng-container>
       
       <!-- Anonymous User Options -->
-      <ion-item *ngIf="!currentUser" button (click)="router.navigate(['/auth/login'])">
+       <a href="/auth/login
+       ">
+       <ion-item *ngIf="!currentUser" button >
         <ion-icon name="log-in-outline" slot="start"></ion-icon>
         <ion-label>Login / Register</ion-label>
-      </ion-item>
+      </ion-item></a>
+     
     </ion-list>
   </ion-content>
 </ion-menu>

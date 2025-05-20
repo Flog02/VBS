@@ -1,20 +1,20 @@
 // This file can be replaced during build by using the `fileReplacements` array.
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
-
 export const environment = {
   production: false,
   firebase: {
-    apiKey: "AIzaSyA3IhYwnwpzrpTOS7QfZGx02oD1yDrh6rw",
-    authDomain: "vbsfirebase.firebaseapp.com",
-    projectId: "vbsfirebase",
-    storageBucket: "vbsfirebase.appspot.com",
-    messagingSenderId: "127152613448",
-    appId: "1:127152613448:web:42f6d0036be7025178d07d",
-    measurementId: "G-070PZBFH6V"
+    apiKey: "AIzaSyAEQDoqlVgJv07ie8--U_TEveH9606tdB4",
+    authDomain: "vbs-lale.firebaseapp.com",
+    databaseURL: "https://vbs-lale-default-rtdb.firebaseio.com",
+    projectId: "vbs-lale",
+    storageBucket: "vbs-lale.firebasestorage.app", 
+    messagingSenderId: "606319517771",
+    appId: "1:606319517771:web:6c8b3b585d7b1762902dce",
+    measurementId: "G-28V5SG3J5R"
   },
   xrweb: {
-    appKey: "YOUR_8THWALL_APP_KEY" // Keep original 8thWall key value
+    appKey: "YOUR_8THWALL_APP_KEY" // Kept original 8thWall key value
   }
 };
 

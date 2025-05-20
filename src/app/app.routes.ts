@@ -116,12 +116,16 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/chat-management/chat-management.page').then(m => m.ChatManagementPage)
       }
     ],
-    canActivate: [AdminGuard]
+    // canActivate: [AdminGuard]
   },
   {
     path: '**',
     loadComponent: () => import('./features/home/home.page').then(m => m.HomePage)
 
     // loadComponent: () => import('./shared/components/not-found/not-found.component').then(m => m.NotFoundComponent)
-  }
+  },
+  {
+  path: 'debug',
+  loadComponent: () => import('./debug/debug.component').then(m=>m.DebugComponent)
+},
 ];

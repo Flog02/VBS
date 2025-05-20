@@ -1,0 +1,371 @@
+// src/app/features/admin/product-form/product-form.component.scss
+
+// Variables
+:host {
+  --card-border-radius: 8px;
+  --card-margin-bottom: 20px;
+  --input-border-color: rgba(0, 0, 0, 0.1);
+  --error-color: var(--ion-color-danger);
+  --upload-bg: #f8f9fa;
+  --upload-border-color: #dfe3e8;
+  --upload-hover-bg: #e9ecef;
+  --progress-bar-color: var(--ion-color-primary);
+  --image-preview-size: 100px;
+  --icon-size: 36px;
+}
+
+// Grid layout
+ion-grid {
+  padding: 16px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+// Cards
+ion-card {
+  margin-bottom: var(--card-margin-bottom);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  border-radius: var(--card-border-radius);
+  
+  ion-card-header {
+    padding: 16px;
+    
+    ion-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      
+      ion-button {
+        margin: 0;
+        font-size: 14px;
+        --padding-start: 8px;
+        --padding-end: 8px;
+        
+        ion-icon {
+          margin-right: 4px;
+        }
+      }
+    }
+  }
+  
+  ion-card-content {
+    padding: 16px;
+  }
+}
+
+// Form elements
+ion-item {
+  --padding-start: 0;
+  --border-color: var(--input-border-color);
+  margin-bottom: 16px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  ion-label {
+    --color: var(--ion-color-medium);
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  ion-input, ion-textarea, ion-select {
+    --padding-start: 0;
+    font-size: 16px;
+  }
+}
+
+// Validation errors
+.validation-error {
+  color: var(--error-color);
+  font-size: 12px;
+  margin: -12px 0 16px 0;
+  padding-left: 16px;
+  
+  span {
+    display: block;
+    margin-bottom: 4px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
+
+// Image previews
+.image-previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.image-preview-container, .image-upload-container {
+  width: var(--image-preview-size);
+  height: var(--image-preview-size);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  
+  .remove-image-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    --padding-start: 4px;
+    --padding-end: 4px;
+    --padding-top: 4px;
+    --padding-bottom: 4px;
+    --background: rgba(0, 0, 0, 0.3);
+    --border-radius: 0 0 0 8px;
+    
+    ion-icon {
+      font-size: 18px;
+    }
+  }
+}
+
+.image-upload-label, .model-upload-label {
+  cursor: pointer;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.upload-placeholder {
+  background-color: var(--upload-bg);
+  border: 2px dashed var(--upload-border-color);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: var(--upload-hover-bg);
+  }
+  
+  ion-icon {
+    font-size: var(--icon-size);
+    color: var(--ion-color-medium);
+    margin-bottom: 8px;
+  }
+  
+  span {
+    font-size: 12px;
+    color: var(--ion-color-medium);
+    text-align: center;
+    padding: 0 4px;
+  }
+}
+
+.upload-hint {
+  p {
+    margin: 8px 0 0 0;
+    font-size: 13px;
+    color: var(--ion-color-medium);
+  }
+}
+
+// 3D model upload
+.model-upload-container {
+  height: 120px;
+}
+
+.model-preview {
+  background-color: var(--upload-bg);
+  border: 2px solid var(--upload-border-color);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  
+  .model-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    
+    span {
+      font-size: 14px;
+      word-break: break-all;
+      color: var(--ion-color-dark);
+    }
+    
+    ion-button {
+      margin: 0;
+      --padding-start: 4px;
+      --padding-end: 4px;
+    }
+  }
+  
+  .upload-progress {
+    height: 6px;
+    background-color: var(--ion-color-light);
+    border-radius: 3px;
+    overflow: hidden;
+    
+    .progress-bar {
+      height: 100%;
+      background-color: var(--progress-bar-color);
+      transition: width 0.3s ease;
+    }
+  }
+}
+
+// Specifications
+.spec-item {
+  margin-bottom: 16px;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  .spec-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    
+    .spec-key {
+      flex: 1;
+    }
+    
+    .spec-value {
+      flex: 2;
+    }
+    
+    ion-button {
+      margin: 0 0 15px 0;
+      --padding-start: 4px;
+      --padding-end: 4px;
+      height: 36px;
+    }
+  }
+}
+
+.no-specs {
+  p {
+    margin: 0;
+    color: var(--ion-color-medium);
+    font-size: 14px;
+    text-align: center;
+    padding: 20px 0;
+  }
+}
+
+// Form actions
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  margin-top: 16px;
+  
+  ion-button {
+    min-width: 120px;
+    height: 44px;
+    font-weight: 500;
+    
+    ion-spinner {
+      margin-left: 8px;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 767px) {
+  .spec-row {
+    flex-direction: column;
+    align-items: stretch !important;
+    
+    .spec-key, .spec-value {
+      flex: 1 !important;
+    }
+    
+    ion-button {
+      align-self: flex-end;
+    }
+  }
+  
+  .form-actions {
+    flex-direction: column-reverse;
+    
+    ion-button {
+      width: 100%;
+    }
+  }
+  
+  ion-card-title {
+    font-size: 16px !important;
+    flex-wrap: wrap;
+    
+    ion-button {
+      margin-top: 8px !important;
+    }
+  }
+}
+
+// Animation
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+ion-card {
+  animation: fadeIn 0.3s ease-out;
+  animation-fill-mode: both;
+  
+  &:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  
+  &:nth-child(3) {
+    animation-delay: 0.2s;
+  }
+}
+
+// Toggle styling
+ion-toggle {
+  --background: var(--ion-color-light);
+  --background-checked: var(--ion-color-primary);
+  --handle-background: white;
+  --handle-background-checked: white;
+}
+
+// Error state styling
+ion-input.ion-invalid.ion-touched, 
+ion-textarea.ion-invalid.ion-touched,
+ion-select.ion-invalid.ion-touched {
+  --border-color: var(--error-color);
+}
+
+// File upload enhancements
+input[type="file"] {
+  position: absolute;
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  z-index: -1;
+}

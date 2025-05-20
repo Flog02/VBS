@@ -24,10 +24,10 @@ import { ProductService } from '../../../core/services/product.service';
     CommonModule,
     ReactiveFormsModule,
     IonInput, IonItem, IonLabel, IonTextarea, IonSelect, IonSelectOption,
-    IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCheckbox, IonList,
-    IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonChip,
-    IonSpinner, IonBadge, IonToggle
-  ]
+    IonButton, IonIcon, IonGrid, IonRow, IonCol,
+    IonCard, IonCardHeader, IonCardTitle, IonCardContent,
+    IonSpinner, IonToggle
+]
 })
 export class ProductFormComponent implements OnInit {
   @Input() product: Product | null = null;

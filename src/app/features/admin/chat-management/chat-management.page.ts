@@ -25,16 +25,15 @@ import { Chat, ChatMessage } from '../../../core/models/chat.model';
   templateUrl: './chat-management.page.html',
   styleUrls: ['./chat-management.page.scss'],
   standalone: true,
-  imports: [IonList, 
+  imports: [IonList,
     CommonModule,
     FormsModule,
-    IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton, 
-    IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, 
-    IonCardTitle, IonCardContent, IonItem, IonLabel, IonInput, 
-    IonSelect, IonSelectOption, IonSearchbar, IonBadge, IonAlert,
+    IonContent,
+    IonButton, IonIcon,
+    IonItem, IonLabel,
+    IonBadge, IonAlert,
     IonSegment, IonSegmentButton, IonAvatar, IonText, IonTextarea,
-    HeaderComponent, FooterComponent, LoadingSpinnerComponent, EmptyStateComponent
-  ]
+    HeaderComponent, LoadingSpinnerComponent, EmptyStateComponent]
 })
 export class ChatManagementPage implements OnInit {
   selectedSegment = 'pending';

@@ -1,0 +1,356 @@
+// src/app/features/admin/user-management/user-management.page.scss
+
+// Variables
+:host {
+  --table-border-color: rgba(0, 0, 0, 0.1);
+  --table-header-bg: rgba(0, 0, 0, 0.02);
+  --row-hover-bg: rgba(0, 0, 0, 0.02);
+  --badge-border-radius: 12px;
+  --section-padding: 16px;
+}
+
+// Main container
+.admin-container {
+  padding: var(--section-padding);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+// Admin header
+.admin-header {
+  margin-bottom: 24px;
+  
+  h1 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    font-weight: 600;
+  }
+  
+  p {
+    margin: 0;
+    color: var(--ion-color-medium);
+  }
+}
+
+// Filters and search
+.filters-container {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  
+  .user-search {
+    flex: 1;
+    min-width: 300px;
+    margin: 0;
+    --border-radius: 8px;
+    --background: var(--ion-color-light);
+    --icon-color: var(--ion-color-medium);
+    --placeholder-color: var(--ion-color-medium);
+  }
+  
+  .filter-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    
+    ion-select {
+      background: var(--ion-color-light);
+      border-radius: 8px;
+      padding: 0 12px;
+      --padding-top: 10px;
+      --padding-bottom: 10px;
+      --placeholder-color: var(--ion-color-medium);
+      --placeholder-opacity: 1;
+      min-width: 180px;
+    }
+  }
+}
+
+// Loading container
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 60px 0;
+}
+
+// Users table
+.users-table-container {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  animation: fadeIn 0.3s ease-out;
+  
+  .table-responsive {
+    overflow-x: auto;
+    width: 100%;
+  }
+  
+  .users-table {
+    width: 100%;
+    border-collapse: collapse;
+    
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      font-size: 14px;
+      border-bottom: 1px solid var(--table-border-color);
+    }
+    
+    th {
+      background-color: var(--table-header-bg);
+      font-weight: 600;
+      color: var(--ion-color-medium);
+      text-transform: uppercase;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    
+    tr:hover {
+      background-color: var(--row-hover-bg);
+    }
+    
+    td:first-child {
+      font-weight: 500;
+    }
+    
+    td:nth-child(2) {
+      color: var(--ion-color-medium);
+    }
+    
+    .actions-cell {
+      white-space: nowrap;
+      
+      ion-button {
+        margin: 0;
+        font-size: 13px;
+        --padding-start: 8px;
+        --padding-end: 8px;
+        height: 36px;
+        
+        ion-icon {
+          margin-right: 5px;
+        }
+      }
+    }
+  }
+  
+  // Empty state
+  .no-users {
+    padding: 40px 0;
+  }
+}
+
+// Role badges
+ion-badge {
+  padding: 6px 12px;
+  border-radius: var(--badge-border-radius);
+  font-weight: normal;
+  text-transform: capitalize;
+  
+  &[color="tertiary"] {
+    --background: rgba(105, 36, 193, 0.1);
+    --color: #6924C1; // tertiary color
+  }
+  
+  &[color="primary"] {
+    --background: rgba(56, 128, 255, 0.1);
+    --color: #3880FF; // primary color
+  }
+}
+
+// Animation
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Role change button hover effect
+.actions-cell ion-button {
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    --background: rgba(var(--ion-color-primary-rgb), 0.05);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 992px) {
+  .users-table {
+    th, td {
+      padding: 12px 10px;
+    }
+    
+    th:nth-child(4), 
+    td:nth-child(4) {
+      display: none; // Hide registered date on medium screens
+    }
+  }
+}
+
+@media (max-width: 767px) {
+  .filters-container {
+    flex-direction: column;
+    align-items: stretch;
+    
+    .user-search {
+      width: 100%;
+    }
+    
+    .filter-actions {
+      width: 100%;
+      
+      ion-select {
+        flex: 1;
+      }
+    }
+  }
+  
+  .users-table {
+    th:nth-child(5), 
+    td:nth-child(5) {
+      display: none; // Hide last login on small screens
+    }
+    
+    .actions-cell {
+      ion-button {
+        font-size: 0; // Hide button text on small screens
+        
+        ion-icon {
+          margin-right: 0;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .users-table {
+    td:first-child {
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    td:nth-child(2) {
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+  
+  .admin-header {
+    h1 {
+      font-size: 22px;
+    }
+  }
+}
+
+// Print styles
+@media print {
+  ion-header, ion-footer, .filters-container {
+    display: none !important;
+  }
+  
+  .admin-container {
+    padding: 0;
+  }
+  
+  .admin-header {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .users-table-container {
+    box-shadow: none;
+  }
+  
+  .users-table {
+    border: 1px solid #ddd;
+    
+    th {
+      background-color: #f5f5f5 !important;
+      color: #333 !important;
+    }
+    
+    .actions-cell {
+      display: none;
+    }
+  }
+  
+  ion-badge {
+    border: 1px solid currentColor;
+    background: transparent !important;
+  }
+}
+
+// Empty state styling
+.no-users app-empty-state {
+  padding: 40px 0;
+  display: block;
+}
+
+// Subtle row stripe
+.users-table tbody tr:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.01);
+}
+
+// Add subtle indicator for authenticated user
+.users-table tr.current-user {
+  background-color: rgba(var(--ion-color-primary-rgb), 0.05);
+  
+  &:hover {
+    background-color: rgba(var(--ion-color-primary-rgb), 0.08);
+  }
+}
+
+// Add tooltip for role badges
+// Replace the problematic tooltip code with this corrected version:
+
+// Add tooltip for role badges
+ion-badge {
+  position: relative;
+  cursor: pointer;
+  
+  &::after {
+    content: attr(color);
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    pointer-events: none;
+    z-index: 10;
+  }
+  
+  &[color="tertiary"]::after {
+    content: "Administrator with full access";
+  }
+  
+  &[color="primary"]::after {
+    content: "Regular customer account";
+  }
+  
+  &:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+}

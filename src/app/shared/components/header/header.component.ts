@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -18,7 +18,8 @@ import {
   IonLabel,
   IonMenuButton,
   IonAvatar,
-  IonChip
+  IonChip,
+  MenuController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
@@ -31,7 +32,10 @@ import {
   locationOutline,
   chatbubbleOutline,
   logOutOutline,
-  settingsOutline, bagOutline, logInOutline } from 'ionicons/icons';
+  settingsOutline, 
+  bagOutline, 
+  logInOutline 
+} from 'ionicons/icons';
 
 import { AuthService } from '../../../core/services/auth.service';
 import { CartService } from '../../../core/services/cart.service';
@@ -70,6 +74,9 @@ export class HeaderComponent implements OnInit {
   cartItemsCount = 0;
   wishlistItemsCount = 0;
   isAdmin = false;
+  
+  // Use inject pattern for MenuController
+  private menuCtrl = inject(MenuController);
 
   constructor(
     public router: Router,
@@ -77,7 +84,20 @@ export class HeaderComponent implements OnInit {
     private cartService: CartService,
     private wishlistService: WishlistService
   ) {
-    addIcons({heartOutline,cartOutline,personOutline,homeOutline,gridOutline,locationOutline,chatbubbleOutline,bagOutline,settingsOutline,logOutOutline,logInOutline,searchOutline});
+    addIcons({
+      heartOutline,
+      cartOutline,
+      personOutline,
+      homeOutline,
+      gridOutline,
+      locationOutline,
+      chatbubbleOutline,
+      bagOutline,
+      settingsOutline,
+      logOutOutline,
+      logInOutline,
+      searchOutline
+    });
   }
 
   ngOnInit() {
@@ -95,8 +115,17 @@ export class HeaderComponent implements OnInit {
     });
   }
 
-  onSearch() {
+  async navigateTo(path: string) {
+    // Close the menu before navigation
+    await this.menuCtrl.close();
+    
+    // Navigate to the specified path
+    this.router.navigateByUrl(path);
+  }
+
+  async onSearch() {
     if (this.searchTerm.trim()) {
+      await this.menuCtrl.close();
       this.router.navigate(['/products'], { 
         queryParams: { search: this.searchTerm } 
       });
@@ -104,7 +133,9 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  navigateToAuth() {
+  async navigateToAuth() {
+    await this.menuCtrl.close();
+    
     if (this.currentUser) {
       this.router.navigate(['/profile']);
     } else {
@@ -112,13 +143,16 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  logout() {
+  async logout() {
+    await this.menuCtrl.close();
+    
     this.authService.logout().subscribe(() => {
       this.router.navigate(['/']);
     });
   }
 
-  goToAdmin() {
+  async goToAdmin() {
+    await this.menuCtrl.close();
     this.router.navigate(['/admin']);
   }
 }

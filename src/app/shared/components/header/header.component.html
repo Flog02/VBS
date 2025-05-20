@@ -5,7 +5,7 @@
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
     
-    <ion-title class="logo" (click)="router.navigate(['/'])">
+    <ion-title class="logo" (click)="navigateTo('/')">
       <h1>VBS</h1>
     </ion-title>
     
@@ -19,12 +19,12 @@
     </ion-searchbar>
     
     <ion-buttons slot="end">
-      <ion-button (click)="router.navigate(['/wishlist'])">
+      <ion-button (click)="navigateTo('/wishlist')">
         <ion-icon name="heart-outline"></ion-icon>
         <ion-badge *ngIf="wishlistItemsCount > 0" color="danger">{{ wishlistItemsCount }}</ion-badge>
       </ion-button>
       
-      <ion-button (click)="router.navigate(['/cart'])">
+      <ion-button (click)="navigateTo('/cart')">
         <ion-icon name="cart-outline"></ion-icon>
         <ion-badge *ngIf="cartItemsCount > 0" color="danger">{{ cartItemsCount }}</ion-badge>
       </ion-button>
@@ -57,55 +57,42 @@
     </div>
 
     <ion-list>
-        <a href="/">
-            <ion-item button>
+      <ion-item button (click)="navigateTo('/')">
         <ion-icon name="home-outline" slot="start"></ion-icon>
         <ion-label>Home</ion-label>
       </ion-item>
-        </a>
       
-      <a href="/products">
-         <ion-item button>
+      <ion-item button (click)="navigateTo('/products')">
         <ion-icon name="grid-outline" slot="start"></ion-icon>
         <ion-label>Products</ion-label>
       </ion-item>
-      </a>
-     
-      <a href="/stores">
-        <ion-item button>
+      
+      <ion-item button (click)="navigateTo('/stores')">
         <ion-icon name="location-outline" slot="start"></ion-icon>
         <ion-label>Stores</ion-label>
       </ion-item>
-      </a>
       
-      <a href="/chat">
-        <ion-item button>
+      <ion-item button (click)="navigateTo('/chat')">
         <ion-icon name="chatbubble-outline" slot="start"></ion-icon>
         <ion-label>Chat Support</ion-label>
       </ion-item>
-      </a>
-      
       
       <!-- Authenticated User Options -->
       <ng-container *ngIf="currentUser">
-        <a href="/profile">
-       <ion-item button>
+        <ion-item button (click)="navigateTo('/profile')">
           <ion-icon name="person-outline" slot="start"></ion-icon>
           <ion-label>My Profile</ion-label>
-        </ion-item></a>
-     
-        <a href="/orders">
-           <ion-item button>
+        </ion-item>
+        
+        <ion-item button (click)="navigateTo('/orders')">
           <ion-icon name="bag-outline" slot="start"></ion-icon>
           <ion-label>My Orders</ion-label>
         </ion-item>
-        </a>
-       
-        <a href="/wishlist"><ion-item button>
+        
+        <ion-item button (click)="navigateTo('/wishlist')">
           <ion-icon name="heart-outline" slot="start"></ion-icon>
           <ion-label>Wishlist</ion-label>
-        </ion-item></a>
-        
+        </ion-item>
         
         <!-- Admin Options -->
         <ion-item *ngIf="isAdmin" button (click)="goToAdmin()">
@@ -120,13 +107,10 @@
       </ng-container>
       
       <!-- Anonymous User Options -->
-       <a href="/auth/login
-       ">
-       <ion-item *ngIf="!currentUser" button >
+      <ion-item *ngIf="!currentUser" button (click)="navigateTo('/auth/login')">
         <ion-icon name="log-in-outline" slot="start"></ion-icon>
         <ion-label>Login / Register</ion-label>
-      </ion-item></a>
-     
+      </ion-item>
     </ion-list>
   </ion-content>
 </ion-menu>

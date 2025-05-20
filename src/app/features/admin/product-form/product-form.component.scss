@@ -12,10 +12,14 @@
   --progress-bar-color: var(--ion-color-primary);
   --image-preview-size: 100px;
   --icon-size: 36px;
+   display: block;
+  height: 100%;
+  overflow-y: auto;
 }
 
 // Grid layout
 ion-grid {
+    min-height: 100%;
   padding: 16px;
   max-width: 1400px;
   margin: 0 auto;

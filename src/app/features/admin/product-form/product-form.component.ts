@@ -5,8 +5,7 @@ import {
   IonInput, IonItem, IonLabel, IonTextarea, IonSelect, IonSelectOption,
   IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCheckbox, IonList,
   IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonChip,
-  IonSpinner, IonBadge, IonToggle
-} from '@ionic/angular/standalone';
+  IonSpinner, IonBadge, IonToggle, IonContent } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
   imageOutline, addOutline, closeOutline, trashOutline, 
@@ -20,7 +19,7 @@ import { ProductService } from '../../../core/services/product.service';
   templateUrl: './product-form.component.html',
   styleUrls: ['./product-form.component.scss'],
   standalone: true,
-  imports: [
+  imports: [IonContent, 
     CommonModule,
     ReactiveFormsModule,
     IonInput, IonItem, IonLabel, IonTextarea, IonSelect, IonSelectOption,

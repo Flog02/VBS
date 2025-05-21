@@ -148,19 +148,21 @@ export class OrderService {
                   switchMap(() => {
                     // Update order status to processing
                     const orderDoc = doc(this.firestore, `orders/${docRef.id}`);
-                    return updateDoc(orderDoc, {
+                    return from(updateDoc(orderDoc, {
                       paymentStatus: 'paid',
                       status: 'processing',
                       updatedAt: serverTimestamp()
-                    }).then(() => {
-                      // Clear the cart
-                      this.cartService.clearCart().subscribe();
-                      return docRef.id;
-                    });
+                    })).pipe(
+                      switchMap(() => {
+                        // Clear the cart and return the orderId
+                        return this.cartService.clearCart().pipe(
+                          map(() => docRef.id)
+                        );
+                      })
+                    );
                   })
                 );
-              }),
-              map(orderId => orderId)
+              })
             );
           })
         );

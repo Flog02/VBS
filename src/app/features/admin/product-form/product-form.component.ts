@@ -1,32 +1,37 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { 
   IonInput, IonItem, IonLabel, IonTextarea, IonSelect, IonSelectOption,
   IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCheckbox, IonList,
   IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonChip,
-  IonSpinner, IonBadge, IonToggle, IonContent } from '@ionic/angular/standalone';
+  IonSpinner, IonBadge, IonToggle, IonContent, ToastController 
+} from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
   imageOutline, addOutline, closeOutline, trashOutline, 
-  saveOutline, reloadOutline, checkmarkOutline, cubeOutline } from 'ionicons/icons';
+  saveOutline, reloadOutline, checkmarkOutline, cubeOutline 
+} from 'ionicons/icons';
 
 import { Product } from '../../../core/models/product.model';
 import { ProductService } from '../../../core/services/product.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-product-form',
   templateUrl: './product-form.component.html',
   styleUrls: ['./product-form.component.scss'],
   standalone: true,
-  imports: [IonContent, 
+  imports: [
+    IonContent, 
     CommonModule,
     ReactiveFormsModule,
     IonInput, IonItem, IonLabel, IonTextarea, IonSelect, IonSelectOption,
     IonButton, IonIcon, IonGrid, IonRow, IonCol,
     IonCard, IonCardHeader, IonCardTitle, IonCardContent,
     IonSpinner, IonToggle
-]
+  ]
 })
 export class ProductFormComponent implements OnInit {
   @Input() product: Product | null = null;
@@ -41,6 +46,9 @@ export class ProductFormComponent implements OnInit {
   selectedImages: File[] = [];
   imagePreviewUrls: string[] = [];
   uploadProgress: number[] = [];
+  
+  // Default product image
+  defaultProductImage = 'assets/images/product-placeholder.png';
   
   // 3D model upload
   selectedModel: File | null = null;
@@ -62,9 +70,20 @@ export class ProductFormComponent implements OnInit {
   
   constructor(
     private formBuilder: FormBuilder,
-    private productService: ProductService
+    private productService: ProductService,
+    private router: Router,
+    private toastCtrl: ToastController
   ) {
-    addIcons({closeOutline,imageOutline,cubeOutline,addOutline,trashOutline,saveOutline,reloadOutline,checkmarkOutline});
+    addIcons({
+      closeOutline,
+      imageOutline,
+      cubeOutline,
+      addOutline,
+      trashOutline,
+      saveOutline,
+      reloadOutline,
+      checkmarkOutline
+    });
   }
   
   ngOnInit() {
@@ -100,11 +119,11 @@ export class ProductFormComponent implements OnInit {
       price: this.product.price,
       salePrice: this.product.salePrice,
       category: this.product.category,
-      subcategory: this.product.subcategory,
+      subcategory: this.product.subcategory || '',
       brand: this.product.brand,
       stock: this.product.stock,
-      featured: this.product.featured,
-      rating: this.product.rating
+      featured: this.product.featured || false,
+      rating: this.product.rating || 0
     });
     
     // Set spec keys and values
@@ -113,7 +132,8 @@ export class ProductFormComponent implements OnInit {
       this.specKeys = Object.keys(this.product.specifications);
       
       this.specKeys.forEach(key => {
-        specGroup.addControl(key, this.formBuilder.control(this.product!.specifications[key]));
+        const value = this.product?.specifications?.[key] || '';
+        specGroup.addControl(key, this.formBuilder.control(value));
       });
     }
     
@@ -160,21 +180,25 @@ export class ProductFormComponent implements OnInit {
   }
   
   removeImage(index: number) {
-    if (this.isEdit && index < (this.product?.images.length || 0)) {
+    if (this.isEdit && this.product?.images && index < this.product.images.length) {
       // Remove from product images array (will be updated on save)
       this.imagePreviewUrls.splice(index, 1);
     } else {
       // Remove from selected images
-      const adjustedIndex = this.isEdit ? index - (this.product?.images.length || 0) : index;
-      this.selectedImages.splice(adjustedIndex, 1);
+      const adjustedIndex = this.isEdit && this.product?.images ? 
+                           index - this.product.images.length : 
+                           index;
+      if (adjustedIndex >= 0 && adjustedIndex < this.selectedImages.length) {
+        this.selectedImages.splice(adjustedIndex, 1);
+        this.uploadProgress.splice(adjustedIndex, 1);
+      }
       this.imagePreviewUrls.splice(index, 1);
-      this.uploadProgress.splice(adjustedIndex, 1);
     }
   }
   
   removeModel() {
     this.selectedModel = null;
-    this.modelPreviewUrl = this.isEdit && this.product?.model3dUrl ? '' : '';
+    this.modelPreviewUrl = '';
     this.modelUploadProgress = 0;
   }
   
@@ -214,25 +238,29 @@ export class ProductFormComponent implements OnInit {
   }
   
   async onSubmit() {
+    console.log('Form submitted', this.productForm.value);
+    
     if (this.productForm.invalid) {
       // Mark all fields as touched to trigger validation messages
-      Object.keys(this.productForm.controls).forEach(key => {
-        const control = this.productForm.get(key);
-        control?.markAsTouched();
-      });
+      this.markFormGroupTouched(this.productForm);
+      await this.showToast('Please fix the form errors before submitting.');
       return;
     }
     
     this.isSubmitting = true;
+    console.log('Submitting started, isSubmitting =', this.isSubmitting);
     
     try {
+      // Get form values
       const formData = this.productForm.value;
+      console.log('Form data:', formData);
       
       // Process specifications
       const specifications: Record<string, any> = {};
       this.specKeys.forEach(key => {
         specifications[key] = formData.specifications[key];
       });
+      console.log('Specifications:', specifications);
       
       // Create product object
       const productData: any = {
@@ -242,7 +270,7 @@ export class ProductFormComponent implements OnInit {
         category: formData.category,
         brand: formData.brand,
         stock: Number(formData.stock),
-        featured: formData.featured,
+        featured: Boolean(formData.featured),
         rating: Number(formData.rating),
         specifications
       };
@@ -256,95 +284,158 @@ export class ProductFormComponent implements OnInit {
         productData.subcategory = formData.subcategory;
       }
       
-      // Handle existing images
-      let images: string[] = [];
-      if (this.isEdit && this.product) {
-        // Keep the remaining images after any removals
-        const remainingOriginalImagesCount = Math.min(
-          this.imagePreviewUrls.length, 
-          this.product.images.length
+      console.log('Initial product data:', productData);
+      
+      // Generate a temporary ID for new products to use with file uploads
+      const tempId = 'temp_' + new Date().getTime();
+      const productId = this.isEdit && this.product ? this.product.id : tempId;
+      console.log('Using product ID for uploads:', productId);
+      
+      // Handle file uploads first
+      let imageUrls: string[] = [];
+      let modelUrl: string | null = null;
+      
+      // Handle existing images if editing
+      if (this.isEdit && this.product?.images) {
+        // Only keep images that are still in the preview (not removed)
+        imageUrls = this.imagePreviewUrls.filter(url => 
+          this.product?.images.includes(url)
         );
-        
-        images = this.imagePreviewUrls.slice(0, remainingOriginalImagesCount);
       }
       
-      // Handle new uploaded images
+      console.log('Starting image uploads, count:', this.selectedImages.length);
+      
+      // Upload new images
       if (this.selectedImages.length > 0) {
         for (let i = 0; i < this.selectedImages.length; i++) {
           const file = this.selectedImages[i];
-          const productId = this.isEdit && this.product ? this.product.id : 'temp';
+          console.log(`Uploading image ${i}: ${file.name}`);
           
           try {
             const downloadUrl = await this.uploadImage(file, productId, i);
-            images.push(downloadUrl);
+            console.log(`Image ${i} uploaded successfully:`, downloadUrl);
+            imageUrls.push(downloadUrl);
           } catch (error) {
             console.error(`Error uploading image ${i}:`, error);
+            await this.showToast(`Failed to upload image: ${file.name}`);
           }
         }
       }
       
-      // Add images to product data
-      productData.images = images;
-      
-      // Handle 3D model upload
+      // Upload 3D model if selected
       if (this.selectedModel) {
-        const productId = this.isEdit && this.product ? this.product.id : 'temp';
+        console.log('Uploading 3D model:', this.selectedModel.name);
         try {
-          const modelUrl = await this.uploadModel(this.selectedModel, productId);
-          productData.model3dUrl = modelUrl;
+          modelUrl = await this.uploadModel(this.selectedModel, productId);
+          console.log('3D model uploaded successfully:', modelUrl);
         } catch (error) {
           console.error('Error uploading 3D model:', error);
+          await this.showToast(`Failed to upload 3D model: ${this.selectedModel.name}`);
         }
-      } else if (this.isEdit && this.product && this.product.model3dUrl && this.modelPreviewUrl) {
-        // Keep existing model URL
-        productData.model3dUrl = this.product.model3dUrl;
+      } else if (this.isEdit && this.product?.model3dUrl) {
+        // Keep existing model if not changed
+        modelUrl = this.product.model3dUrl;
       }
       
-      // Create or update product
+      // Add image and model URLs to product data
+      productData.images = imageUrls.length > 0 ? imageUrls : [this.defaultProductImage];
+      
+      if (modelUrl) {
+        productData.model3dUrl = modelUrl;
+      }
+      
+      console.log('Final product data to save:', productData);
+      
+      // Save to Firebase
       if (this.isEdit && this.product) {
-        await this.productService.updateProduct(this.product.id, productData).toPromise();
+        console.log('Updating existing product:', this.product.id);
+        // Use await with firstValueFrom
+        await firstValueFrom(this.productService.updateProduct(this.product.id, productData));
+        console.log('Product updated successfully');
+        await this.showToast('Product updated successfully.');
         this.formSubmitted.emit({ action: 'update', product: { id: this.product.id, ...productData } });
       } else {
-        const productId = await this.productService.createProduct(productData).toPromise();
-        this.formSubmitted.emit({ action: 'create', product: { id: productId, ...productData } });
+        console.log('Creating new product');
+        // Use await with firstValueFrom
+        const newProductId = await firstValueFrom(this.productService.createProduct(productData));
+        console.log('Product created successfully with ID:', newProductId);
+        await this.showToast('Product created successfully.');
+        this.formSubmitted.emit({ action: 'create', product: { id: newProductId, ...productData } });
       }
       
-      this.isSubmitting = false;
+      // Navigate back to admin products page
+      this.router.navigate(['/admin/products']);
     } catch (error) {
       console.error('Error saving product:', error);
+      await this.showToast('Failed to save product. Please try again.');
+    } finally {
       this.isSubmitting = false;
+      console.log('Submission completed, isSubmitting =', this.isSubmitting);
     }
   }
   
-  cancel() {
-    this.cancelEdit.emit();
-  }
-  
-  async uploadImage(file: File, productId: string, index: number): Promise<string> {
-    return new Promise((resolve, reject) => {
-      this.productService.uploadProductImage(file, productId).subscribe(
-        url => {
-          this.uploadProgress[index] = 100;
-          resolve(url);
-        },
-        error => {
-          reject(error);
-        }
-      );
+  // Helper method to mark all form fields as touched
+  private markFormGroupTouched(formGroup: FormGroup) {
+    Object.keys(formGroup.controls).forEach(key => {
+      const control = formGroup.get(key);
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      } else {
+        control?.markAsTouched();
+      }
     });
   }
   
-  async uploadModel(file: File, productId: string): Promise<string> {
+  // Helper method to show toast messages
+  private async showToast(message: string) {
+    const toast = await this.toastCtrl.create({
+      message: message,
+      duration: 3000,
+      position: 'bottom',
+      color: message.includes('successfully') ? 'success' : 'danger'
+    });
+    await toast.present();
+  }
+  
+  // Fixed cancel method with proper navigation
+  cancel() {
+    console.log('Cancel button clicked');
+    // Emit the cancelEdit event for any parent components
+    this.cancelEdit.emit();
+    
+    // Navigate back to admin products page
+    this.router.navigate(['/admin/products']);
+  }
+  
+  // Helper method to upload an image
+  private async uploadImage(file: File, productId: string, index: number): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.productService.upload3DModel(file, productId).subscribe(
-        url => {
+      this.productService.uploadProductImage(file, productId).subscribe({
+        next: (url) => {
+          this.uploadProgress[index] = 100;
+          resolve(url);
+        },
+        error: (error) => {
+          console.error('Error uploading image:', error);
+          reject(error);
+        }
+      });
+    });
+  }
+  
+  // Helper method to upload a 3D model
+  private async uploadModel(file: File, productId: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      this.productService.upload3DModel(file, productId).subscribe({
+        next: (url) => {
           this.modelUploadProgress = 100;
           resolve(url);
         },
-        error => {
+        error: (error) => {
+          console.error('Error uploading 3D model:', error);
           reject(error);
         }
-      );
+      });
     });
   }
   

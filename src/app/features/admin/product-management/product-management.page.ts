@@ -1,7 +1,7 @@
 // src/app/features/admin/product-management/product-management.page.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, NavigationEnd } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { 
   IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton, 
@@ -23,6 +23,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { ProductService } from '../../../core/services/product.service';
 import { Product } from '../../../core/models/product.model';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-product-management',
@@ -39,7 +40,7 @@ import { Product } from '../../../core/models/product.model';
     IonInfiniteScroll, IonInfiniteScrollContent,
     IonAlert,
     HeaderComponent, FooterComponent, LoadingSpinnerComponent, EmptyStateComponent
-]
+  ]
 })
 export class ProductManagementPage implements OnInit {
   products: Product[] = [];
@@ -76,6 +77,17 @@ export class ProductManagementPage implements OnInit {
     private productService: ProductService,
     private router: Router
   ) {
+    // Listen for route changes to reload products when navigating back to this page
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      // Check if this is our products page
+      if (event.url === '/admin/products') {
+        console.log('Returned to products page, reloading products');
+        this.loadProducts();
+      }
+    });
+    
     addIcons({
       addOutline, trashOutline, createOutline, searchOutline, 
       filterOutline, arrowDownOutline, arrowUpOutline, ellipsisVerticalOutline
@@ -83,31 +95,47 @@ export class ProductManagementPage implements OnInit {
   }
   
   ngOnInit() {
+    console.log('ProductManagementPage initialized, loading products');
     this.loadProducts();
   }
-  deleteAlertButtons = [
-  {
-    text: 'Cancel',
-    role: 'cancel',
-    handler: () => {
-      this.cancelDelete();
-    }
-  },
-  {
-    text: 'Delete',
-    role: 'destructive',
-    handler: () => {
-      this.deleteProduct();
-    }
+  
+  ionViewWillEnter() {
+    console.log('ionViewWillEnter: Reloading products');
+    this.loadProducts();
   }
-];
+  
+  deleteAlertButtons = [
+    {
+      text: 'Cancel',
+      role: 'cancel',
+      handler: () => {
+        this.cancelDelete();
+      }
+    },
+    {
+      text: 'Delete',
+      role: 'destructive',
+      handler: () => {
+        this.deleteProduct();
+      }
+    }
+  ];
   
   loadProducts(event?: any) {
+    console.log('Loading products...');
     if (!event) {
       this.isLoading = true;
       this.products = [];
       this.lastVisible = null;
     }
+    
+    console.log('Calling productService.getProducts with params:', {
+      category: this.selectedCategory,
+      sortField: this.sortField,
+      sortDirection: this.sortDirection,
+      pageSize: this.pageSize,
+      lastVisible: this.lastVisible
+    });
     
     this.productService.getProducts(
       this.selectedCategory,
@@ -115,8 +143,10 @@ export class ProductManagementPage implements OnInit {
       this.sortDirection,
       this.pageSize,
       this.lastVisible
-    ).subscribe(
-      result => {
+    ).subscribe({
+      next: result => {
+        console.log('Products loaded:', result);
+        
         const newProducts = this.searchTerm 
           ? result.products.filter(p => 
               p.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
@@ -128,6 +158,7 @@ export class ProductManagementPage implements OnInit {
         this.lastVisible = result.lastVisible;
         this.noMoreProducts = newProducts.length < this.pageSize;
         
+        console.log('Processed products:', this.products.length);
         this.isLoading = false;
         
         if (event) {
@@ -137,14 +168,14 @@ export class ProductManagementPage implements OnInit {
           }
         }
       },
-      error => {
+      error: error => {
         console.error('Error loading products:', error);
         this.isLoading = false;
         if (event) {
           event.target.complete();
         }
       }
-    );
+    });
   }
   
   onSearchChange(event: any) {
@@ -188,18 +219,18 @@ export class ProductManagementPage implements OnInit {
   deleteProduct() {
     if (!this.productToDelete) return;
     
-    this.productService.deleteProduct(this.productToDelete.id).subscribe(
-      () => {
+    this.productService.deleteProduct(this.productToDelete.id).subscribe({
+      next: () => {
         // Remove from local array
         this.products = this.products.filter(p => p.id !== this.productToDelete?.id);
         this.productToDelete = null;
         this.showDeleteAlert = false;
       },
-      error => {
+      error: error => {
         console.error('Error deleting product:', error);
         this.showDeleteAlert = false;
       }
-    );
+    });
   }
   
   cancelDelete() {

@@ -1,81 +1,53 @@
 <!-- src/app/shared/components/footer/footer.component.html -->
-<ion-footer>
-  <div class="footer-top">
-    <ion-grid>
-      <ion-row>
-        <ion-col size="12" size-md="3">
-          <div class="footer-section">
-            <h3>VBS</h3>
-            <p>Your one-stop shop for mobile phones, TV services, and electronics.</p>
-            <div class="social-icons">
-              <ion-button fill="clear" color="light">
-                <ion-icon name="logo-facebook"></ion-icon>
-              </ion-button>
-              <ion-button fill="clear" color="light">
-                <ion-icon name="logo-twitter"></ion-icon>
-              </ion-button>
-              <ion-button fill="clear" color="light">
-                <ion-icon name="logo-instagram"></ion-icon>
-              </ion-button>
-              <ion-button fill="clear" color="light">
-                <ion-icon name="logo-youtube"></ion-icon>
-              </ion-button>
-            </div>
+<footer class="page-footer">
+  <div class="footer-main">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h3>VBS</h3>
+        <p>Your one-stop shop for mobile phones, TV services, and electronics.</p>
+      </div>
+      
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a routerLink="/home">Home</a></li>
+          <li><a routerLink="/products">Products</a></li>
+          <li><a routerLink="/stores">Store Locations</a></li>
+          <li><a routerLink="/support">Support</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-col">
+        <h4>Categories</h4>
+        <ul>
+          <li><a routerLink="/products" [queryParams]="{category: 'mobile'}">Mobile Phones</a></li>
+          <li><a routerLink="/products" [queryParams]="{category: 'tv'}">TV & Services</a></li>
+          <li><a routerLink="/products" [queryParams]="{category: 'accessories'}">Accessories</a></li>
+          <li><a routerLink="/products" [queryParams]="{category: 'electronics'}">Electronics</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-col">
+        <h4>Contact Us</h4>
+        <div class="contact-list">
+          <div class="contact-row">
+            <ion-icon name="location-outline"></ion-icon>
+            <span>123 Tech Street, Electronics City</span>
           </div>
-        </ion-col>
-
-        <ion-col size="12" size-md="3">
-          <div class="footer-section">
-            <h4>Quick Links</h4>
-            <ul class="footer-links">
-              <li><a (click)="router.navigate(['/'])">Home</a></li>
-              <li><a (click)="router.navigate(['/products'])">Products</a></li>
-              <li><a (click)="router.navigate(['/stores'])">Store Locations</a></li>
-              <li><a (click)="router.navigate(['/chat'])">Support</a></li>
-            </ul>
+          <div class="contact-row">
+            <ion-icon name="call-outline"></ion-icon>
+            <span>+1 (234) 567-8900</span>
           </div>
-        </ion-col>
-
-        <ion-col size="12" size-md="3">
-          <div class="footer-section">
-            <h4>Categories</h4>
-            <ul class="footer-links">
-              <li><a (click)="router.navigate(['/products'], { queryParams: { category: 'mobile' } })">Mobile Phones</a></li>
-              <li><a (click)="router.navigate(['/products'], { queryParams: { category: 'tv' } })">TV & Services</a></li>
-              <li><a (click)="router.navigate(['/products'], { queryParams: { category: 'accessories' } })">Accessories</a></li>
-              <li><a (click)="router.navigate(['/products'], { queryParams: { category: 'electronics' } })">Electronics</a></li>
-            </ul>
+          <div class="contact-row">
+            <ion-icon name="mail-outline"></ion-icon>
+            <span>info&#64;vbs-electronics.com</span>
           </div>
-        </ion-col>
-
-        <ion-col size="12" size-md="3">
-          <div class="footer-section">
-            <h4>Contact Us</h4>
-            <div class="contact-info">
-              <p>
-                <ion-icon name="location-outline"></ion-icon>
-                123 Tech Street, Electronics City
-              </p>
-              <p>
-                <ion-icon name="call-outline"></ion-icon>
-                +1 (234) 567-8900
-              </p>
-              <p>
-                <ion-icon name="mail-outline"></ion-icon>
-                info$vbs-electronics.com
-              </p>
-            </div>
-          </div>
-        </ion-col>
-      </ion-row>
-    </ion-grid>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <div class="footer-bottom">
-    <ion-toolbar color="tertiary">
-      <ion-text color="light" class="copyright">
-        <p>&copy; {{ currentYear }} VBS Electronics. All rights reserved.</p>
-      </ion-text>
-    </ion-toolbar>
+  
+  <div class="footer-copyright">
+    <p>&copy; {{ currentYear }} VBS Electronics. All rights reserved.</p>
   </div>
-</ion-footer>
+</footer>

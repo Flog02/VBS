@@ -1,99 +1,51 @@
-/* src/app/features/home/home.page.scss */
-// Hero Slider
-.hero-slider {
-  height: 500px;
-  
-  @media (max-width: 768px) {
-    height: 400px;
+/* Enhanced Hero Section with Blue Palette & Auto-Slide Indicators */
+
+// Blue Color Palette Variables
+:root {
+  --hero-primary-blue: #1e3a8a;      // Deep blue
+  --hero-secondary-blue: #3b82f6;    // Medium blue
+  --hero-light-blue: #60a5fa;        // Light blue
+  --hero-accent-blue: #0f172a;       // Very dark blue
+  --hero-glow-blue: #3b82f680;       // Blue with transparency
+}
+
+// Enhanced animations for hero section
+@keyframes slideIndicator {
+  0% {
+    transform: translateX(-100%);
+    opacity: 0;
   }
-  
-  @media (max-width: 480px) {
-    height: 300px;
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
   }
 }
 
-.slide-content {
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  display: flex;
-  align-items: center;
-  position: relative;
-  
-  &.slide-1 {
-    background-image: url('/assets/images/hero-1.jpg');
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px var(--hero-glow-blue);
   }
-  
-  &.slide-2 {
-    background-image: url('/assets/images/hero-2.jpg');
-  }
-  
-  &.slide-3 {
-    background-image: url('/assets/images/hero-3.jpg');
+  50% {
+    box-shadow: 0 0 40px var(--hero-glow-blue), 0 0 60px var(--hero-glow-blue);
   }
 }
 
-.slide-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 100%);
-}
-
-.slide-text {
-  position: relative;
-  z-index: 2;
-  max-width: 600px;
-  padding: 0 20px;
-  margin-left: 10%;
-  animation: fadeInUp 1s ease-out;
-  
-  h1 {
-    color: white;
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 15px;
-    
-    @media (max-width: 768px) {
-      font-size: 2rem;
-    }
-    
-    @media (max-width: 480px) {
-      font-size: 1.5rem;
-    }
+@keyframes slideProgress {
+  from {
+    width: 0%;
   }
-  
-  p {
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 1.2rem;
-    margin-bottom: 25px;
-    
-    @media (max-width: 768px) {
-      font-size: 1rem;
-    }
-    
-    @media (max-width: 480px) {
-      font-size: 0.9rem;
-    }
-  }
-  
-  ion-button {
-    --border-radius: 8px;
-    font-weight: 600;
-    --padding-top: 12px;
-    --padding-bottom: 12px;
-    --padding-start: 20px;
-    --padding-end: 20px;
+  to {
+    width: 100%;
   }
 }
 
-@keyframes fadeInUp {
+@keyframes fadeInSlide {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(50px);
   }
   to {
     opacity: 1;
@@ -101,460 +53,525 @@
   }
 }
 
-// Main Content Container
-.home-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-}
-
-// Search Container
-.search-container {
-  margin: 30px 0;
-  max-width: 600px;
-  margin: 30px auto;
-}
-
-// Section Styles
-section {
-  margin-bottom: 60px;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-  
-  &.centered {
-    flex-direction: column;
-    text-align: center;
-    
-    p {
-      margin-top: 10px;
-    }
-    
-    h2:after {
-      margin: 15px auto 0;
-    }
+@keyframes swipeHint {
+  0%, 100% {
+    transform: translateX(0);
   }
-  
-  h2 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--ion-color-dark);
-    margin: 0;
-    position: relative;
-    
-    &:after {
-      content: '';
-      position: absolute;
-      bottom: -10px;
-      left: 0;
-      width: 50px;
-      height: 3px;
-      background-color: var(--ion-color-primary);
-    }
-  }
-  
-  p {
-    color: var(--ion-color-medium);
-    margin: 0;
-  }
-  
-  ion-button {
-    font-size: 0.9rem;
+  50% {
+    transform: translateX(10px);
   }
 }
 
-// Categories Section
-.categories-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 20px;
-}
-
-.category-card {
-  background-color: white;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  text-align: center;
-  transition: transform 0.3s, box-shadow 0.3s;
-  cursor: pointer;
-  border-top: 4px solid;
-  
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  }
-  
-  .category-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 0 auto 15px;
-    
-    ion-icon {
-      font-size: 30px;
-      color: white;
-    }
-  }
-  
-  h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    margin: 0;
-    color: var(--ion-color-dark);
-  }
-}
-
-// Products Section
-.loading-container {
-  min-height: 300px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.product-slider {
-  padding: 10px 0 30px;
-}
-
-// Promo Banner
-.promo-banner {
-  background-image: url('/assets/images/img4.jpg');
-  background-size: cover;
-  background-position: center;
-  border-radius: 10px;
-  overflow: hidden;
+// Enhanced Hero Slider Container
+.hero-slider {
+  height: 500px;
   position: relative;
-  height: 250px;
-  margin-bottom: 60px;
+  overflow: hidden;
+  border-radius: 0 0 25px 25px;
+  box-shadow: 
+    0 10px 30px rgba(30, 58, 138, 0.3),
+    0 0 0 1px rgba(59, 130, 246, 0.2);
   
-  &:before {
+  @media (max-width: 768px) {
+    height: 400px;
+    border-radius: 0 0 20px 20px;
+  }
+  
+  @media (max-width: 480px) {
+    height: 300px;
+    border-radius: 0 0 15px 15px;
+  }
+
+  // Slide Indicator Overlay
+  &::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
-    background: linear-gradient(to right, rgba(var(--ion-color-primary-rgb), 0.8) 0%, rgba(var(--ion-color-primary-rgb), 0.4) 100%);
+    height: 4px;
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      var(--hero-light-blue) 50%, 
+      transparent 100%);
+    animation: slideIndicator 3s infinite ease-in-out;
+    z-index: 10;
   }
-}
 
-.promo-content {
-  display: flex;
-  align-items: center;
-  height: 100%;
-  padding: 0 40px;
-  position: relative;
-  z-index: 1;
-}
-
-.promo-text {
-  color: white;
-  max-width: 500px;
-  
-  h2 {
-    font-size: 2.2rem;
-    font-weight: 700;
-    margin-bottom: 10px;
-    
-    @media (max-width: 768px) {
-      font-size: 1.8rem;
-    }
-  }
-  
-  p {
-    font-size: 1.1rem;
-    margin-bottom: 20px;
-    
-    @media (max-width: 768px) {
-      font-size: 1rem;
-    }
-  }
-  
-  ion-button {
-    --border-radius: 8px;
-    --border-width: 2px;
+  // Swipe Hint Indicator
+  &::after {
+    content: '👈 Swipe or wait for auto-slide 👉';
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(15, 23, 42, 0.9);
+    color: var(--hero-light-blue);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
     font-weight: 600;
+    backdrop-filter: blur(10px);
+    animation: fadeInSlide 1s ease-out 2s both, swipeHint 2s ease-in-out 3s infinite;
+    z-index: 8;
+    
+    @media (max-width: 768px) {
+      bottom: 70px;
+      font-size: 0.75rem;
+      padding: 6px 12px;
+    }
+    
+    @media (max-width: 480px) {
+      display: none; // Hide on very small screens
+    }
   }
-}
 
-// Why Choose Us Section
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 30px;
-}
-
-.feature-card {
-  background-color: white;
-  border-radius: 10px;
-  padding: 30px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  text-align: center;
-  transition: transform 0.3s, box-shadow 0.3s;
-  
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  }
-  
-  .feature-icon {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    background-color: var(--ion-color-primary-tint);
+  // Enhanced Custom Pagination
+  ::ng-deep .swiper-pagination {
+    bottom: 25px;
     display: flex;
     justify-content: center;
-    align-items: center;
-    margin: 0 auto 20px;
+    gap: 8px;
     
-    ion-icon {
-      font-size: 35px;
-      color: var(--ion-color-primary);
-    }
-  }
-  
-  h3 {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin: 0 0 10px 0;
-    color: var(--ion-color-dark);
-  }
-  
-  p {
-    color: var(--ion-color-medium);
-    margin: 0;
-    line-height: 1.5;
-  }
-}
-
-// Store Locations Section
-.stores-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 30px;
-}
-
-.store-card {
-  background-color: white;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s, box-shadow 0.3s;
-  
-  &:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-  }
-  
-  .store-image {
-    height: 200px;
-    width: 100%;
-    overflow: hidden;
-    
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s;
+    .swiper-pagination-bullet {
+      width: 12px;
+      height: 12px;
+      background: rgba(255, 255, 255, 0.4);
+      opacity: 1;
+      border-radius: 50%;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      border: 2px solid rgba(255, 255, 255, 0.6);
       
-      &:hover {
-        transform: scale(1.05);
+      &::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        border-radius: 50%;
+        background: linear-gradient(45deg, var(--hero-secondary-blue), var(--hero-light-blue));
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+    }
+
+    .swiper-pagination-bullet-active {
+      background: white;
+      transform: scale(1.4);
+      box-shadow: 
+        0 0 15px rgba(255, 255, 255, 0.8),
+        0 0 25px var(--hero-glow-blue);
+      animation: pulseGlow 2s ease-in-out infinite;
+      
+      &::before {
+        opacity: 1;
+      }
+      
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        transform: translate(-50%, -50%);
+        border: 2px solid var(--hero-light-blue);
+        border-radius: 50%;
+        animation: pulseGlow 1.5s ease-in-out infinite;
       }
     }
   }
+
+  // Enhanced Navigation Arrows
+  ::ng-deep .swiper-button-next,
+  ::ng-deep .swiper-button-prev {
+    width: 55px;
+    height: 55px;
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 50%;
+    border: 2px solid rgba(59, 130, 246, 0.6);
+    backdrop-filter: blur(15px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    color: var(--hero-light-blue);
+    
+    &:hover {
+      background: rgba(30, 58, 138, 0.9);
+      border-color: var(--hero-light-blue);
+      transform: scale(1.15);
+      box-shadow: 
+        0 8px 25px rgba(30, 58, 138, 0.4),
+        0 0 30px var(--hero-glow-blue);
+      color: white;
+    }
+
+    &::after {
+      font-size: 18px;
+      font-weight: bold;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    // Auto-slide pulse effect
+    animation: pulseGlow 3s ease-in-out infinite;
+  }
   
-  .store-details {
-    padding: 20px;
-    
-    h3 {
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin: 0 0 10px 0;
-      color: var(--ion-color-dark);
-    }
-    
-    .store-address {
-      color: var(--ion-color-medium);
-      margin-bottom: 10px;
-      font-size: 0.9rem;
-    }
-    
-    .store-contact {
-      display: flex;
-      align-items: center;
-      color: var(--ion-color-medium);
-      font-size: 0.9rem;
-      margin-bottom: 15px;
-      
-      ion-icon {
-        margin-right: 5px;
-        color: var(--ion-color-primary);
-      }
-    }
+  // Progress bar for auto-slide
+  .slide-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: var(--hero-secondary-blue);
+    animation: slideProgress 3s linear infinite;
+    z-index: 9;
+    box-shadow: 0 0 10px var(--hero-glow-blue);
   }
 }
 
-.view-all-stores {
-  text-align: center;
-  margin-top: 30px;
-  
-  ion-button {
-    --border-radius: 8px;
-    font-weight: 600;
-  }
-}
-
-// Newsletter Section
-.newsletter-section {
-  background-color: var(--ion-color-primary);
-  margin: 60px -20px -20px;
-  padding: 60px 20px;
-}
-
-.newsletter-content {
-  max-width: 800px;
-  margin: 0 auto;
+// Enhanced Slide Content
+.slide-content {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: center;
+  position: relative;
   
-  @media (max-width: 768px) {
-    flex-direction: column;
-    text-align: center;
-  }
-}
-
-.newsletter-text {
-  flex: 1;
-  margin-right: 40px;
-  
-  @media (max-width: 768px) {
-    margin-right: 0;
-    margin-bottom: 30px;
+  &.slide-1 {
+    background: linear-gradient(135deg, var(--hero-primary-blue) 0%, var(--hero-secondary-blue) 100%);
   }
   
-  h2 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: white;
-    margin: 0 0 10px 0;
+  &.slide-2 {
+    background: linear-gradient(135deg, var(--hero-accent-blue) 0%, var(--hero-primary-blue) 100%);
   }
   
-  p {
-    color: rgba(255, 255, 255, 0.8);
-    margin: 0;
-    font-size: 1.1rem;
-  }
-}
-
-.newsletter-form {
-  display: flex;
-  max-width: 400px;
-  width: 100%;
-  
-  ion-item {
-    flex: 1;
-    --background: white;
-    --border-radius: 8px 0 0 8px;
-    
-    ion-icon {
-      color: var(--ion-color-primary);
-    }
+  &.slide-3 {
+    background: linear-gradient(135deg, var(--hero-secondary-blue) 0%, var(--hero-light-blue) 100%);
   }
   
-  ion-button {
-    --border-radius: 0 8px 8px 0;
-    margin: 0;
-    height: 48px;
-    font-weight: 600;
-  }
-}
-
-/* Hero Slider */
-.hero-slider {
-  width: 100%;
-  height: 500px;
-  
-  swiper-slide {
-    width: 100%;
-    height: 100%;
-  }
-  
-  .slide-content {
-    width: 100%;
-    height: 100%;
-    background-position: center;
-    background-size: cover;
-    position: relative;
-    
-
-    //hero section background images 
-    &.slide-1 {
-      background-image: url('/assets/images/hero-1.jpg');
-    }
-    
-    &.slide-2 {
-      background-image: url('/assets/images/hero-2.jpg');
-    }
-    
-    &.slide-3 {
-      background-image: url('/assets/images/hero-3.jpg');
-    }
-  }
-  
-  .slide-overlay {
+  // Add pattern overlay for visual interest
+  &::before {
+    content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.4);
+    background-image: 
+      radial-gradient(circle at 25% 25%, rgba(255,255,255,0.1) 1px, transparent 1px),
+      radial-gradient(circle at 75% 75%, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 50px 50px, 30px 30px;
+    opacity: 0.3;
+  }
+}
+
+.background-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+  opacity: 0.7;
+}
+
+// Enhanced Slide Overlay
+.slide-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(15, 23, 42, 0.8) 0%,
+    rgba(30, 58, 138, 0.6) 30%,
+    rgba(59, 130, 246, 0.4) 70%,
+    rgba(15, 23, 42, 0.7) 100%
+  );
+  z-index: 2;
+}
+
+// Enhanced Slide Text
+.slide-text {
+  position: relative;
+  z-index: 3;
+  color: white;
+  text-align: center;
+  max-width: 85%;
+  margin: 0 auto;
+  animation: fadeInSlide 1.2s ease-out 0.5s both;
+  
+  h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+    text-shadow: 
+      2px 2px 4px rgba(0, 0, 0, 0.5),
+      0 0 20px rgba(59, 130, 246, 0.3);
+    background: linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #e0f2fe 50%,
+      #bbdefb 100%
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    
+    // Glow effect on text
+    &::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      color: rgba(96, 165, 250, 0.3);
+      z-index: -1;
+      filter: blur(10px);
+    }
   }
   
-  .slide-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    text-align: center;
-    max-width: 80%;
+  p {
+    font-size: clamp(1rem, 3vw, 1.4rem);
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+    opacity: 0.95;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #e0f2fe;
+  }
+
+  // Stunning Enhanced Button
+  ion-button {
+    --border-radius: 50px;
+    --padding-start: 2.5rem;
+    --padding-end: 2.5rem;
+    --padding-top: 1.2rem;
+    --padding-bottom: 1.2rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    margin: 0 8px;
     
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
+    // Primary button style
+    &[color="light"] {
+      background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(224, 242, 254, 0.9) 50%,
+        rgba(187, 222, 251, 0.95) 100%
+      );
+      color: var(--hero-primary-blue);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 
+        0 8px 25px rgba(30, 58, 138, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    }
+
+    // Animated background effect
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 100%
+      );
+      transition: left 0.6s ease;
+    }
+
+    // Ripple effect background
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: radial-gradient(
+        circle,
+        rgba(59, 130, 246, 0.3) 0%,
+        transparent 70%
+      );
+      transition: all 0.4s ease;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+    }
+
+    &:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 
+        0 15px 40px rgba(30, 58, 138, 0.4),
+        0 0 30px rgba(96, 165, 250, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.4);
       
-      @media (max-width: 768px) {
-        font-size: 1.8rem;
+      &::before {
+        left: 100%;
+      }
+
+      &::after {
+        width: 300px;
+        height: 300px;
+      }
+
+      ion-icon {
+        transform: translateX(6px) rotate(10deg);
+      }
+    }
+
+    &:active {
+      transform: translateY(-2px) scale(1.02);
+    }
+
+    // Icon styling
+    ion-icon {
+      margin-left: 8px;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+      
+      &[slot="start"] {
+        margin-left: 0;
+        margin-right: 8px;
       }
     }
     
-    p {
-      font-size: 1.2rem;
-      margin-bottom: 2rem;
+    // Glowing border animation
+    &:focus-visible {
+      outline: none;
+      box-shadow: 
+        0 0 0 3px rgba(59, 130, 246, 0.5),
+        0 15px 40px rgba(30, 58, 138, 0.4);
+    }
+  }
+}
+
+// Auto-slide progress indicator
+.hero-slider {
+  .slide-progress-container {
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(15, 23, 42, 0.8);
+    padding: 8px 16px;
+    border-radius: 25px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    z-index: 5;
+    
+    .progress-text {
+      color: var(--hero-light-blue);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    
+    .progress-bar {
+      width: 60px;
+      height: 3px;
+      background: rgba(59, 130, 246, 0.3);
+      border-radius: 2px;
+      overflow: hidden;
       
-      @media (max-width: 768px) {
-        font-size: 1rem;
+      .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--hero-secondary-blue), var(--hero-light-blue));
+        border-radius: 2px;
+        animation: slideProgress 3s linear infinite;
+        box-shadow: 0 0 10px var(--hero-glow-blue);
       }
     }
   }
 }
 
-/* Product Slider */
-.product-slider {
-  padding: 1rem 0;
+// Mobile enhancements
+@media (max-width: 768px) {
+  .hero-slider {
+    &::after {
+      bottom: 60px;
+      font-size: 0.75rem;
+      padding: 6px 12px;
+    }
+    
+    .slide-progress-container {
+      bottom: 45px;
+      padding: 6px 12px;
+      
+      .progress-text {
+        font-size: 0.7rem;
+      }
+      
+      .progress-bar {
+        width: 50px;
+        height: 2px;
+      }
+    }
+  }
   
-  swiper-slide {
-    height: auto;
-    display: flex;
-    justify-content: center;
+  .slide-text {
+    max-width: 90%;
+    
+    ion-button {
+      --padding-start: 2rem;
+      --padding-end: 2rem;
+      --padding-top: 1rem;
+      --padding-bottom: 1rem;
+      font-size: 1rem;
+      margin: 4px;
+    }
+  }
+  
+  ::ng-deep .swiper-button-next,
+  ::ng-deep .swiper-button-prev {
+    width: 45px;
+    height: 45px;
+    
+    &::after {
+      font-size: 16px;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-slider {
+    &::after {
+      display: none;
+    }
+    
+    .slide-progress-container {
+      bottom: 35px;
+      padding: 4px 8px;
+      
+      .progress-bar {
+        width: 40px;
+      }
+    }
+  }
+  
+  .slide-text {
+    ion-button {
+      --padding-start: 1.5rem;
+      --padding-end: 1.5rem;
+      font-size: 0.9rem;
+    }
   }
 }

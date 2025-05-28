@@ -1,0 +1,1087 @@
+<!-- Updated home.page.html with Footer at END -->
+<app-header></app-header>
+
+<ion-content>
+  <!-- Hero Slider using Swiper -->
+<swiper-container 
+  pager="true" 
+  navigation="true" 
+  [options]="heroSlideOpts" 
+  class="hero-slider">
+
+  <swiper-slide>
+    <div class="slide-content slide-1">
+      <video autoplay muted loop playsinline class="background-video">
+        <source src="/assets/images/hero-3.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <div class="slide-overlay"></div>
+      <div class="slide-text">
+        <h1>Welcome to VBS Electronics</h1>
+        <p>Your one-stop shop for mobile, TV services, and electronics</p>
+        <ion-button color="light" (click)="router.navigate(['/products'])">
+          Shop Now
+          <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+  </swiper-slide>
+
+    
+    <swiper-slide>
+      <div class="slide-content slide-2">
+        <div class="slide-overlay"></div>
+        <div class="slide-text">
+          <h1>Latest Mobile Phones</h1>
+          <p>Discover the newest smartphones with cutting-edge technology</p>
+          <ion-button color="light" (click)="navigateToCategory('mobile')">
+            Explore Collection
+            <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+    </swiper-slide>
+    
+    <swiper-slide>
+      <div class="slide-content slide-3">
+        <div class="slide-overlay"></div>
+        <div class="slide-text">
+          <h1>Premium TV Solutions</h1>
+          <p>Experience stunning visuals with our premium TV services</p>
+          <ion-button color="light" (click)="navigateToCategory('tv')">
+            View TV Services
+            <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+    </swiper-slide>
+  </swiper-container>
+  
+  <!-- Main Content Container -->
+  <div class="home-container">
+    <!-- Quick Search -->
+    <div class="search-container">
+      <ion-searchbar 
+        [(ngModel)]="searchQuery" 
+        placeholder="Search for products..." 
+        (keyup.enter)="onSearch()"
+        animated>
+      </ion-searchbar>
+    </div>
+    
+    <!-- Categories Section -->
+    <section class="categories-section">
+      <div class="section-header">
+        <h2>Browse Categories</h2>
+        <ion-button fill="clear" routerLink="/products">
+          View All Categories
+          <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+      </div>
+      
+      <div class="categories-grid">
+        <div 
+          *ngFor="let category of categories" 
+          class="category-card"
+          [style.border-color]="category.color"
+          (click)="navigateToCategory(category.id)">
+          <div class="category-icon" [style.background-color]="category.color">
+            <ion-icon [name]="category.icon"></ion-icon>
+          </div>
+          <h3>{{ category.name }}</h3>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Featured Products Section -->
+    <section class="products-section">
+      <div class="section-header">
+        <h2>Featured Products</h2>
+        <ion-button fill="clear" routerLink="/products">
+          View All Products
+          <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+      </div>
+      
+      <div *ngIf="isLoadingFeatured" class="loading-container">
+        <app-loading-spinner message="Loading featured products..."></app-loading-spinner>
+      </div>
+      
+      <swiper-container *ngIf="!isLoadingFeatured && featuredProducts.length > 0" [options]="productSlideOpts" class="product-slider">
+        <swiper-slide *ngFor="let product of featuredProducts">
+          <app-product-card [product]="product" (addToCartClicked)="addToCart($event)"></app-product-card>
+        </swiper-slide>
+      </swiper-container>
+    </section>
+    
+    <!-- Promotional Banner -->
+    <section class="promo-banner">
+      <div class="promo-content">
+        <div class="promo-text">
+          <h2>Special Offers</h2>
+          <p>Save up to 40% on selected items this month!</p>
+          <ion-button color="light" (click)="router.navigate(['/products'], { queryParams: { onSale: true } })">
+            Shop Deals
+            <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Latest Products Section -->
+    <section class="products-section">
+      <div class="section-header">
+        <h2>Latest Arrivals</h2>
+        <ion-button fill="clear" routerLink="/products">
+          View All New Products
+          <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+      </div>
+      
+      <div *ngIf="isLoadingLatest" class="loading-container">
+        <app-loading-spinner message="Loading latest products..."></app-loading-spinner>
+      </div>
+      
+      <swiper-container *ngIf="!isLoadingLatest && latestProducts.length > 0" [options]="productSlideOpts" class="product-slider">
+        <swiper-slide *ngFor="let product of latestProducts">
+          <app-product-card [product]="product" (addToCartClicked)="addToCart($event)"></app-product-card>
+        </swiper-slide>
+      </swiper-container>
+    </section>
+    
+    <!-- Why Choose Us Section -->
+    <section class="why-choose-section">
+      <div class="section-header centered">
+        <h2>Why Choose VBS Electronics?</h2>
+        <p>We provide exceptional service and products to meet your technology needs</p>
+      </div>
+      
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <ion-icon name="cube-outline"></ion-icon>
+          </div>
+          <h3>Quality Products</h3>
+          <p>We offer only the highest quality electronics from trusted brands.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <ion-icon name="flash-outline"></ion-icon>
+          </div>
+          <h3>Fast Delivery</h3>
+          <p>Get your orders quickly with our expedited shipping options.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+          </div>
+          <h3>Warranty</h3>
+          <p>All products come with manufacturer warranty and our satisfaction guarantee.</p>
+        </div>
+        
+        <div class="feature-card">
+          <div class="feature-icon">
+            <ion-icon name="headset-outline"></ion-icon>
+          </div>
+          <h3>24/7 Support</h3>
+          <p>Our customer support team is always available to assist you.</p>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Bestselling Products Section -->
+    <section class="products-section">
+      <div class="section-header">
+        <h2>Bestselling Products</h2>
+        <ion-button fill="clear" routerLink="/products">
+          View All Bestsellers
+          <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
+        </ion-button>
+      </div>
+      
+      <div *ngIf="isLoadingBestselling" class="loading-container">
+        <app-loading-spinner message="Loading bestselling products..."></app-loading-spinner>
+      </div>
+      
+      <swiper-container *ngIf="!isLoadingBestselling && bestsellingProducts.length > 0" [options]="productSlideOpts" class="product-slider">
+        <swiper-slide *ngFor="let product of bestsellingProducts">
+          <app-product-card [product]="product" (addToCartClicked)="addToCart($event)"></app-product-card>
+        </swiper-slide>
+      </swiper-container>
+    </section>
+    
+   <!-- Store Locations Section -->
+<section class="store-section">
+  <div class="section-header centered">
+    <h2>Visit Our Store</h2>
+    <p>Experience our products firsthand at our flagship location</p>
+  </div>
+  
+  <div class="single-store-container">
+    <div class="store-hero">
+      <div class="store-hero-content">
+        <h3>VBS Electronics - Main Store</h3>
+        <p>Your premier destination for mobile phones, TV services, and cutting-edge electronics</p>
+        <div class="store-features">
+          <div class="feature">
+            <ion-icon name="storefront-outline"></ion-icon>
+            <span>Expert Staff</span>
+          </div>
+          <div class="feature">
+            <ion-icon name="construct-outline"></ion-icon>
+            <span>Repair Services</span>
+          </div>
+          <div class="feature">
+            <ion-icon name="car-outline"></ion-icon>
+            <span>Free Parking</span>
+          </div>
+        </div>
+        <ion-button size="large" color="primary" routerLink="/stores">
+          <ion-icon name="location-outline" slot="start"></ion-icon>
+          View Store Location & Hours
+        </ion-button>
+      </div>
+    </div>
+  </div>
+</section> 
+  </div>
+
+  <!-- Newsletter Section - MOVED INSIDE ion-content and home-container -->
+  <section class="newsletter-section">
+    <div class="newsletter-content">
+      <div class="newsletter-text">
+        <h2>Subscribe to Our Newsletter</h2>
+        <p>Stay updated with our latest offers, products, and news</p>
+      </div>
+      
+      <div class="newsletter-form">
+        <ion-item lines="none">
+          <ion-icon name="mail-outline" slot="start"></ion-icon>
+          <ion-input placeholder="Your email address"></ion-input>
+        </ion-item>
+        <ion-button color="primary">
+          Subscribe
+        </ion-button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer MOVED INSIDE ion-content as LAST SECTION -->
+  <app-footer></app-footer>
+  
+  <!-- Chatbot -->
+  <!-- <app-chatbot></app-chatbot> -->
+</ion-content>  
+
+
+
+
+
+
+
+/* src/app/features/home/home.page.scss */
+// Hero Slider
+.hero-slider {
+  height: 500px;
+  
+  @media (max-width: 768px) {
+    height: 400px;
+  }
+  
+  @media (max-width: 480px) {
+    height: 300px;
+  }
+}
+
+.slide-content {
+  
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  position: relative;
+  
+  &.slide-1 {
+    background-image: url('/assets/images/hero-2.mp4');
+  }
+  
+  &.slide-2 {
+    background-image: url('/assets/images/hero-2.jpg');
+  }
+  
+  &.slide-3 {
+    background-image: url('/assets/images/hero-3.jpg');
+  }
+
+  
+}
+
+.slide-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 100%);
+}
+
+
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Main Content Container
+.home-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+// Search Container
+.search-container {
+  margin: 30px 0;
+  max-width: 600px;
+  margin: 30px auto;
+}
+
+// Section Styles
+section {
+  margin-bottom: 60px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  
+  &.centered {
+    flex-direction: column;
+    text-align: center;
+    
+    p {
+      margin-top: 10px;
+    }
+    
+    h2:after {
+      margin: 15px auto 0;
+    }
+  }
+  
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--ion-color-dark);
+    margin: 0;
+    position: relative;
+    
+    &:after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 50px;
+      height: 3px;
+      background-color: var(--ion-color-primary);
+    }
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+  }
+  
+  ion-button {
+    font-size: 0.9rem;
+  }
+}
+
+// Categories Section
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 20px;
+}
+
+.category-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+  border-top: 4px solid;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .category-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 15px;
+    
+    ion-icon {
+      font-size: 30px;
+      color: white;
+    }
+  }
+  
+  h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--ion-color-dark);
+  }
+}
+
+// Products Section
+.loading-container {
+  min-height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.product-slider {
+  padding: 10px 0 30px;
+}
+
+// Promo Banner
+.promo-banner {
+  background-image: url('/assets/images/img4.jpg');
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  height: 250px;
+  margin-bottom: 60px;
+  
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, rgba(var(--ion-color-primary-rgb), 0.8) 0%, rgba(var(--ion-color-primary-rgb), 0.4) 100%);
+  }
+}
+
+.promo-content {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.promo-text {
+  color: white;
+  max-width: 500px;
+  
+  h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    
+    @media (max-width: 768px) {
+      font-size: 1.8rem;
+    }
+  }
+  
+  p {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    
+    @media (max-width: 768px) {
+      font-size: 1rem;
+    }
+  }
+  
+  ion-button {
+    --border-radius: 8px;
+    --border-width: 2px;
+    font-weight: 600;
+  }
+}
+
+// Why Choose Us Section
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 30px;
+}
+
+.feature-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  transition: transform 0.3s, box-shadow 0.3s;
+  
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .feature-icon {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background-color: var(--ion-color-primary-tint);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 20px;
+    
+    ion-icon {
+      font-size: 35px;
+      color: var(--ion-color-primary);
+    }
+  }
+  
+  h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0 0 10px 0;
+    color: var(--ion-color-dark);
+  }
+  
+  p {
+    color: var(--ion-color-medium);
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+// Single Store Section
+.single-store-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.store-hero {
+  background: linear-gradient(135deg, var(--ion-color-primary), var(--ion-color-secondary));
+  border-radius: var(--border-radius-small);
+  padding: 60px 40px;
+  text-align: center;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  
+  &:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='m0 40l40-40h-40v40z'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  
+  @media (max-width: 768px) {
+    padding: 40px 20px;
+  }
+}
+
+.store-hero-content {
+  position: relative;
+  z-index: 2;
+  
+  h3 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-shadow: var(--text-shadow);
+    
+    @media (max-width: 768px) {
+      font-size: 1.8rem;
+    }
+  }
+  
+  p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    opacity: 0.9;
+    
+    @media (max-width: 768px) {
+      font-size: 1rem;
+    }
+  }
+}
+
+.store-features {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 40px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .feature {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    
+    ion-icon {
+      font-size: 24px;
+    }
+    
+    span {
+      font-weight: 600;
+    }
+  }
+}
+
+// Newsletter Section
+.newsletter-section {
+  background-color: var(--ion-color-primary);
+  padding: 60px 20px;
+  
+  // TO:
+  margin: 60px calc(-50vw + 50%) -20px;
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+    margin-bottom: 0;
+
+}
+
+.newsletter-content {
+  max-width: 800px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+.newsletter-text {
+  flex: 1;
+  margin-right: 40px;
+  
+  @media (max-width: 768px) {
+    margin-right: 0;
+    margin-bottom: 30px;
+  }
+  
+  h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: white;
+    margin: 0 0 10px 0;
+  }
+  
+  p {
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    font-size: 1.1rem;
+  }
+}
+
+.newsletter-form {
+  display: flex;
+  max-width: 400px;
+  width: 100%;
+  
+  ion-item {
+    flex: 1;
+    --background: white;
+    --border-radius: 8px 0 0 8px;
+    
+    ion-icon {
+      color: var(--ion-color-primary);
+    }
+  }
+  
+  ion-button {
+    --border-radius: 0 8px 8px 0;
+    margin: 0;
+    height: 48px;
+    font-weight: 600;
+  }
+}
+
+/* Hero Slider */
+.hero-slider {
+  width: 100%;
+  height: 500px;
+  
+  swiper-slide {
+    width: 100%;
+    height: 100%;
+  }
+  
+  .slide-content {
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    background-size: cover;
+    position: relative;
+      display: flex;
+  align-items: center;
+  justify-content: center;
+
+    
+
+    //hero section background images 
+    &.slide-1 {
+      background-image: url('/assets/images/hero-1.jpg');
+    }
+    
+    &.slide-2 {
+      background-image: url('/assets/images/hero-2.jpg');
+    }
+    
+    &.slide-3 {
+      background-image: url('/assets/images/hero-3.jpg');
+    }
+    
+  }
+  
+  .slide-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.4);
+  }
+  
+  .slide-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    text-align: center;
+    max-width: 80%;
+    
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      
+      @media (max-width: 768px) {
+        font-size: 1.8rem;
+      }
+    }
+    
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      
+      @media (max-width: 768px) {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+/* Product Slider */
+.product-slider {
+  padding: 1rem 0;
+  
+  swiper-slide {
+    height: auto;
+    display: flex;
+    justify-content: center;
+  }
+}
+
+/// Clean footer positioning
+app-footer {
+  position: static !important;
+  bottom: auto !important;
+  top: auto !important;
+  margin-top: 0;
+  clear: both;
+  float: none;
+}
+
+// Allow natural scrolling
+ion-content {
+  --overflow: auto;
+  overflow: visible;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
+import { 
+  IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton,
+  IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardHeader,
+  IonCardTitle, IonCardContent, IonBadge, IonText,
+  IonSearchbar, AnimationController, IonItem, IonInput } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { 
+  arrowForwardOutline, searchOutline, phonePortraitOutline, tvOutline,
+  watchOutline, headsetOutline, laptopOutline, flashOutline, storefront,
+  chevronForwardOutline, mailOutline, callOutline, cubeOutline, shieldCheckmarkOutline, storefrontOutline, constructOutline, carOutline, locationOutline } from 'ionicons/icons';
+
+import { HeaderComponent } from '../../shared/components/header/header.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component'; // ADD THIS IMPORT
+import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
+import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
+import { ChatbotPage } from 'src/app/shared/components/chatbot/chatbot.page';
+import { ProductService } from '../../core/services/product.service';
+import { CartService } from '../../core/services/cart.service';
+import { StoreLocationService } from '../../core/services/store-location.service';
+import { Product } from '../../core/models/product.model';
+import { StoreLocation } from '../../core/models/store-location.model';
+import { FormsModule } from '@angular/forms';
+// Import Swiper core and required modules
+import { register } from 'swiper/element/bundle';
+
+@Component({
+  selector: 'app-home',
+  templateUrl: './home.page.html',
+  styleUrls: ['./home.page.scss'],
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    IonContent,
+    IonButton, IonIcon,
+    IonSearchbar, IonItem, IonInput,
+    HeaderComponent, FooterComponent, ProductCardComponent, LoadingSpinnerComponent // ADD FooterComponent HERE
+],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA] // Add this for Swiper custom elements
+})
+export class HomePage implements OnInit {
+  featuredProducts: Product[] = [];
+  latestProducts: Product[] = [];
+  bestsellingProducts: Product[] = [];
+  storeLocations: StoreLocation[] = [];
+  
+  isLoadingFeatured = true;
+  isLoadingLatest = true;
+  isLoadingBestselling = true;
+  isLoadingStores = true;
+  
+  searchQuery = '';
+  
+  // Hero Slider Options (for Swiper)
+  heroSlideOpts = {
+    slidesPerView: 1,
+    spaceBetween: 0,
+    speed: 800,
+    autoplay: {
+      delay: 5000,
+    },
+    loop: true,
+    pagination: {
+      clickable: true,
+    }
+  };
+  
+  // Product Slider Options (for Swiper)
+  productSlideOpts = {
+    slidesPerView: 1,
+    spaceBetween: 10,
+    loop: false,
+    breakpoints: {
+      // when window width is >= 576px
+      576: {
+        slidesPerView: 2,
+        spaceBetween: 20,
+      },
+      // when window width is >= 768px
+      768: {
+        slidesPerView: 3,
+        spaceBetween: 20,
+      },
+      // when window width is >= 992px
+      992: {
+        slidesPerView: 4,
+        spaceBetween: 20,
+      },
+    }
+  };
+  
+  // Categories
+  categories = [
+    { id: 'mobile', name: 'Mobile Phones', icon: 'phone-portrait-outline', color: '#4CAF50' },
+    { id: 'tv', name: 'TV & Services', icon: 'tv-outline', color: '#2196F3' },
+    { id: 'wearables', name: 'Wearables', icon: 'watch-outline', color: '#9C27B0' },
+    { id: 'accessories', name: 'Accessories', icon: 'headset-outline', color: '#FF9800' },
+    { id: 'audio', name: 'Audio', icon: 'headset-outline', color: '#F44336' },
+    { id: 'computers', name: 'Computers', icon: 'laptop-outline', color: '#00BCD4' },
+    { id: 'deals', name: 'Flash Deals', icon: 'flash-outline', color: '#E91E63' },
+    { id: 'all', name: 'All Products', icon: 'cube-outline', color: '#607D8B' }
+  ];
+  
+  constructor(
+    private productService: ProductService,
+    private cartService: CartService,
+    private storeLocationService: StoreLocationService,
+    private animationCtrl: AnimationController,
+    public router: Router
+  ) {
+    // Register Swiper custom elements
+    register();
+    
+    // Add Ionicons
+    addIcons({arrowForwardOutline,chevronForwardOutline,cubeOutline,flashOutline,shieldCheckmarkOutline,headsetOutline,storefrontOutline,constructOutline,carOutline,locationOutline,mailOutline,callOutline,searchOutline,phonePortraitOutline,tvOutline,watchOutline,laptopOutline,storefront});
+  }
+  
+  ngOnInit() {
+    this.loadFeaturedProducts();
+    this.loadLatestProducts();
+    this.loadBestsellingProducts();
+    this.loadStoreLocations();
+  }
+  
+  loadFeaturedProducts() {
+    this.isLoadingFeatured = true;
+    this.productService.getFeaturedProducts(8).subscribe(
+      products => {
+        this.featuredProducts = products;
+        this.isLoadingFeatured = false;
+      },
+      error => {
+        console.error('Error loading featured products:', error);
+        this.isLoadingFeatured = false;
+      }
+    );
+  }
+  
+  loadLatestProducts() {
+    this.isLoadingLatest = true;
+    this.productService.getProducts(undefined, 'createdAt', 'desc', 8).subscribe(
+      result => {
+        this.latestProducts = result.products;
+        this.isLoadingLatest = false;
+      },
+      error => {
+        console.error('Error loading latest products:', error);
+        this.isLoadingLatest = false;
+      }
+    );
+  }
+  
+  loadBestsellingProducts() {
+    // In a real app, you would have a dedicated endpoint for bestselling products
+    // For now, we'll just simulate it by getting products sorted by rating
+    this.isLoadingBestselling = true;
+    this.productService.getProducts(undefined, 'rating', 'desc', 8).subscribe(
+      result => {
+        this.bestsellingProducts = result.products;
+        this.isLoadingBestselling = false;
+      },
+      error => {
+        console.error('Error loading bestselling products:', error);
+        this.isLoadingBestselling = false;
+      }
+    );
+  }
+  
+  loadStoreLocations() {
+    this.isLoadingStores = true;
+    this.storeLocationService.getStoreLocations().subscribe(
+      locations => {
+        this.storeLocations = locations;
+        this.isLoadingStores = false;
+      },
+      error => {
+        console.error('Error loading store locations:', error);
+        this.isLoadingStores = false;
+      }
+    );
+  }
+  
+  addToCart(product: Product) {
+    this.cartService.addToCart(product.id).subscribe(
+      () => {
+        // Success notification would be added here
+      },
+      error => {
+        console.error('Error adding to cart:', error);
+        // Error notification would be added here
+      }
+    );
+  }
+  
+  onSearch() {
+    if (this.searchQuery.trim()) {
+      this.router.navigate(['/products'], { 
+        queryParams: { search: this.searchQuery } 
+      });
+    }
+  }
+  
+  navigateToCategory(categoryId: string) {
+    if (categoryId === 'all') {
+      this.router.navigate(['/products']);
+    } else {
+      this.router.navigate(['/products'], { 
+        queryParams: { category: categoryId } 
+      });
+    }
+  }
+  
+  getCategoryColor(categoryId: string): string {
+    const category = this.categories.find(c => c.id === categoryId);
+    return category ? category.color : '#cccccc';
+  }
+  
+  formatCurrency(price: number): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD'
+    }).format(price);
+  }
+}
+
+

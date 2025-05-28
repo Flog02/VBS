@@ -1,8 +1,9 @@
 // src/app/features/checkout/checkout.page.ts
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { 
   IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
   IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, 
@@ -13,7 +14,10 @@ import {
 import { addIcons } from 'ionicons';
 import { 
   cardOutline, cashOutline, locationOutline, homeOutline, 
-  checkmarkCircleOutline, arrowForwardOutline, chevronForwardOutline
+  checkmarkCircleOutline, arrowForwardOutline, chevronForwardOutline,
+  personOutline, receiptOutline, informationCircleOutline,
+  shieldCheckmarkOutline, timeOutline, logoPaypal, optionsOutline,
+  carOutline
 } from 'ionicons/icons';
 
 import { HeaderComponent } from '../../shared/components/header/header.component';
@@ -22,10 +26,8 @@ import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner
 import { AuthService } from '../../core/services/auth.service';
 import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
-import { StoreLocationService } from '../../core/services/store-location.service';
 import { Cart } from '../../core/models/cart.model';
 import { User } from '../../core/models/user.model';
-import { StoreLocation } from '../../core/models/store-location.model';
 
 @Component({
   selector: 'app-checkout',
@@ -44,28 +46,26 @@ import { StoreLocation } from '../../core/models/store-location.model';
     HeaderComponent, FooterComponent, LoadingSpinnerComponent
   ]
 })
-export class CheckoutPage implements OnInit {
+export class CheckoutPage implements OnInit, OnDestroy {
   checkoutForm!: FormGroup;
   isLoading = true;
   cart: Cart | null = null;
   user: User | null = null;
-  storeLocations: StoreLocation[] = [];
   isProcessing = false;
   showSuccessAlert = false;
+  showErrorAlert = false;
   orderNumber = '';
+  errorMessage = '';
+  
+  private subscriptions: Subscription[] = [];
+  
+  // Delivery fee
+  private deliveryFee = 5.99;
   
   // Countries for dropdown
   countries = [
     { code: 'US', name: 'United States' },
-    { code: 'CA', name: 'Canada' },
-    { code: 'GB', name: 'United Kingdom' },
-    { code: 'AU', name: 'Australia' },
-    { code: 'DE', name: 'Germany' },
-    { code: 'FR', name: 'France' },
-    { code: 'IT', name: 'Italy' },
-    { code: 'ES', name: 'Spain' },
-    { code: 'JP', name: 'Japan' },
-    { code: 'CN', name: 'China' }
+    { code: 'CA', name: 'Canada' }
   ];
   
   constructor(
@@ -73,111 +73,149 @@ export class CheckoutPage implements OnInit {
     private authService: AuthService,
     private cartService: CartService,
     private orderService: OrderService,
-    private storeLocationService: StoreLocationService,
     private router: Router
   ) {
     addIcons({ 
       cardOutline, cashOutline, locationOutline, homeOutline, 
-      checkmarkCircleOutline, arrowForwardOutline, chevronForwardOutline
+      checkmarkCircleOutline, arrowForwardOutline, chevronForwardOutline,
+      personOutline, receiptOutline, informationCircleOutline,
+      shieldCheckmarkOutline, timeOutline, logoPaypal, optionsOutline,
+      carOutline
     });
   }
+  
   successAlertButtons = [
-  {
-    text: 'View Order',
-    handler: () => {
-      this.navigateToOrderConfirmation();
+    {
+      text: 'View Order',
+      handler: () => {
+        this.navigateToOrderConfirmation();
+      }
     }
-  }
-];
+  ];
+
+  errorAlertButtons = [
+    {
+      text: 'OK',
+      handler: () => {
+        this.showErrorAlert = false;
+      }
+    }
+  ];
   
   ngOnInit() {
     this.createForm();
     this.loadData();
   }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
   
   createForm() {
     this.checkoutForm = this.formBuilder.group({
-      // Delivery Method
-      deliveryMethod: ['shipping', Validators.required],
-      storeLocation: [''],
+      // Delivery Method - Always Required
+      deliveryMethod: ['pickup', Validators.required],
       
-      // Shipping Address
+      // Contact Information - Always Required
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       phone: ['', Validators.required],
-      address: ['', Validators.required],
-      city: ['', Validators.required],
-      state: ['', Validators.required],
-      zip: ['', Validators.required],
-      country: ['US', Validators.required],
       
-      // Payment Method
+      // Delivery Address - Conditional
+      address: [''],
+      city: [''],
+      state: [''],
+      zip: [''],
+      country: ['US'],
+      
+      // Payment Method - Always Required
       paymentMethod: ['credit_card', Validators.required],
       
-      // Credit Card Details
-      cardNumber: ['', [Validators.required, Validators.pattern(/^\d{16}$/)]],
-      cardName: ['', Validators.required],
-      expiryMonth: ['', [Validators.required, Validators.pattern(/^(0[1-9]|1[0-2])$/)]],
-      expiryYear: ['', [Validators.required, Validators.pattern(/^\d{2}$/)]],
-      cvv: ['', [Validators.required, Validators.pattern(/^\d{3,4}$/)]],
+      // Credit Card Details - Conditional
+      cardNumber: [''],
+      cardName: [''],
+      expiryMonth: [''],
+      expiryYear: [''],
+      cvv: [''],
       
-      // Terms
+      // Terms - Always Required
       termsAccepted: [false, Validators.requiredTrue]
     });
     
-    // Add conditional validation
-    this.checkoutForm.get('deliveryMethod')?.valueChanges.subscribe(method => {
-      if (method === 'pickup') {
-        this.checkoutForm.get('storeLocation')?.setValidators([Validators.required]);
-        
-        // Remove validators from shipping fields
-        this.checkoutForm.get('address')?.clearValidators();
-        this.checkoutForm.get('city')?.clearValidators();
-        this.checkoutForm.get('state')?.clearValidators();
-        this.checkoutForm.get('zip')?.clearValidators();
-        this.checkoutForm.get('country')?.clearValidators();
-      } else {
-        this.checkoutForm.get('storeLocation')?.clearValidators();
-        
-        // Add validators to shipping fields
-        this.checkoutForm.get('address')?.setValidators([Validators.required]);
-        this.checkoutForm.get('city')?.setValidators([Validators.required]);
-        this.checkoutForm.get('state')?.setValidators([Validators.required]);
-        this.checkoutForm.get('zip')?.setValidators([Validators.required]);
-        this.checkoutForm.get('country')?.setValidators([Validators.required]);
-      }
-      
-      // Update validators
-      this.checkoutForm.get('storeLocation')?.updateValueAndValidity();
-      this.checkoutForm.get('address')?.updateValueAndValidity();
-      this.checkoutForm.get('city')?.updateValueAndValidity();
-      this.checkoutForm.get('state')?.updateValueAndValidity();
-      this.checkoutForm.get('zip')?.updateValueAndValidity();
-      this.checkoutForm.get('country')?.updateValueAndValidity();
+    // Set up conditional validation for delivery method
+    const deliveryMethodSub = this.checkoutForm.get('deliveryMethod')?.valueChanges.subscribe(method => {
+      this.updateDeliveryValidation(method);
     });
+    if (deliveryMethodSub) this.subscriptions.push(deliveryMethodSub);
     
-    this.checkoutForm.get('paymentMethod')?.valueChanges.subscribe(method => {
-      if (method === 'credit_card') {
-        this.checkoutForm.get('cardNumber')?.setValidators([Validators.required, Validators.pattern(/^\d{16}$/)]);
-        this.checkoutForm.get('cardName')?.setValidators([Validators.required]);
-        this.checkoutForm.get('expiryMonth')?.setValidators([Validators.required, Validators.pattern(/^(0[1-9]|1[0-2])$/)]);
-        this.checkoutForm.get('expiryYear')?.setValidators([Validators.required, Validators.pattern(/^\d{2}$/)]);
-        this.checkoutForm.get('cvv')?.setValidators([Validators.required, Validators.pattern(/^\d{3,4}$/)]);
-      } else {
-        this.checkoutForm.get('cardNumber')?.clearValidators();
-        this.checkoutForm.get('cardName')?.clearValidators();
-        this.checkoutForm.get('expiryMonth')?.clearValidators();
-        this.checkoutForm.get('expiryYear')?.clearValidators();
-        this.checkoutForm.get('cvv')?.clearValidators();
-      }
+    // Set up conditional validation for payment method
+    const paymentMethodSub = this.checkoutForm.get('paymentMethod')?.valueChanges.subscribe(method => {
+      this.updatePaymentValidation(method);
+    });
+    if (paymentMethodSub) this.subscriptions.push(paymentMethodSub);
+  }
+
+  private updateDeliveryValidation(method: string) {
+    if (method === 'delivery') {
+      // Add delivery address validators
+      this.checkoutForm.get('address')?.setValidators([Validators.required]);
+      this.checkoutForm.get('city')?.setValidators([Validators.required]);
+      this.checkoutForm.get('state')?.setValidators([Validators.required]);
+      this.checkoutForm.get('zip')?.setValidators([Validators.required]);
+      this.checkoutForm.get('country')?.setValidators([Validators.required]);
       
-      // Update validators
-      this.checkoutForm.get('cardNumber')?.updateValueAndValidity();
-      this.checkoutForm.get('cardName')?.updateValueAndValidity();
-      this.checkoutForm.get('expiryMonth')?.updateValueAndValidity();
-      this.checkoutForm.get('expiryYear')?.updateValueAndValidity();
-      this.checkoutForm.get('cvv')?.updateValueAndValidity();
+      // If payment method is cash, switch to credit card (cash only for pickup)
+      if (this.checkoutForm.get('paymentMethod')?.value === 'cash') {
+        this.checkoutForm.patchValue({ paymentMethod: 'credit_card' });
+      }
+    } else {
+      // Remove delivery address validators for pickup
+      this.checkoutForm.get('address')?.clearValidators();
+      this.checkoutForm.get('city')?.clearValidators();
+      this.checkoutForm.get('state')?.clearValidators();
+      this.checkoutForm.get('zip')?.clearValidators();
+      this.checkoutForm.get('country')?.clearValidators();
+    }
+    
+    // Update validity
+    ['address', 'city', 'state', 'zip', 'country'].forEach(field => {
+      this.checkoutForm.get(field)?.updateValueAndValidity();
+    });
+  }
+
+  private updatePaymentValidation(method: string) {
+    if (method === 'credit_card') {
+      // Add credit card validators
+      this.checkoutForm.get('cardNumber')?.setValidators([
+        Validators.required, 
+        Validators.pattern(/^\d{16}$/)
+      ]);
+      this.checkoutForm.get('cardName')?.setValidators([Validators.required]);
+      this.checkoutForm.get('expiryMonth')?.setValidators([
+        Validators.required, 
+        Validators.pattern(/^(0[1-9]|1[0-2])$/)
+      ]);
+      this.checkoutForm.get('expiryYear')?.setValidators([
+        Validators.required, 
+        Validators.pattern(/^\d{2}$/)
+      ]);
+      this.checkoutForm.get('cvv')?.setValidators([
+        Validators.required, 
+        Validators.pattern(/^\d{3,4}$/)
+      ]);
+    } else {
+      // Remove credit card validators for cash/paypal
+      this.checkoutForm.get('cardNumber')?.clearValidators();
+      this.checkoutForm.get('cardName')?.clearValidators();
+      this.checkoutForm.get('expiryMonth')?.clearValidators();
+      this.checkoutForm.get('expiryYear')?.clearValidators();
+      this.checkoutForm.get('cvv')?.clearValidators();
+    }
+    
+    // Update validity
+    ['cardNumber', 'cardName', 'expiryMonth', 'expiryYear', 'cvv'].forEach(field => {
+      this.checkoutForm.get(field)?.updateValueAndValidity();
     });
   }
   
@@ -185,15 +223,16 @@ export class CheckoutPage implements OnInit {
     this.isLoading = true;
     
     // Load user data
-    this.authService.currentUser$.subscribe(
-      user => {
+    const userSub = this.authService.currentUser$.subscribe({
+      next: (user) => {
         this.user = user;
         
         if (user) {
           // Populate form with user data
+          const nameParts = user.displayName?.split(' ') || [];
           this.checkoutForm.patchValue({
-            firstName: user.displayName?.split(' ')[0] || '',
-            lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
+            firstName: nameParts[0] || '',
+            lastName: nameParts.slice(1).join(' ') || '',
             email: user.email || '',
             phone: user.phoneNumber || '',
             
@@ -210,12 +249,17 @@ export class CheckoutPage implements OnInit {
             queryParams: { returnUrl: '/checkout' } 
           });
         }
+      },
+      error: (error) => {
+        console.error('Error loading user:', error);
+        this.isLoading = false;
       }
-    );
+    });
+    this.subscriptions.push(userSub);
     
     // Load cart data
-    this.cartService.cart$.subscribe(
-      cart => {
+    const cartSub = this.cartService.cart$.subscribe({
+      next: (cart) => {
         this.cart = cart;
         
         if (!cart || cart.items.length === 0) {
@@ -225,39 +269,24 @@ export class CheckoutPage implements OnInit {
         
         this.isLoading = false;
       },
-      error => {
+      error: (error) => {
         console.error('Error loading cart:', error);
         this.isLoading = false;
+        this.showError('Failed to load cart data. Please try again.');
       }
-    );
-    
-    // Load store locations
-    this.storeLocationService.getStoreLocations().subscribe(
-        // Continuation of src/app/features/checkout/checkout.page.ts
-      locations => {
-        this.storeLocations = locations;
-        
-        // Set default store location if available
-        if (locations.length > 0) {
-          this.checkoutForm.patchValue({
-            storeLocation: locations[0].id
-          });
-        }
-      },
-      error => {
-        console.error('Error loading store locations:', error);
-      }
-    );
+    });
+    this.subscriptions.push(cartSub);
   }
   
   onSubmit() {
     if (this.checkoutForm.invalid) {
       // Mark all fields as touched to trigger validation messages
-      Object.keys(this.checkoutForm.controls).forEach(key => {
-        const control = this.checkoutForm.get(key);
-        control?.markAsTouched();
-      });
+      this.markFormGroupTouched(this.checkoutForm);
       return;
+    }
+    
+    if (this.isProcessing) {
+      return; // Prevent double submission
     }
     
     this.isProcessing = true;
@@ -265,7 +294,7 @@ export class CheckoutPage implements OnInit {
     const formData = this.checkoutForm.value;
     const isPickup = formData.deliveryMethod === 'pickup';
     
-    // Create shipping address object if not pickup
+    // Create shipping address object if delivery
     const shippingAddress = !isPickup ? {
       street: formData.address,
       city: formData.city,
@@ -274,38 +303,65 @@ export class CheckoutPage implements OnInit {
       country: formData.country
     } : undefined;
     
-    // Process order
-    this.orderService.createOrder(
+    console.log('Submitting order with data:', {
+      paymentMethod: formData.paymentMethod,
+      isPickup,
+      pickupLocation: isPickup ? 'vbs-main-store' : undefined,
+      shippingAddress
+    });
+    
+    // Create order
+    const orderSub = this.orderService.createOrder(
       formData.paymentMethod,
       isPickup,
-      isPickup ? formData.storeLocation : undefined,
+      isPickup ? 'vbs-main-store' : undefined,
       shippingAddress
-    ).subscribe(
-      orderId => {
+    ).subscribe({
+      next: (orderId) => {
+        console.log('Order created successfully:', orderId);
         this.isProcessing = false;
         this.orderNumber = orderId;
         this.showSuccessAlert = true;
       },
-      error => {
+      error: (error) => {
         console.error('Error creating order:', error);
         this.isProcessing = false;
-        // Show error message
-        alert('There was an error processing your order. Please try again.');
+        this.showError('There was an error processing your order. Please try again.');
       }
-    );
+    });
+    this.subscriptions.push(orderSub);
   }
-  
-  getStoreLocationName(id: string): string {
-    const store = this.storeLocations.find(s => s.id === id);
-    return store ? store.name : '';
+
+  private markFormGroupTouched(formGroup: FormGroup) {
+    Object.keys(formGroup.controls).forEach(key => {
+      const control = formGroup.get(key);
+      control?.markAsTouched();
+      
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      }
+    });
+  }
+
+  private showError(message: string) {
+    this.errorMessage = message;
+    this.showErrorAlert = true;
   }
   
   getTaxAmount(): number {
     return (this.cart?.subtotal || 0) * 0.1; // 10% tax
   }
   
+  getDeliveryFee(): number {
+    const deliveryMethod = this.checkoutForm.get('deliveryMethod')?.value;
+    return deliveryMethod === 'delivery' ? this.deliveryFee : 0;
+  }
+  
   getTotalAmount(): number {
-    return (this.cart?.subtotal || 0) * 1.1; // Subtotal + 10% tax
+    const subtotal = this.cart?.subtotal || 0;
+    const tax = this.getTaxAmount();
+    const delivery = this.getDeliveryFee();
+    return subtotal + tax + delivery;
   }
   
   formatCurrency(amount: number): string {
@@ -316,6 +372,7 @@ export class CheckoutPage implements OnInit {
   }
   
   navigateToOrderConfirmation() {
+    this.showSuccessAlert = false;
     this.router.navigate(['/orders', this.orderNumber]);
   }
   

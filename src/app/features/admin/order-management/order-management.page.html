@@ -3,9 +3,21 @@
 
 <ion-content>
   <div class="admin-container">
+
+    
     <div class="admin-header">
       <h1>Order Management</h1>
       <p>View and manage customer orders.</p>
+    </div>
+    
+     <!-- Back Navigation -->
+    <div class="back-link">
+      <!-- HTML -->
+<ion-button fill="clear" (click)="goBack()">
+  <ion-icon slot="start" name="arrow-back-outline"></ion-icon>
+  Back to Dashboard
+</ion-button>
+
     </div>
     
     <!-- Filters and Search -->

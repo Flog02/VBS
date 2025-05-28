@@ -10,8 +10,7 @@ import {
 import { addIcons } from 'ionicons';
 import {
   chatbubbleOutline, personOutline, closeOutline, 
-  sendOutline, checkmarkOutline
-} from 'ionicons/icons';
+  sendOutline, checkmarkOutline, arrowBackOutline } from 'ionicons/icons';
 
 import { HeaderComponent } from '../../../shared/components/header/header.component';
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
@@ -19,6 +18,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { AdminService } from '../../../core/services/admin.service';
 import { Chat, ChatMessage } from '../../../core/models/chat.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-chat-management',
@@ -50,11 +50,12 @@ export class ChatManagementPage implements OnInit {
   showCloseAlert = false;
   chatToClose: Chat | null = null;
   
-  constructor(private adminService: AdminService) {
-    addIcons({
-      chatbubbleOutline, personOutline, closeOutline, 
-      sendOutline, checkmarkOutline
-    });
+  constructor(
+    private adminService: AdminService,
+    private router: Router
+
+  ) {
+    addIcons({arrowBackOutline,personOutline,chatbubbleOutline,closeOutline,sendOutline,checkmarkOutline});
   }
   
   ngOnInit() {
@@ -208,4 +209,7 @@ export class ChatManagementPage implements OnInit {
     const d = date.toDate ? date.toDate() : new Date(date);
     return d.toLocaleTimeString() + ', ' + d.toLocaleDateString();
   }
+  goBack() {
+  this.router.navigate(['/admin']);
+}
 }

@@ -5,133 +5,297 @@
   <div class="page-container">
     <!-- Page Header -->
     <div class="page-header">
-      <h1>Store Locations</h1>
-      <p>Find a VBS Electronics store near you</p>
+      <h1>Our Store</h1>
+      <p>Visit us at VBS Electronics in Tirana</p>
     </div>
     
     <!-- Loading Spinner -->
     <div *ngIf="isLoading" class="loading-container">
-      <app-loading-spinner message="Loading store locations..."></app-loading-spinner>
+      <app-loading-spinner message="Loading store information..."></app-loading-spinner>
     </div>
     
-    <!-- Store Locator Container -->
-    <div *ngIf="!isLoading" class="store-locator-container">
-      <ion-grid>
-        <ion-row>
-          <!-- Store List -->
-          <ion-col size="12" size-md="4" class="stores-list-col">
-            <div class="store-search">
-              <ion-searchbar 
-                placeholder="Search by city or state" 
-                (ionChange)="searchStores($event)">
-              </ion-searchbar>
+    <!-- Store Container -->
+    <div *ngIf="!isLoading" class="store-container">
+      
+      <!-- Desktop Layout: Horizontal Map + Info Grid -->
+      <div class="desktop-layout d-none d-md-block">
+        
+        <!-- Full Width Map Section -->
+        <div class="map-section">
+          <div class="map-container">
+            <div #mapContainer class="map-content"></div>
+            <div class="map-info">
+              <ion-badge color="success">Free Interactive Map</ion-badge>
             </div>
-            
-            <div *ngIf="filteredStores.length === 0" class="no-stores">
-              <p>No stores found matching "{{ searchQuery }}"</p>
+            <!-- ADDED: Google Maps Button for Desktop -->
+            <div class="google-maps-btn">
+              <ion-button size="small" fill="solid" color="primary" (click)="getDirections()">
+                <ion-icon name="logo-google" slot="start"></ion-icon>
+                Open with Google Maps
+              </ion-button>
             </div>
-            
-            <div class="stores-list" *ngIf="filteredStores.length > 0">
-              <ion-list lines="full">
-                <ion-item 
-                  *ngFor="let store of filteredStores" 
-                  [id]="'store-' + store.id"
-                  [class.selected]="selectedStore?.id === store.id"
-                  button
-                  (click)="selectStore(store)">
-                  <div class="store-list-item">
-                    <div class="store-info">
-                      <h3>{{ store.name }}</h3>
-                      <p>{{ store.address.city }}, {{ store.address.state }}</p>
+          </div>
+        </div>
+        
+        <!-- Info Grid Section -->
+        <div class="info-section">
+          <!-- Left Column: Store Details -->
+          <div class="store-details-column">
+            <ion-card>
+              <ion-card-header>
+                <div class="store-header">
+                  <ion-card-title>{{ store.name }}</ion-card-title>
+                  <ion-badge [color]="isOpenNow() ? 'success' : 'medium'" class="status-badge">
+                    {{ isOpenNow() ? 'Open Now' : 'Closed' }}
+                  </ion-badge>
+                </div>
+              </ion-card-header>
+              
+              <ion-card-content>
+                <div class="store-info">
+                  <!-- Address Section -->
+                  <div class="info-section address-section">
+                    <div class="section-header">
+                      <ion-icon name="location-outline"></ion-icon>
+                      <h3>Address</h3>
                     </div>
-                    <div class="store-status">
-                      <ion-badge [color]="isOpenNow(store) ? 'success' : 'medium'">
-                        {{ isOpenNow(store) ? 'Open' : 'Closed' }}
-                      </ion-badge>
+                    <div class="section-content">
+                      <p class="address-line">{{ store.address.street }}</p>
+                      <p class="address-line">{{ store.address.city }}, {{ store.address.state }} {{ store.address.zip }}</p>
+                      <p class="address-line">{{ store.address.country }}</p>
                     </div>
                   </div>
-                </ion-item>
-              </ion-list>
-            </div>
-          </ion-col>
-          
-          <!-- Map and Store Details -->
-          <ion-col size="12" size-md="8" class="map-col">
-            <div class="map-container">
-              <div #mapContainer class="map-content"></div>
-            </div>
-            
-            <!-- Selected Store Details -->
-            <div *ngIf="selectedStore" class="store-details">
-              <ion-card>
-                <ion-card-header>
-                  <ion-card-title>{{ selectedStore.name }}</ion-card-title>
-                </ion-card-header>
-                <ion-card-content>
-                  <div class="store-detail-content">
-                    <div class="store-address">
-                      <ion-icon name="location-outline"></ion-icon>
-                      <div>
-                        <p>{{ selectedStore.address.street }}</p>
-                        <p>{{ selectedStore.address.city }}, {{ selectedStore.address.state }} {{ selectedStore.address.zip }}</p>
-                        <p>{{ selectedStore.address.country }}</p>
+                  
+                  <!-- Contact Section -->
+                  <div class="info-section contact-section">
+                    <div class="section-header">
+                      <ion-icon name="call-outline"></ion-icon>
+                      <h3>Contact</h3>
+                    </div>
+                    <div class="section-content">
+                      <div class="contact-item">
+                        <ion-icon name="call-outline"></ion-icon>
+                        <a href="javascript:void(0)" (click)="openPhoneApp()" class="contact-link">
+                          {{ store.phone }}
+                        </a>
+                      </div>
+                      <div class="contact-item">
+                        <ion-icon name="mail-outline"></ion-icon>
+                        <a href="javascript:void(0)" (click)="openEmailApp()" class="contact-link">
+                          {{ store.email }}
+                        </a>
                       </div>
                     </div>
-                    
-                    <!-- Continuation of src/app/features/store-locator/store-locator.page.html -->
-                      <div class="store-contact">
-                        <div class="contact-item">
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </div>
+          
+          <!-- Right Column: Hours & Actions -->
+          <div class="hours-actions-column">
+            <ion-card>
+              <ion-card-header>
+                <div class="section-header">
+                  <ion-icon name="time-outline"></ion-icon>
+                  <h3>Store Hours</h3>
+                </div>
+              </ion-card-header>
+              
+              <ion-card-content>
+                <!-- Horizontal Hours Grid -->
+                <div class="hours-section">
+                  <div class="hours-list">
+                    <div class="hours-item" [class.today]="getDayOfWeek() === 'monday'">
+                      <span class="day">Mon</span>
+                      <span class="time">{{ store.hours.monday }}</span>
+                    </div>
+                    <div class="hours-item" [class.today]="getDayOfWeek() === 'tuesday'">
+                      <span class="day">Tue</span>
+                      <span class="time">{{ store.hours.tuesday }}</span>
+                    </div>
+                    <div class="hours-item" [class.today]="getDayOfWeek() === 'wednesday'">
+                      <span class="day">Wed</span>
+                      <span class="time">{{ store.hours.wednesday }}</span>
+                    </div>
+                    <div class="hours-item" [class.today]="getDayOfWeek() === 'thursday'">
+                      <span class="day">Thu</span>
+                      <span class="time">{{ store.hours.thursday }}</span>
+                    </div>
+                    <div class="hours-item" [class.today]="getDayOfWeek() === 'friday'">
+                      <span class="day">Fri</span>
+                      <span class="time">{{ store.hours.friday }}</span>
+                    </div>
+                    <div class="hours-item" [class.today]="getDayOfWeek() === 'saturday'">
+                      <span class="day">Sat</span>
+                      <span class="time">{{ store.hours.saturday }}</span>
+                    </div>
+                    <div class="hours-item" [class.today]="getDayOfWeek() === 'sunday'">
+                      <span class="day">Sun</span>
+                      <span class="time">{{ store.hours.sunday }}</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="action-section">
+                  <ion-button 
+                    color="primary" 
+                    expand="block" 
+                    size="large" 
+                    (click)="getDirections()" 
+                    class="directions-btn">
+                    <ion-icon name="navigate-outline" slot="start"></ion-icon>
+                    Google Maps Directions
+                  </ion-button>
+                  
+                  <ion-button 
+                    color="secondary" 
+                    expand="block" 
+                    fill="outline" 
+                    (click)="getOpenStreetMapDirections()" 
+                    class="alt-directions-btn">
+                    <ion-icon name="map-outline" slot="start"></ion-icon>
+                    OpenStreetMap Directions
+                  </ion-button>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Mobile Layout: Traditional Vertical Stack -->
+      <div class="mobile-layout d-block d-md-none">
+        <ion-grid>
+          <ion-row>
+            <!-- Map Section -->
+            <ion-col size="12" class="map-col">
+              <div class="map-container">
+                <div #mapContainer class="map-content"></div>
+                <div class="map-info">
+                  <ion-badge color="success">Free Interactive Map</ion-badge>
+                </div>
+                <!-- FIXED: Google Maps Button for Mobile - INSIDE map-container -->
+                <div class="google-maps-btn">
+                  <ion-button size="small" fill="solid" color="primary" (click)="getDirections()">
+                    <ion-icon name="logo-google" slot="start"></ion-icon>
+                    Open with Google Maps
+                  </ion-button>
+                </div>
+              </div>
+            </ion-col>
+            
+            <!-- Store Details Section -->
+            <ion-col size="12" class="details-col">
+              <div class="store-details">
+                <ion-card>
+                  <ion-card-header>
+                    <div class="store-header">
+                      <ion-card-title>{{ store.name }}</ion-card-title>
+                      <ion-badge [color]="isOpenNow() ? 'success' : 'medium'" class="status-badge">
+                        {{ isOpenNow() ? 'Open Now' : 'Closed' }}
+                      </ion-badge>
+                    </div>
+                  </ion-card-header>
+                  
+                  <ion-card-content>
+                    <div class="store-info">
+                      <!-- Address Section -->
+                      <div class="info-section address-section">
+                        <div class="section-header">
+                          <ion-icon name="location-outline"></ion-icon>
+                          <h3>Address</h3>
+                        </div>
+                        <div class="section-content">
+                          <p class="address-line">{{ store.address.street }}</p>
+                          <p class="address-line">{{ store.address.city }}, {{ store.address.state }} {{ store.address.zip }}</p>
+                          <p class="address-line">{{ store.address.country }}</p>
+                        </div>
+                      </div>
+                      
+                      <!-- Contact Section -->
+                      <div class="info-section contact-section">
+                        <div class="section-header">
                           <ion-icon name="call-outline"></ion-icon>
-                          <a href="javascript:void(0)" (click)="openPhoneApp(selectedStore.phone)">{{ selectedStore.phone }}</a>
+                          <h3>Contact</h3>
                         </div>
-                        
-                        <div class="contact-item">
-                          <ion-icon name="mail-outline"></ion-icon>
-                          <a href="javascript:void(0)" (click)="openEmailApp(selectedStore.email)">{{ selectedStore.email }}</a>
+                        <div class="section-content">
+                          <div class="contact-item">
+                            <ion-icon name="call-outline"></ion-icon>
+                            <a href="javascript:void(0)" (click)="openPhoneApp()" class="contact-link">
+                              {{ store.phone }}
+                            </a>
+                          </div>
+                          <div class="contact-item">
+                            <ion-icon name="mail-outline"></ion-icon>
+                            <a href="javascript:void(0)" (click)="openEmailApp()" class="contact-link">
+                              {{ store.email }}
+                            </a>
+                          </div>
                         </div>
                       </div>
                       
-                      <div class="store-hours">
-                        <h4>
+                      <!-- Hours Section -->
+                      <div class="info-section hours-section">
+                        <div class="section-header">
                           <ion-icon name="time-outline"></ion-icon>
-                          Store Hours
-                        </h4>
-                        <div class="hours-list">
-                          <div class="hours-item" [class.today]="getDayOfWeek() === 'monday'">
-                            <span class="day">Monday:</span>
-                            <span class="time">{{ selectedStore.hours.monday }}</span>
-                          </div>
-                          <div class="hours-item" [class.today]="getDayOfWeek() === 'tuesday'">
-                            <span class="day">Tuesday:</span>
-                            <span class="time">{{ selectedStore.hours.tuesday }}</span>
-                          </div>
-                          <div class="hours-item" [class.today]="getDayOfWeek() === 'wednesday'">
-                            <span class="day">Wednesday:</span>
-                            <span class="time">{{ selectedStore.hours.wednesday }}</span>
-                          </div>
-                          <div class="hours-item" [class.today]="getDayOfWeek() === 'thursday'">
-                            <span class="day">Thursday:</span>
-                            <span class="time">{{ selectedStore.hours.thursday }}</span>
-                          </div>
-                          <div class="hours-item" [class.today]="getDayOfWeek() === 'friday'">
-                            <span class="day">Friday:</span>
-                            <span class="time">{{ selectedStore.hours.friday }}</span>
-                          </div>
-                          <div class="hours-item" [class.today]="getDayOfWeek() === 'saturday'">
-                            <span class="day">Saturday:</span>
-                            <span class="time">{{ selectedStore.hours.saturday }}</span>
-                          </div>
-                          <div class="hours-item" [class.today]="getDayOfWeek() === 'sunday'">
-                            <span class="day">Sunday:</span>
-                            <span class="time">{{ selectedStore.hours.sunday }}</span>
+                          <h3>Store Hours</h3>
+                        </div>
+                        <div class="section-content">
+                          <div class="hours-list">
+                            <div class="hours-item" [class.today]="getDayOfWeek() === 'monday'">
+                              <span class="day">Monday</span>
+                              <span class="time">{{ store.hours.monday }}</span>
+                            </div>
+                            <div class="hours-item" [class.today]="getDayOfWeek() === 'tuesday'">
+                              <span class="day">Tuesday</span>
+                              <span class="time">{{ store.hours.tuesday }}</span>
+                            </div>
+                            <div class="hours-item" [class.today]="getDayOfWeek() === 'wednesday'">
+                              <span class="day">Wednesday</span>
+                              <span class="time">{{ store.hours.wednesday }}</span>
+                            </div>
+                            <div class="hours-item" [class.today]="getDayOfWeek() === 'thursday'">
+                              <span class="day">Thursday</span>
+                              <span class="time">{{ store.hours.thursday }}</span>
+                            </div>
+                            <div class="hours-item" [class.today]="getDayOfWeek() === 'friday'">
+                              <span class="day">Friday</span>
+                              <span class="time">{{ store.hours.friday }}</span>
+                            </div>
+                            <div class="hours-item" [class.today]="getDayOfWeek() === 'saturday'">
+                              <span class="day">Saturday</span>
+                              <span class="time">{{ store.hours.saturday }}</span>
+                            </div>
+                            <div class="hours-item" [class.today]="getDayOfWeek() === 'sunday'">
+                              <span class="day">Sunday</span>
+                              <span class="time">{{ store.hours.sunday }}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
                       
-                      <div class="store-actions">
-                        <ion-button color="primary" (click)="getDirections(selectedStore)">
+                      <!-- Action Buttons -->
+                      <div class="action-section">
+                        <ion-button 
+                          color="primary" 
+                          expand="block" 
+                          size="large" 
+                          (click)="getDirections()" 
+                          class="directions-btn">
                           <ion-icon name="navigate-outline" slot="start"></ion-icon>
-                          Get Directions
+                          Google Maps Directions
+                        </ion-button>
+                        
+                        <ion-button 
+                          color="secondary" 
+                          expand="block" 
+                          fill="outline" 
+                          (click)="getOpenStreetMapDirections()" 
+                          class="alt-directions-btn">
+                          <ion-icon name="map-outline" slot="start"></ion-icon>
+                          OpenStreetMap Directions
                         </ion-button>
                       </div>
                     </div>
@@ -143,6 +307,5 @@
         </ion-grid>
       </div>
     </div>
-  </ion-content>
-
-<!-- <app-footer></app-footer> -->
+  </div>
+</ion-content>

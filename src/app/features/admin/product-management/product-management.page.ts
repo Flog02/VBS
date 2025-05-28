@@ -1,4 +1,3 @@
-// src/app/features/admin/product-management/product-management.page.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -14,8 +13,7 @@ import {
 import { addIcons } from 'ionicons';
 import {
   addOutline, trashOutline, createOutline, searchOutline, 
-  filterOutline, arrowDownOutline, arrowUpOutline, ellipsisVerticalOutline
-} from 'ionicons/icons';
+  filterOutline, arrowDownOutline, arrowUpOutline, ellipsisVerticalOutline, arrowBackOutline } from 'ionicons/icons';
 
 import { HeaderComponent } from '../../../shared/components/header/header.component';
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
@@ -76,10 +74,7 @@ export class ProductManagementPage implements OnInit {
     private productService: ProductService,
     private router: Router
   ) {
-    addIcons({
-      addOutline, trashOutline, createOutline, searchOutline, 
-      filterOutline, arrowDownOutline, arrowUpOutline, ellipsisVerticalOutline
-    });
+    addIcons({arrowBackOutline,addOutline,createOutline,trashOutline,searchOutline,filterOutline,arrowDownOutline,arrowUpOutline,ellipsisVerticalOutline});
   }
   
   ngOnInit() {
@@ -229,4 +224,7 @@ export class ProductManagementPage implements OnInit {
     const d = date.toDate ? date.toDate() : new Date(date);
     return d.toLocaleDateString();
   }
+  goBack() {
+  this.router.navigate(['/admin']);
+}
 }

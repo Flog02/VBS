@@ -15,11 +15,12 @@
     
     <!-- Dashboard Stats -->
     <div *ngIf="!isLoading && dashboardStats" class="dashboard-content">
-      <!-- Stats Cards -->
+      
+      <!-- Clickable Stats Cards -->
       <ion-grid>
         <ion-row>
           <ion-col size="12" size-md="3">
-            <ion-card class="stats-card">
+            <ion-card class="stats-card clickable-card" button="true" (click)="navigateToUsers()">
               <ion-card-content>
                 <div class="stats-icon users">
                   <ion-icon name="person-outline"></ion-icon>
@@ -28,12 +29,15 @@
                   <h2>{{ dashboardStats.usersCount }}</h2>
                   <p>Registered Users</p>
                 </div>
+                <div class="card-action">
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
+                </div>
               </ion-card-content>
             </ion-card>
           </ion-col>
           
           <ion-col size="12" size-md="3">
-            <ion-card class="stats-card">
+            <ion-card class="stats-card clickable-card" button="true" (click)="navigateToOrders()">
               <ion-card-content>
                 <div class="stats-icon orders">
                   <ion-icon name="cart-outline"></ion-icon>
@@ -42,12 +46,15 @@
                   <h2>{{ dashboardStats.orderStatusCounts.pending + dashboardStats.orderStatusCounts.processing }}</h2>
                   <p>Active Orders</p>
                 </div>
+                <div class="card-action">
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
+                </div>
               </ion-card-content>
             </ion-card>
           </ion-col>
           
           <ion-col size="12" size-md="3">
-            <ion-card class="stats-card">
+            <ion-card class="stats-card clickable-card" button="true" (click)="navigateToProducts()">
               <ion-card-content>
                 <div class="stats-icon products">
                   <ion-icon name="cube-outline"></ion-icon>
@@ -56,12 +63,15 @@
                   <h2>{{ dashboardStats.productsCount || 0 }}</h2>
                   <p>Products</p>
                 </div>
+                <div class="card-action">
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
+                </div>
               </ion-card-content>
             </ion-card>
           </ion-col>
           
           <ion-col size="12" size-md="3">
-            <ion-card class="stats-card">
+            <ion-card class="stats-card clickable-card" button="true" (click)="navigateToChats()">
               <ion-card-content>
                 <div class="stats-icon chats">
                   <ion-icon name="chatbubble-outline"></ion-icon>
@@ -70,11 +80,66 @@
                   <h2>{{ dashboardStats.pendingChatsCount }}</h2>
                   <p>Pending Chats</p>
                 </div>
+                <div class="card-action">
+                  <ion-icon name="arrow-forward-outline"></ion-icon>
+                </div>
               </ion-card-content>
             </ion-card>
           </ion-col>
         </ion-row>
       </ion-grid>
+
+      <!-- System Status -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>System Status</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col size="6" size-md="3">
+                <div class="status-item">
+                  <ion-icon name="server-outline" color="success"></ion-icon>
+                  <div class="status-info">
+                    <div class="status-label">Database</div>
+                    <div class="status-value success">Online</div>
+                  </div>
+                </div>
+              </ion-col>
+              
+              <ion-col size="6" size-md="3">
+                <div class="status-item">
+                  <ion-icon name="card-outline" color="success"></ion-icon>
+                  <div class="status-info">
+                    <div class="status-label">Payment Gateway</div>
+                    <div class="status-value success">Online</div>
+                  </div>
+                </div>
+              </ion-col>
+              
+              <ion-col size="6" size-md="3">
+                <div class="status-item">
+                  <ion-icon name="mail-outline" color="success"></ion-icon>
+                  <div class="status-info">
+                    <div class="status-label">Email Service</div>
+                    <div class="status-value success">Online</div>
+                  </div>
+                </div>
+              </ion-col>
+              
+              <ion-col size="6" size-md="3">
+                <div class="status-item">
+                  <ion-icon name="cloud-outline" color="warning"></ion-icon>
+                  <div class="status-info">
+                    <div class="status-label">Storage</div>
+                    <div class="status-value warning">75% Used</div>
+                  </div>
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
       
       <!-- Revenue and Orders Summary -->
       <ion-grid>
@@ -116,32 +181,32 @@
               </ion-card-header>
               <ion-card-content>
                 <div class="orders-status">
-                  <div class="status-item">
+                  <div class="status-item" (click)="navigateToOrdersByStatus('pending')">
                     <div class="status-dot status-pending"></div>
                     <div class="status-label">Pending</div>
                     <div class="status-count">{{ dashboardStats.orderStatusCounts.pending }}</div>
                   </div>
-                  <div class="status-item">
+                  <div class="status-item" (click)="navigateToOrdersByStatus('processing')">
                     <div class="status-dot status-processing"></div>
                     <div class="status-label">Processing</div>
                     <div class="status-count">{{ dashboardStats.orderStatusCounts.processing }}</div>
                   </div>
-                  <div class="status-item">
+                  <div class="status-item" (click)="navigateToOrdersByStatus('shipped')">
                     <div class="status-dot status-shipped"></div>
                     <div class="status-label">Shipped</div>
                     <div class="status-count">{{ dashboardStats.orderStatusCounts.shipped }}</div>
                   </div>
-                  <div class="status-item">
+                  <div class="status-item" (click)="navigateToOrdersByStatus('ready-for-pickup')">
                     <div class="status-dot status-ready"></div>
                     <div class="status-label">Ready for Pickup</div>
                     <div class="status-count">{{ dashboardStats.orderStatusCounts['ready-for-pickup'] }}</div>
                   </div>
-                  <div class="status-item">
+                  <div class="status-item" (click)="navigateToOrdersByStatus('completed')">
                     <div class="status-dot status-completed"></div>
                     <div class="status-label">Completed</div>
                     <div class="status-count">{{ dashboardStats.orderStatusCounts.completed }}</div>
                   </div>
-                  <div class="status-item">
+                  <div class="status-item" (click)="navigateToOrdersByStatus('cancelled')">
                     <div class="status-dot status-cancelled"></div>
                     <div class="status-label">Cancelled</div>
                     <div class="status-count">{{ dashboardStats.orderStatusCounts.cancelled }}</div>
@@ -185,7 +250,7 @@
                       </span>
                     </td>
                     <td>
-                      <ion-button fill="clear" size="small" [routerLink]="['/admin/orders', order.id]">
+                      <ion-button fill="clear" size="small" (click)="navigateToOrder(order.id)">
                         View
                       </ion-button>
                     </td>
@@ -214,6 +279,11 @@
             <ion-button color="primary" [routerLink]="['/admin/products/new']">
               <ion-icon slot="start" name="add-circle-outline"></ion-icon>
               Add New Product
+            </ion-button>
+            
+            <ion-button color="secondary" [routerLink]="['/admin/products']">
+              <ion-icon slot="start" name="settings-outline"></ion-icon>
+              Manage Products
             </ion-button>
             
             <ion-button color="success" [routerLink]="['/admin/orders']">

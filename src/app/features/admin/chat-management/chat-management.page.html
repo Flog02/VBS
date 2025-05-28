@@ -5,9 +5,16 @@
   <div class="admin-container">
     <div class="admin-header">
       <h1>Chat Support Management</h1>
-      <p>Handle customer inquiries and support requests.</p>
     </div>
-    
+
+
+     <!-- Back Navigation -->
+    <div class="back-link">
+       <ion-button fill="clear" (click)="goBack()">
+  <ion-icon slot="start" name="arrow-back-outline"></ion-icon>
+  Back to Dashboard
+</ion-button>
+    </div>
     <ion-segment [(ngModel)]="selectedSegment" (ionChange)="segmentChanged($event)">
       <ion-segment-button value="pending">
         <ion-label>

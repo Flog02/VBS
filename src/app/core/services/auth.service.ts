@@ -24,6 +24,7 @@ import { switchMap, tap, map } from 'rxjs/operators';
 import { User } from '../models/user.model';
 import { Router } from '@angular/router';
 
+
 @Injectable({
   providedIn: 'root'
 })
@@ -312,4 +313,7 @@ export class AuthService {
   isAdmin(): boolean {
     return this.currentUserSubject.value?.role === 'admin';
   }
+  getCurrentUser(): Observable<User | null> {
+  return this.currentUser$;
+}
 }

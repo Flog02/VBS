@@ -11,12 +11,12 @@ import {
   query, 
   where, 
   orderBy, 
-  limit as limitTo, // Renamed the import to avoid naming conflict
+  limit as limitTo,
   serverTimestamp 
 } from '@angular/fire/firestore';
 import { Functions, httpsCallable } from '@angular/fire/functions';
-import { Observable, from, of } from 'rxjs';
-import { map, switchMap, take } from 'rxjs/operators';
+import { Observable, from, of, throwError } from 'rxjs';
+import { map, switchMap, take, catchError } from 'rxjs/operators';
 import { Order, OrderItem } from '../models/order.model';
 import { CartService } from './cart.service';
 import { AuthService } from './auth.service';
@@ -86,36 +86,47 @@ export class OrderService {
     pickupLocation?: string,
     shippingAddress?: Order['shippingAddress']
   ): Observable<string> {
+    console.log('Creating order with:', { paymentMethod, pickupOption, pickupLocation, shippingAddress });
+    
     return this.authService.currentUser$.pipe(
       take(1),
       switchMap((user: User | null) => {
         if (!user) {
-          throw new Error('User not authenticated');
+          console.error('User not authenticated');
+          return throwError(() => new Error('User not authenticated'));
         }
+        
+        console.log('User authenticated:', user.uid);
         
         return this.cartService.cart$.pipe(
           take(1),
           switchMap(cart => {
             if (!cart || cart.items.length === 0) {
-              throw new Error('Cart is empty');
+              console.error('Cart is empty');
+              return throwError(() => new Error('Cart is empty'));
             }
+            
+            console.log('Cart data:', cart);
             
             // Create order items from cart items
             const orderItems: OrderItem[] = cart.items.map(item => ({
               productId: item.productId,
               productName: item.productName,
-              productImage: item.productImage,
+              productImage: item.productImage || '',
               quantity: item.quantity,
               price: item.price
             }));
             
-            // Calculate tax (example: 10%)
+            // Calculate totals
             const subtotal = cart.subtotal;
             const tax = subtotal * 0.1;
-            const total = subtotal + tax;
+            const deliveryFee = !pickupOption ? 5.99 : 0;
+            const total = subtotal + tax + deliveryFee;
             
-            // Create new order
-            const newOrder: Omit<Order, 'id'> = {
+            console.log('Order totals:', { subtotal, tax, deliveryFee, total });
+            
+            // Create new order - only include defined fields
+            const newOrder: any = {
               userId: user.uid,
               items: orderItems,
               subtotal,
@@ -125,47 +136,92 @@ export class OrderService {
               paymentMethod,
               paymentStatus: 'pending',
               pickupOption,
-              pickupLocation,
-              shippingAddress,
-              createdAt: new Date(),
-              updatedAt: new Date()
-            };
-            
-            // Add order to Firestore
-            return from(addDoc(this.ordersCollection, {
-              ...newOrder,
               createdAt: serverTimestamp(),
               updatedAt: serverTimestamp()
-            })).pipe(
+            };
+
+            // Only add pickup location if it's a pickup order
+            if (pickupOption && pickupLocation) {
+              newOrder.pickupLocation = pickupLocation;
+            } else if (pickupOption) {
+              newOrder.pickupLocation = 'vbs-main-store';
+            }
+
+            // Only add shipping address if it's a delivery order
+            if (!pickupOption && shippingAddress) {
+              newOrder.shippingAddress = shippingAddress;
+            }
+            
+            console.log('New order object:', newOrder);
+            
+            // Add order to Firestore
+            return from(addDoc(this.ordersCollection, newOrder)).pipe(
               switchMap(docRef => {
-                // Process payment (in a real app, you'd call a payment gateway)
-                const processPayment = httpsCallable(this.functions, 'processPayment');
-                return from(processPayment({ 
-                  orderId: docRef.id, 
-                  amount: total,
-                  method: paymentMethod
-                })).pipe(
-                  switchMap(() => {
-                    // Update order status to processing
-                    const orderDoc = doc(this.firestore, `orders/${docRef.id}`);
-                    return updateDoc(orderDoc, {
-                      paymentStatus: 'paid',
-                      status: 'processing',
-                      updatedAt: serverTimestamp()
-                    }).then(() => {
-                      // Clear the cart
-                      this.cartService.clearCart().subscribe();
-                      return docRef.id;
-                    });
-                  })
-                );
+                console.log('Order created with ID:', docRef.id);
+                
+                // For demo purposes, simulate payment processing
+                return this.simulatePaymentProcessing(docRef.id, paymentMethod, total);
               }),
-              map(orderId => orderId)
+              catchError(error => {
+                console.error('Error creating order:', error);
+                return throwError(() => error);
+              })
             );
           })
         );
+      }),
+      catchError(error => {
+        console.error('Error in createOrder:', error);
+        return throwError(() => error);
       })
     );
+  }
+
+  private simulatePaymentProcessing(orderId: string, paymentMethod: string, amount: number): Observable<string> {
+    console.log('Processing payment for order:', orderId);
+    
+    // Simulate payment processing delay
+    return new Observable<string>(observer => {
+      setTimeout(() => {
+        try {
+          // Simulate successful payment for demo
+          const orderDoc = doc(this.firestore, `orders/${orderId}`);
+          
+          // Update order status based on payment method
+          let newStatus: Order['status'] = 'processing';
+          let paymentStatus: Order['paymentStatus'] = 'paid';
+          
+          // For cash payments, order goes to ready-for-pickup immediately
+          if (paymentMethod === 'cash') {
+            newStatus = 'ready-for-pickup';
+            paymentStatus = 'pending'; // Cash will be paid on pickup
+          }
+          
+          updateDoc(orderDoc, {
+            paymentStatus,
+            status: newStatus,
+            updatedAt: serverTimestamp()
+          }).then(() => {
+            console.log('Order status updated successfully');
+            
+            // Clear the cart after successful order
+            this.cartService.clearCart().subscribe({
+              next: () => console.log('Cart cleared'),
+              error: (error) => console.error('Error clearing cart:', error)
+            });
+            
+            observer.next(orderId);
+            observer.complete();
+          }).catch(error => {
+            console.error('Error updating order status:', error);
+            observer.error(error);
+          });
+        } catch (error) {
+          console.error('Error in payment simulation:', error);
+          observer.error(error);
+        }
+      }, 1000); // 1 second delay to simulate processing
+    });
   }
 
   updateOrderStatus(orderId: string, status: Order['status']): Observable<void> {

@@ -1,4 +1,3 @@
-// src/app/features/admin/order-management/order-management.page.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
@@ -13,8 +12,7 @@ import {
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import {
-  searchOutline, filterOutline, arrowDownOutline, arrowUpOutline, eyeOutline
-} from 'ionicons/icons';
+  searchOutline, filterOutline, arrowDownOutline, arrowUpOutline, eyeOutline, arrowBackOutline } from 'ionicons/icons';
 
 import { HeaderComponent } from '../../../shared/components/header/header.component';
 import { FooterComponent } from '../../../shared/components/footer/footer.component';
@@ -61,9 +59,7 @@ export class OrderManagementPage implements OnInit {
     private orderService: OrderService,
     private router: Router
   ) {
-    addIcons({
-      searchOutline, filterOutline, arrowDownOutline, arrowUpOutline, eyeOutline
-    });
+    addIcons({arrowBackOutline,eyeOutline,searchOutline,filterOutline,arrowDownOutline,arrowUpOutline});
   }
   
   ngOnInit() {
@@ -154,4 +150,8 @@ export class OrderManagementPage implements OnInit {
     const d = date.toDate ? date.toDate() : new Date(date);
     return d.toLocaleDateString() + ' ' + d.toLocaleTimeString();
   }
+
+  goBack() {
+  this.router.navigate(['/admin']);
+}
 }

@@ -1,6 +1,10 @@
+// /Users/admin/Documents/GitHub/VBS/src/app/features/admin/product-form/product-form.component.ts
+
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router'; // Add Router import
+import { ToastController } from '@ionic/angular'; // Add ToastController import
 import { 
   IonInput, IonItem, IonLabel, IonTextarea, IonSelect, IonSelectOption,
   IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCheckbox, IonList,
@@ -62,7 +66,9 @@ export class ProductFormComponent implements OnInit {
   
   constructor(
     private formBuilder: FormBuilder,
-    private productService: ProductService
+    private productService: ProductService,
+    private router: Router, // Inject Router service
+    private toastController: ToastController // Inject ToastController
   ) {
     addIcons({closeOutline,imageOutline,cubeOutline,addOutline,trashOutline,saveOutline,reloadOutline,checkmarkOutline});
   }
@@ -215,11 +221,8 @@ export class ProductFormComponent implements OnInit {
   
   async onSubmit() {
     if (this.productForm.invalid) {
-      // Mark all fields as touched to trigger validation messages
-      Object.keys(this.productForm.controls).forEach(key => {
-        const control = this.productForm.get(key);
-        control?.markAsTouched();
-      });
+      // Show validation toast
+      await this.showValidationToast();
       return;
     }
     
@@ -310,14 +313,33 @@ export class ProductFormComponent implements OnInit {
       }
       
       this.isSubmitting = false;
+      
+      // Show success toast
+      await this.showSuccessToast();
+      
+      // Clear form data after successful save
+      this.clearFormData();
+      
+      // Navigate to admin page after successful submission
+      setTimeout(() => {
+        this.router.navigate(['/admin']);
+      }, 1500); // Delay navigation to let user see the success toast
+      
     } catch (error) {
       console.error('Error saving product:', error);
       this.isSubmitting = false;
+      
+      // Show error toast
+      await this.showErrorToast();
     }
   }
   
   cancel() {
+    // Emit the cancelEdit event (for parent component handling if needed)
     this.cancelEdit.emit();
+    
+    // Navigate to admin page
+    this.router.navigate(['/admin']);
   }
   
   async uploadImage(file: File, productId: string, index: number): Promise<string> {
@@ -348,6 +370,169 @@ export class ProductFormComponent implements OnInit {
     });
   }
   
+  
+  // Clear all form data
+  clearFormData() {
+    try {
+      // Clear image data
+      this.selectedImages = [];
+      this.imagePreviewUrls = [];
+      this.uploadProgress = [];
+      
+      // Clear 3D model data
+      this.selectedModel = null;
+      this.modelPreviewUrl = '';
+      this.modelUploadProgress = 0;
+      
+      // Clear specification keys and controls
+      this.specKeys.forEach(key => {
+        const specGroup = this.productForm.get('specifications') as FormGroup;
+        if (specGroup && specGroup.get(key)) {
+          specGroup.removeControl(key);
+        }
+      });
+      this.specKeys = [];
+      
+      // Reset the form to initial state
+      this.productForm.reset();
+      
+      // Set default values explicitly
+      this.productForm.patchValue({
+        name: '',
+        description: '',
+        price: 0,
+        salePrice: null,
+        category: '',
+        subcategory: '',
+        brand: '',
+        stock: 0,
+        featured: false,
+        rating: 0
+      });
+      
+      // Reset form validation state
+      this.productForm.markAsUntouched();
+      this.productForm.markAsPristine();
+      
+    } catch (error) {
+      console.error('Error clearing form data:', error);
+    }
+  }
+  
+  // Show validation toast
+  async showValidationToast() {
+    try {
+      const invalidFields = this.getInvalidFields();
+      
+      const toast = await this.toastController.create({
+        message: `Please complete: ${invalidFields.join(', ')}`,
+        duration: 4000,
+        position: 'bottom',
+        color: 'danger',
+        cssClass: 'validation-toast',
+        buttons: [
+          {
+            text: 'Dismiss',
+            role: 'cancel'
+          }
+        ]
+      });
+
+      await toast.present();
+      
+      // Mark all fields as touched to show validation errors
+      Object.keys(this.productForm.controls).forEach(key => {
+        const control = this.productForm.get(key);
+        control?.markAsTouched();
+      });
+    } catch (error) {
+      console.error('Error showing validation toast:', error);
+    }
+  }
+  
+  // Show success toast
+  async showSuccessToast() {
+    try {
+      const toast = await this.toastController.create({
+        message: this.isEdit ? '✅ Product updated successfully!' : '✅ Product created successfully!',
+        duration: 3000,
+        position: 'bottom',
+        color: 'success',
+        cssClass: 'success-toast'
+      });
+
+      await toast.present();
+    } catch (error) {
+      console.error('Error showing success toast:', error);
+    }
+  }
+  
+  // Show error toast
+  async showErrorToast() {
+    try {
+      const toast = await this.toastController.create({
+        message: '❌ Error saving product. Please try again.',
+        duration: 4000,
+        position: 'bottom',
+        color: 'danger',
+        cssClass: 'error-toast',
+        buttons: [
+          {
+            text: 'Dismiss',
+            role: 'cancel'
+          }
+        ]
+      });
+
+      await toast.present();
+    } catch (error) {
+      console.error('Error showing error toast:', error);
+    }
+  }
+  
+  // Get list of invalid field names
+  getInvalidFields(): string[] {
+    const invalidFields: string[] = [];
+    
+    try {
+      Object.keys(this.productForm.controls).forEach(key => {
+        const control = this.productForm.get(key);
+        if (control && control.invalid) {
+          switch (key) {
+            case 'name':
+              invalidFields.push('Product Name');
+              break;
+            case 'description':
+              invalidFields.push('Description');
+              break;
+            case 'price':
+              invalidFields.push('Price');
+              break;
+            case 'category':
+              invalidFields.push('Category');
+              break;
+            case 'brand':
+              invalidFields.push('Brand');
+              break;
+            case 'stock':
+              invalidFields.push('Stock');
+              break;
+            case 'rating':
+              invalidFields.push('Rating');
+              break;
+            default:
+              invalidFields.push(key.charAt(0).toUpperCase() + key.slice(1));
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Error getting invalid fields:', error);
+      return ['Please check all required fields'];
+    }
+    
+    return invalidFields.length > 0 ? invalidFields : ['Please check all required fields'];
+  }
+
   // Convenience getter for easy access to form fields
   get f() { return this.productForm.controls; }
 }

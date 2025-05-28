@@ -1,27 +1,16 @@
-// src/app/features/admin/user-management/user-management.page.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
   IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton, 
-  IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, 
-  IonCardTitle, IonCardContent, IonItem, IonLabel, IonInput, 
-  IonSelect, IonSelectOption, IonSearchbar, IonBadge, IonAlert,
-  IonInfiniteScroll, IonInfiniteScrollContent, IonSkeletonText,
-  IonChip
+  IonButton, IonIcon, IonSearchbar, IonBadge, IonAlert, IonSelect, IonSelectOption
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import {
-  searchOutline, filterOutline, personOutline, createOutline,
-  shieldOutline, alertCircleOutline
-} from 'ionicons/icons';
+import { personOutline, shieldOutline, searchOutline, arrowBackOutline } from 'ionicons/icons';
 
-import { HeaderComponent } from '../../../shared/components/header/header.component';
-import { FooterComponent } from '../../../shared/components/footer/footer.component';
-import { LoadingSpinnerComponent } from 'src/app/shared/components/loading-spinner/loading-spinner.component';
-import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { AdminService } from '../../../core/services/admin.service';
 import { User } from '../../../core/models/user.model';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-management',
@@ -29,19 +18,14 @@ import { User } from '../../../core/models/user.model';
   styleUrls: ['./user-management.page.scss'],
   standalone: true,
   imports: [
-    CommonModule,
-    FormsModule,
+    CommonModule, FormsModule,
     IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton, 
-    IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardHeader, 
-    IonCardTitle, IonCardContent, IonItem, IonLabel, IonInput, 
-    IonSelect, IonSelectOption, IonSearchbar, IonBadge, IonAlert,
-    IonInfiniteScroll, IonInfiniteScrollContent, IonSkeletonText,
-    IonChip,
-    HeaderComponent, FooterComponent, LoadingSpinnerComponent, EmptyStateComponent
+    IonButton, IonIcon, IonSearchbar, IonBadge, IonAlert, IonSelect, IonSelectOption
   ]
 })
 export class UserManagementPage implements OnInit {
   users: User[] = [];
+  filteredUsers: User[] = [];
   isLoading = true;
   
   // Filtering
@@ -60,27 +44,27 @@ export class UserManagementPage implements OnInit {
     { value: 'admin', label: 'Administrators' }
   ];
   
-  constructor(private adminService: AdminService) {
-    addIcons({
-      searchOutline, filterOutline, personOutline, createOutline,
-      shieldOutline, alertCircleOutline
-    });
-  }
+  // Alert buttons
   roleChangeAlertButtons = [
-  {
-    text: 'Cancel',
-    role: 'cancel',
-    handler: () => {
-      this.cancelRoleChange();
+    {
+      text: 'Cancel',
+      role: 'cancel',
+      handler: () => this.cancelRoleChange()
+    },
+    {
+      text: 'Confirm',
+      handler: () => this.changeUserRole()
     }
-  },
-  {
-    text: 'Confirm',
-    handler: () => {
-      this.changeUserRole();
-    }
+  ];
+
+  
+  
+  constructor(private adminService: AdminService,
+    private router: Router
+
+  ) {
+    addIcons({arrowBackOutline,personOutline,shieldOutline,searchOutline});
   }
-];
   
   ngOnInit() {
     this.loadUsers();
@@ -89,40 +73,51 @@ export class UserManagementPage implements OnInit {
   loadUsers() {
     this.isLoading = true;
     
-    this.adminService.getAllUsers().subscribe(
-      users => {
-        // Apply role filter if needed
-        if (this.selectedRole) {
-          users = users.filter(user => user.role === this.selectedRole);
-        }
-        
-        // Apply search filter if needed
-        if (this.searchTerm) {
-          const searchLower = this.searchTerm.toLowerCase();
-          users = users.filter(user => 
-            (user.displayName?.toLowerCase().includes(searchLower) || false) ||
-            user.email.toLowerCase().includes(searchLower)
-          );
-        }
-        
-        this.users = users;
+    // Use the method that exists in your AdminService
+    this.adminService.getAllUsers().subscribe({
+      next: (users) => {
+        console.log('Loaded users:', users); // Debug log
+        this.users = users || [];
+        this.applyFilters();
         this.isLoading = false;
       },
-      error => {
+      error: (error) => {
         console.error('Error loading users:', error);
+        this.users = [];
+        this.filteredUsers = [];
         this.isLoading = false;
       }
-    );
+    });
+  }
+  
+  applyFilters() {
+    let filtered = [...this.users];
+    
+    // Apply role filter
+    if (this.selectedRole) {
+      filtered = filtered.filter(user => user.role === this.selectedRole);
+    }
+    
+    // Apply search filter
+    if (this.searchTerm) {
+      const searchLower = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(user => 
+        (user.displayName?.toLowerCase().includes(searchLower) || false) ||
+        user.email.toLowerCase().includes(searchLower)
+      );
+    }
+    
+    this.filteredUsers = filtered;
   }
   
   onSearchChange(event: any) {
-    this.searchTerm = event.detail.value;
-    this.loadUsers();
+    this.searchTerm = event.detail.value || '';
+    this.applyFilters();
   }
   
   onRoleChange(event: any) {
-    this.selectedRole = event.detail.value;
-    this.loadUsers();
+    this.selectedRole = event.detail.value || '';
+    this.applyFilters();
   }
   
   confirmRoleChange(user: User) {
@@ -134,8 +129,10 @@ export class UserManagementPage implements OnInit {
   changeUserRole() {
     if (!this.userToUpdate) return;
     
-    this.adminService.changeUserRole(this.userToUpdate.uid, this.newRole).subscribe(
-      () => {
+    // Use your existing updateUserRole method (Promise-based)
+    this.adminService.updateUserRole(this.userToUpdate.uid, this.newRole)
+      .then(() => {
+        console.log('Role updated successfully');
         // Update the user in the local array
         const userIndex = this.users.findIndex(u => u.uid === this.userToUpdate?.uid);
         if (userIndex !== -1) {
@@ -145,14 +142,14 @@ export class UserManagementPage implements OnInit {
           };
         }
         
+        this.applyFilters(); // Refresh filtered list
         this.userToUpdate = null;
         this.showRoleAlert = false;
-      },
-      error => {
+      })
+      .catch(error => {
         console.error('Error changing user role:', error);
         this.showRoleAlert = false;
-      }
-    );
+      });
   }
   
   cancelRoleChange() {
@@ -161,9 +158,36 @@ export class UserManagementPage implements OnInit {
   }
   
   formatDate(date: any): string {
-    if (!date) return '';
+    if (!date) return 'Never';
     
-    const d = date.toDate ? date.toDate() : new Date(date);
-    return d.toLocaleDateString();
+    try {
+      // Handle Firestore Timestamp
+      if (date && typeof date.toDate === 'function') {
+        return date.toDate().toLocaleDateString();
+      }
+      // Handle regular Date
+      if (date instanceof Date) {
+        return date.toLocaleDateString();
+      }
+      // Handle string dates
+      return new Date(date).toLocaleDateString();
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid Date';
+    }
   }
+  
+  getRoleChangeMessage(): string {
+    if (!this.userToUpdate) return '';
+    const userName = this.userToUpdate.displayName || this.userToUpdate.email;
+    return `Are you sure you want to change ${userName}'s role to ${this.newRole}?`;
+  }
+  
+  trackByUid(index: number, user: User): string {
+    return user.uid;
+  }
+
+  goBack() {
+  this.router.navigate(['/admin']);
+}
 }

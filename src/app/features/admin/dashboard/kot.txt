@@ -1,0 +1,293 @@
+<!-- src/app/features/admin/dashboard/dashboard.page.html -->
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Admin Dashboard</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1>Admin Dashboard</h1>
+      <p>Welcome to the VBS admin panel. Manage your store, products, orders, and customers.</p>
+    </div>
+    
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="loading-container">
+      <div class="loading-content">
+        <ion-icon name="sync-outline" class="loading-icon"></ion-icon>
+        <span class="loading-text">Loading dashboard data...</span>
+      </div>
+    </div>
+    
+    <!-- Error State -->
+    <div *ngIf="hasError && !isLoading" class="error-container">
+      <ion-card color="danger">
+        <ion-card-content>
+          <div class="error-content">
+            <ion-icon name="alert-circle-outline" class="error-icon"></ion-icon>
+            <h3>Failed to Load Dashboard</h3>
+            <p>{{ errorMessage }}</p>
+            <ion-button (click)="retry()" color="light">
+              <ion-icon name="sync-outline" slot="start"></ion-icon>
+              Retry
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+    
+    <!-- Dashboard Content -->
+    <div *ngIf="!isLoading && !hasError" class="dashboard-content">
+      <!-- Stats Cards -->
+      <ion-grid>
+        <ion-row>
+          <ion-col size="12" size-md="3">
+            <ion-card class="stats-card" button (click)="navigateToUsers()">
+              <ion-card-content>
+                <div class="stats-content">
+                  <div class="stats-icon users">
+                    <ion-icon name="person-outline"></ion-icon>
+                  </div>
+                  <div class="stats-info">
+                    <h2>{{ totalUsers }}</h2>
+                    <p>Total Users</p>
+                    <small>{{ getUserGrowthPercentage() }}% new this month</small>
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+          
+          <ion-col size="12" size-md="3">
+            <ion-card class="stats-card" button (click)="navigateToUsers()">
+              <ion-card-content>
+                <div class="stats-content">
+                  <div class="stats-icon admins">
+                    <ion-icon name="shield-outline"></ion-icon>
+                  </div>
+                  <div class="stats-info">
+                    <h2>{{ adminCount }}</h2>
+                    <p>Administrators</p>
+                    <small>{{ customerCount }} customers</small>
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+          
+          <ion-col size="12" size-md="3">
+            <ion-card class="stats-card" button (click)="navigateToOrders()">
+              <ion-card-content>
+                <div class="stats-content">
+                  <div class="stats-icon orders">
+                    <ion-icon name="cart-outline"></ion-icon>
+                  </div>
+                  <div class="stats-info">
+                    <h2>0</h2>
+                    <p>Orders</p>
+                    <small>No orders yet</small>
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+          
+          <ion-col size="12" size-md="3">
+            <ion-card class="stats-card" button (click)="navigateToProducts()">
+              <ion-card-content>
+                <div class="stats-content">
+                  <div class="stats-icon products">
+                    <ion-icon name="cube-outline"></ion-icon>
+                  </div>
+                  <div class="stats-info">
+                    <h2>0</h2>
+                    <p>Products</p>
+                    <small>No products yet</small>
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+      
+      <!-- Recent Users -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>
+            <div class="card-title-with-action">
+              Recent Users
+              <ion-button fill="clear" size="small" (click)="navigateToUsers()">
+                View All
+                <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+              </ion-button>
+            </div>
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div *ngIf="recentUsers.length === 0" class="empty-state">
+            <ion-icon name="person-outline" class="empty-icon"></ion-icon>
+            <p>No users found</p>
+          </div>
+          
+          <div *ngIf="recentUsers.length > 0" class="recent-users">
+            <div class="table-responsive">
+              <table class="users-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Registered</th>
+                    <th>Last Login</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let user of recentUsers">
+                    <td>
+                      <div class="user-info">
+                        <div class="user-avatar">
+                          <ion-icon name="person-outline"></ion-icon>
+                        </div>
+                        <span>{{ user.displayName || 'Not Set' }}</span>
+                      </div>
+                    </td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                      <ion-badge [color]="user.role === 'admin' ? 'tertiary' : 'primary'">
+                        {{ user.role }}
+                      </ion-badge>
+                    </td>
+                    <td>{{ formatDate(user.createdAt) }}</td>
+                    <td>{{ getTimeSince(user.lastLoginAt) }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+      
+      <!-- User Activity Summary -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>User Activity Summary</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="activity-summary">
+            <div class="activity-item">
+              <div class="activity-icon">
+                <ion-icon name="people-outline"></ion-icon>
+              </div>
+              <div class="activity-details">
+                <strong>{{ totalUsers }}</strong>
+                <span>Total registered users</span>
+              </div>
+            </div>
+            
+            <div class="activity-item">
+              <div class="activity-icon">
+                <ion-icon name="shield-outline"></ion-icon>
+              </div>
+              <div class="activity-details">
+                <strong>{{ adminCount }}</strong>
+                <span>Administrator accounts</span>
+              </div>
+            </div>
+            
+            <div class="activity-item">
+              <div class="activity-icon">
+                <ion-icon name="person-outline"></ion-icon>
+              </div>
+              <div class="activity-details">
+                <strong>{{ customerCount }}</strong>
+                <span>Customer accounts</span>
+              </div>
+            </div>
+            
+            <div class="activity-item" *ngIf="getMostActiveUser()">
+              <div class="activity-icon">
+                <ion-icon name="time-outline"></ion-icon>
+              </div>
+              <div class="activity-details">
+                <strong>{{ getMostActiveUser()?.displayName || getMostActiveUser()?.email }}</strong>
+                <span>Most recent login</span>
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+      
+      <!-- Quick Actions -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Quick Actions</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="quick-actions">
+            <ion-button expand="block" color="primary" [routerLink]="['/admin/products/new']">
+              <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+              Add New Product
+            </ion-button>
+
+            <ion-button expand="block" color="secondary" [routerLink]="['/admin/products']">
+              <ion-icon slot="start" name="settings-outline"></ion-icon>
+              Manage Products
+            </ion-button>
+            
+            <ion-button expand="block" color="success" [routerLink]="['/admin/orders']">
+              <ion-icon slot="start" name="cart-outline"></ion-icon>
+              Manage Orders
+            </ion-button>
+            
+            <ion-button expand="block" color="tertiary" [routerLink]="['/admin/chats']">
+              <ion-icon slot="start" name="chatbubble-outline"></ion-icon>
+              Customer Support
+            </ion-button>
+            
+            <ion-button expand="block" color="warning" [routerLink]="['/admin/users']">
+              <ion-icon slot="start" name="people-outline"></ion-icon>
+              User Management
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- System Status -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>System Status</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="system-status">
+            <div class="status-item">
+              <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+              <span>Firebase Connected</span>
+            </div>
+            <div class="status-item">
+              <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+              <span>User Authentication Working</span>
+            </div>
+            <div class="status-item">
+              <ion-icon name="checkmark-circle-outline" color="success"></ion-icon>
+              <span>Database Access OK</span>
+            </div>
+            <div class="status-item">
+              <ion-icon name="time-outline" color="warning"></ion-icon>
+              <span>Products Collection - Setup Required</span>
+            </div>
+            <div class="status-item">
+              <ion-icon name="time-outline" color="warning"></ion-icon>
+              <span>Orders Collection - Setup Required</span>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+</ion-content>

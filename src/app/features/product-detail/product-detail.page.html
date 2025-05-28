@@ -27,46 +27,46 @@
           <!-- Product Images -->
           <ion-col size="12" size-md="6">
             <div class="product-images-container">
-  <!-- Image Slider -->
-  <swiper-container #productSlides [options]="slideOpts" class="product-slides">
-    <swiper-slide *ngFor="let image of product.images">
-      <div class="swiper-zoom-container">
-        <img [src]="image" [alt]="product.name">
-      </div>
-    </swiper-slide>
-    
-    <!-- 3D Model Slide (if available) -->
-    <swiper-slide *ngIf="product.model3dUrl">
-      <div class="product-3d-container">
-        <app-product-3d-viewer
-          [modelUrl]="product.model3dUrl"
-          [productName]="product.name">
-        </app-product-3d-viewer>
-      </div>
-    </swiper-slide>
-  </swiper-container>
-  
-  <!-- Thumbnail Navigation -->
-  <div class="product-thumbs">
-    <div
-      *ngFor="let image of product.images; let i = index"
-      class="thumb"
-      [class.active]="i === activeSlideIndex"
-      (click)="slideTo(i)">
-      <img [src]="image" [alt]="'Thumbnail ' + i">
-    </div>
-    
-    <!-- 3D Model Thumbnail -->
-    <div
-      *ngIf="product.model3dUrl"
-      class="thumb model-thumb"
-      [class.active]="activeSlideIndex === product.images.length"
-      (click)="slideTo(product.images.length)">
-      <ion-icon name="cube-outline"></ion-icon>
-      <span>3D</span>
-    </div>
-  </div>
-</div>
+              <!-- Image Slider -->
+              <swiper-container #productSlides [options]="slideOpts" class="product-slides">
+                <swiper-slide *ngFor="let image of product.images">
+                  <div class="swiper-zoom-container">
+                    <img [src]="image" [alt]="product.name">
+                  </div>
+                </swiper-slide>
+                
+                <!-- 3D Model Slide (if available) -->
+                <swiper-slide *ngIf="product.model3dUrl">
+                  <div class="product-3d-container">
+                    <app-product-3d-viewer
+                      [modelUrl]="product.model3dUrl"
+                      [productName]="product.name">
+                    </app-product-3d-viewer>
+                  </div>
+                </swiper-slide>
+              </swiper-container>
+              
+              <!-- Thumbnail Navigation -->
+              <div class="product-thumbs">
+                <div
+                  *ngFor="let image of product.images; let i = index"
+                  class="thumb"
+                  [class.active]="i === activeSlideIndex"
+                  (click)="slideTo(i)">
+                  <img [src]="image" [alt]="'Thumbnail ' + i">
+                </div>
+                
+                <!-- 3D Model Thumbnail -->
+                <div
+                  *ngIf="product.model3dUrl"
+                  class="thumb model-thumb"
+                  [class.active]="activeSlideIndex === product.images.length"
+                  (click)="slideTo(product.images.length)">
+                  <ion-icon name="cube-outline"></ion-icon>
+                  <span>3D</span>
+                </div>
+              </div>
+            </div>
           </ion-col>
           
           <!-- Product Info -->
@@ -147,12 +147,15 @@
               
               <!-- Wishlist & Share -->
               <div class="product-secondary-actions">
+                <!-- Fixed Wishlist Button -->
                 <ion-button 
                   fill="clear" 
-                  [color]="isInWishlist ? 'danger' : 'medium'"
+                  [color]="getWishlistButtonColor()"
+                  class="wishlist-btn"
+                  [class.active]="isInWishlist"
                   (click)="toggleWishlist()">
-                  <ion-icon [name]="isInWishlist ? 'heart' : 'heart-outline'" slot="start"></ion-icon>
-                  {{ isInWishlist ? 'Added to Wishlist' : 'Add to Wishlist' }}
+                  <ion-icon [name]="getHeartIcon()" slot="start"></ion-icon>
+                  {{ getWishlistButtonText() }}
                 </ion-button>
                 
                 <ion-button 
@@ -204,22 +207,22 @@
           
           <!-- Specifications Tab -->
           <div *ngIf="selectedSegment === 'specifications'" class="specifications-content">
-  <ion-accordion-group>
-    <ion-accordion *ngFor="let spec of getProductSpecifications() | keyvalue" value="{{ spec.key }}">
-      <ion-item slot="header">
-        <ion-label>{{ spec.key | titlecase }}</ion-label>
-      </ion-item>
-      <div slot="content" class="specification-detail">
-        <p *ngIf="!isObject(spec.value)">{{ spec.value }}</p>
-        <div *ngIf="isObject(spec.value)">
-          <div *ngFor="let subSpec of getSpecificationDetails(spec.value) | keyvalue" class="sub-specification">
-            <strong>{{ subSpec.key | titlecase }}:</strong> {{ subSpec.value }}
+            <ion-accordion-group>
+              <ion-accordion *ngFor="let spec of getProductSpecifications() | keyvalue" value="{{ spec.key }}">
+                <ion-item slot="header">
+                  <ion-label>{{ spec.key | titlecase }}</ion-label>
+                </ion-item>
+                <div slot="content" class="specification-detail">
+                  <p *ngIf="!isObject(spec.value)">{{ spec.value }}</p>
+                  <div *ngIf="isObject(spec.value)">
+                    <div *ngFor="let subSpec of getSpecificationDetails(spec.value) | keyvalue" class="sub-specification">
+                      <strong>{{ subSpec.key | titlecase }}:</strong> {{ subSpec.value }}
+                    </div>
+                  </div>
+                </div>
+              </ion-accordion>
+            </ion-accordion-group>
           </div>
-        </div>
-      </div>
-    </ion-accordion>
-  </ion-accordion-group>
-</div>
           
           <!-- Reviews Tab -->
           <div *ngIf="selectedSegment === 'reviews' && product.reviews" class="reviews-content">

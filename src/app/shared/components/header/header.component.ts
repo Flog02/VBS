@@ -1,16 +1,17 @@
+// src/app/shared/components/header/header.component.ts
 import { Component, OnInit, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { 
-  IonHeader, 
-  IonToolbar, 
-  IonTitle, 
-  IonButtons, 
-  IonButton, 
-  IonIcon, 
-  IonBadge,
-  IonSearchbar,
+import {
+   IonHeader,
+   IonToolbar,
+   IonTitle,
+   IonButtons,
+   IonButton,
+   IonIcon,
+   IonBadge,
+  // IonSearchbar, // REMOVED - no longer needed
   IonMenu,
   IonContent,
   IonList,
@@ -22,19 +23,19 @@ import {
   MenuController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { 
-  cartOutline, 
-  personOutline, 
-  heartOutline, 
-  searchOutline,
+import {
+   cartOutline,
+   personOutline,
+   heartOutline,
+   // searchOutline, // REMOVED - no longer needed
   homeOutline,
   gridOutline,
   locationOutline,
   chatbubbleOutline,
   logOutOutline,
-  settingsOutline, 
-  bagOutline, 
-  logInOutline 
+  settingsOutline,
+   bagOutline,
+   logInOutline
 } from 'ionicons/icons';
 
 import { AuthService } from '../../../core/services/auth.service';
@@ -57,7 +58,7 @@ import { User } from '../../../core/models/user.model';
     IonButton,
     IonIcon,
     IonBadge,
-    IonSearchbar,
+    // IonSearchbar, // REMOVED
     IonMenu,
     IonContent,
     IonList,
@@ -69,7 +70,7 @@ import { User } from '../../../core/models/user.model';
   ]
 })
 export class HeaderComponent implements OnInit {
-  searchTerm = '';
+  // searchTerm = ''; // REMOVED - no longer needed
   currentUser: User | null = null;
   cartItemsCount = 0;
   wishlistItemsCount = 0;
@@ -95,8 +96,8 @@ export class HeaderComponent implements OnInit {
       bagOutline,
       settingsOutline,
       logOutOutline,
-      logInOutline,
-      searchOutline
+      logInOutline
+      // searchOutline // REMOVED
     });
   }
 
@@ -123,15 +124,7 @@ export class HeaderComponent implements OnInit {
     this.router.navigateByUrl(path);
   }
 
-  async onSearch() {
-    if (this.searchTerm.trim()) {
-      await this.menuCtrl.close();
-      this.router.navigate(['/products'], { 
-        queryParams: { search: this.searchTerm } 
-      });
-      this.searchTerm = '';
-    }
-  }
+  // REMOVED: onSearch() method - no longer needed
 
   async navigateToAuth() {
     await this.menuCtrl.close();

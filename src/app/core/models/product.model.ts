@@ -1,13 +1,12 @@
-// src/app/core/models/product.model.ts
 export interface Product {
   id: string;
   name: string;
   description: string;
-  price: number;
-  salePrice?: number;
   category: string;
   subcategory?: string;
   brand: string;
+  price: number;
+  salePrice?: number | null;
   images: string[];
   model3dUrl?: string;
   specifications: Record<string, any>;

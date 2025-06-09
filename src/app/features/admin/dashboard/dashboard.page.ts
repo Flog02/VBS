@@ -95,13 +95,19 @@ export class DashboardPage implements OnInit {
     });
   }
 
-  // Navigate to orders filtered by status
-  navigateToOrdersByStatus(status: string) {
-    this.router.navigate(['/admin/orders'], {
-      queryParams: { status: status, returnTo: 'dashboard' }
-    });
-  }
+  // // Navigate to orders filtered by status
+  // navigateToOrdersByStatus(status: string) {
+  //   this.router.navigate(['/admin/orders'], {
+  //     queryParams: { status: status, returnTo: 'dashboard' }
+  //   });
+  // }
   
+
+  navigateToOrdersByStatus(status: string) {
+  this.router.navigate(['/admin/orders'], {
+    queryParams: { status: status }
+  });
+}
   getStatusClass(status: Order['status']): string {
     switch (status) {
       case 'pending': return 'status-pending';

@@ -1,24 +1,57 @@
 /* src/app/features/chat/chat.page.scss */
+
+/* Force disable keyboard offset */
+:host {
+  ion-content {
+    --keyboard-offset: 0px !important;
+    --offset-bottom: 0px !important;
+  }
+}
+
 .page-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  
+  @media (max-width: 768px) {
+    padding: 5px;
+    height: 100vh;
+  }
 }
 
 .page-header {
-  margin-bottom: 30px;
+  margin-bottom: 20px;
+  flex-shrink: 0;
   
   h1 {
     font-size: 2rem;
     font-weight: 700;
     color: var(--ion-color-dark);
     margin-bottom: 5px;
+    
+    @media (max-width: 768px) {
+      font-size: 1.3rem;
+      margin-bottom: 0;
+    }
   }
   
   p {
     color: var(--ion-color-medium);
     font-size: 1.1rem;
     margin: 0;
+    
+    @media (max-width: 768px) {
+      font-size: 0.9rem;
+      display: none;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    margin-bottom: 10px;
   }
 }
 
@@ -28,11 +61,11 @@
   border-radius: 10px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
   overflow: hidden;
-  min-height: 600px;
+  height: 70vh;
   
   @media (max-width: 768px) {
     flex-direction: column;
-    min-height: auto;
+    height: 75vh;
   }
 }
 
@@ -41,11 +74,12 @@
   width: 300px;
   border-right: 1px solid #eaeaea;
   background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
   
   @media (max-width: 768px) {
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid #eaeaea;
+    display: none;
   }
 }
 
@@ -55,6 +89,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
   
   h2 {
     font-size: 1.1rem;
@@ -81,11 +116,8 @@
 
 .history-list {
   overflow-y: auto;
-  max-height: 540px;
-  
-  @media (max-width: 768px) {
-    max-height: 300px;
-  }
+  flex: 1;
+  min-height: 0;
 }
 
 .history-item {
@@ -118,7 +150,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  position: relative;
+  height: 100%;
 }
 
 .loading-container {
@@ -170,6 +202,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
   
   .chat-status {
     display: flex;
@@ -183,6 +216,10 @@
       color: var(--ion-color-primary);
     }
   }
+  
+  @media (max-width: 768px) {
+    padding: 12px 15px;
+  }
 }
 
 .chat-messages {
@@ -194,9 +231,18 @@
   gap: 15px;
   background-color: #f9f9f9;
   
+  @media (max-width: 768px) {
+    padding: 10px;
+    gap: 10px;
+  }
+  
   .message {
     display: flex;
     max-width: 80%;
+    
+    @media (max-width: 768px) {
+      max-width: 90%;
+    }
     
     &.user {
       align-self: flex-end;
@@ -212,10 +258,6 @@
       
       .message-time {
         color: rgba(255, 255, 255, 0.7);
-      }
-      
-      &.sending .message-content {
-        background-color: rgba(var(--ion-color-primary-rgb), 0.7);
       }
     }
     
@@ -248,9 +290,18 @@
       align-items: center;
       flex-shrink: 0;
       
+      @media (max-width: 768px) {
+        width: 30px;
+        height: 30px;
+      }
+      
       ion-icon {
         font-size: 20px;
         color: var(--ion-color-medium);
+        
+        @media (max-width: 768px) {
+          font-size: 16px;
+        }
       }
     }
     
@@ -260,10 +311,23 @@
       margin-left: 8px;
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
       
+      @media (max-width: 768px) {
+        padding: 8px 10px;
+        margin-left: 5px;
+        border-radius: 12px;
+      }
+      
       .message-text {
         font-size: 0.95rem;
         line-height: 1.4;
         white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        
+        @media (max-width: 768px) {
+          font-size: 0.85rem;
+          line-height: 1.3;
+        }
       }
       
       .message-time {
@@ -271,6 +335,10 @@
         color: var(--ion-color-medium);
         margin-top: 3px;
         text-align: right;
+        
+        @media (max-width: 768px) {
+          font-size: 0.65rem;
+        }
       }
     }
   }
@@ -282,6 +350,11 @@
   display: flex;
   align-items: flex-end;
   background-color: white;
+  flex-shrink: 0;
+  
+  @media (max-width: 768px) {
+    padding: 12px;
+  }
   
   ion-textarea {
     --padding-top: 8px;
@@ -291,17 +364,123 @@
     --border-radius: 20px;
     --background: #f0f0f0;
     --max-height: 100px;
+    --min-height: 44px;
     font-size: 0.95rem;
     flex: 1;
+    
+    @media (max-width: 768px) {
+      font-size: 16px !important;
+      --padding-top: 10px;
+      --padding-bottom: 10px;
+      --min-height: 44px;
+      --max-height: 80px;
+      --border-radius: 18px;
+    }
   }
   
   ion-button {
     margin: 0 0 0 8px;
+    
+    @media (max-width: 768px) {
+      min-height: 44px;
+      margin: 0 0 0 6px;
+    }
   }
 }
 
 .escalate-option {
   ion-button {
     font-size: 0.9rem;
+  }
+}
+
+/* Add these styles to your existing chat.page.scss file */
+
+/* Update the history-item styles */
+.history-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  border-bottom: 1px solid #eaeaea;
+  transition: background-color 0.2s;
+  position: relative;
+  
+  &:hover {
+    background-color: #f0f0f0;
+    
+    .delete-btn {
+      opacity: 1;
+    }
+  }
+  
+  .history-content {
+    flex: 1;
+    cursor: pointer;
+    min-width: 0; // Allow content to shrink
+    
+    .history-date {
+      font-size: 0.8rem;
+      color: var(--ion-color-medium);
+      margin-bottom: 5px;
+    }
+    
+    .history-preview {
+      font-size: 0.9rem;
+      color: var(--ion-color-dark);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+  
+  .delete-btn {
+    opacity: 0;
+    transition: opacity 0.2s;
+    margin-left: 8px;
+    --padding-start: 4px;
+    --padding-end: 4px;
+    min-width: 32px;
+    height: 32px;
+    
+    ion-icon {
+      font-size: 18px;
+      transition: color 0.2s;
+      
+      &:hover {
+        color: var(--ion-color-danger) !important;
+      }
+    }
+    
+    ion-spinner {
+      width: 16px;
+      height: 16px;
+    }
+    
+    @media (max-width: 768px) {
+      opacity: 1; // Always show on mobile
+    }
+  }
+}
+
+/* Update chat header to accommodate multiple buttons */
+.chat-header {
+  .chat-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+/* Add hover state for delete button */
+.history-item:hover .delete-btn ion-icon {
+  color: var(--ion-color-danger-tint);
+}
+
+/* Alert styling */
+ion-alert {
+  --backdrop-opacity: 0.6;
+  
+  .alert-wrapper {
+    border-radius: 12px;
   }
 }

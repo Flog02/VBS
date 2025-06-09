@@ -1,0 +1,64 @@
+<!-- product-3d-viewer.component.html -->
+<div class="viewer-container" [class.fullscreen]="isFullscreen">
+  <!-- Loading State -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <ion-spinner name="crescent"></ion-spinner>
+    <p>Loading 3D Model...</p>
+  </div>
+  
+  <!-- Error State -->
+  <div class="error-overlay" *ngIf="hasError && !isLoading">
+    <ion-icon name="cube-outline" size="large"></ion-icon>
+    <p>{{ errorMessage }}</p>
+    <ion-button size="small" (click)="retry()">
+      <ion-icon name="refresh-outline" slot="start"></ion-icon>
+      Retry
+    </ion-button>
+    <div class="cors-help" *ngIf="errorMessage.includes('CORS')">
+      <p><small>If you're seeing CORS errors, please check the setup guide below.</small></p>
+    </div>
+  </div>
+  
+  <!-- 3D Model Viewer -->
+  <model-viewer
+    #modelViewer
+    *ngIf="!hasError"
+    [src]="preparedModelUrl"
+    [alt]="productName + ' 3D Model'"
+    auto-rotate
+    camera-controls
+    shadow-intensity="1"
+    exposure="1"
+    loading="eager"
+    style="width: 100%; height: 100%;"
+    ar
+    ar-modes="webxr scene-viewer quick-look"
+    environment-image="neutral"
+    poster="assets/images/3d-loading-poster.png">
+    
+    <button slot="ar-button" class="ar-button">
+      View in AR
+    </button>
+    
+    <div class="progress-bar" slot="progress-bar">
+      <div class="update-bar"></div>
+    </div>
+  </model-viewer>
+  
+  <!-- Controls -->
+  <div class="viewer-controls" *ngIf="!isLoading && !hasError">
+    <ion-button fill="clear" size="small" (click)="resetView()" title="Reset View">
+      <ion-icon name="refresh-outline" slot="icon-only"></ion-icon>
+    </ion-button>
+    <ion-button fill="clear" size="small" (click)="toggleFullscreen()" title="Toggle Fullscreen">
+      <ion-icon [name]="isFullscreen ? 'contract-outline' : 'expand-outline'" slot="icon-only"></ion-icon>
+    </ion-button>
+  </div>
+  
+  <!-- Instructions -->
+  <div class="viewer-instructions" *ngIf="!isLoading && !hasError">
+    <ion-text color="medium">
+      <small>Drag to rotate • Scroll to zoom • Double-tap to reset</small>
+    </ion-text>
+  </div>
+</div>

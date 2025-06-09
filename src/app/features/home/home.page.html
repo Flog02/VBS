@@ -12,7 +12,7 @@
   <swiper-slide>
     <div class="slide-content slide-1">
       <video autoplay muted loop playsinline class="background-video">
-        <source src="/assets/images/hero-3.mp4" type="video/mp4" />
+        <source src="/assets/images/hero-6.mp4" type="video/mp4" />
         Your browser does not support the video tag.
       </video>
       <div class="slide-overlay"></div>
@@ -30,6 +30,10 @@
     
     <swiper-slide>
       <div class="slide-content slide-2">
+        <video autoplay muted loop playsinline class="background-video">
+        <source src="/assets/images/hero-5.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
         <div class="slide-overlay"></div>
         <div class="slide-text">
           <h1>Latest Mobile Phones</h1>
@@ -44,6 +48,10 @@
     
     <swiper-slide>
       <div class="slide-content slide-3">
+        <video autoplay muted loop playsinline class="background-video">
+        <source src="/assets/images/hero-3.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
         <div class="slide-overlay"></div>
         <div class="slide-text">
           <h1>Premium TV Solutions</h1>
@@ -115,9 +123,13 @@
     </section>
     
     <!-- Promotional Banner -->
-    <section class="promo-banner">
+    <section class="promo-banner"><video autoplay muted loop playsinline class="background-video">
+        <source src="/assets/images/hero-4.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
       <div class="promo-content">
         <div class="promo-text">
+          
           <h2>Special Offers</h2>
           <p>Save up to 40% on selected items this month!</p>
           <ion-button color="light" (click)="router.navigate(['/products'], { queryParams: { onSale: true } })">
@@ -268,9 +280,13 @@
     </div>
   </section>
 
+
   <!-- Footer MOVED INSIDE ion-content as LAST SECTION -->
   <app-footer></app-footer>
-  
-  <!-- Chatbot -->
-  <!-- <app-chatbot></app-chatbot> -->
-</ion-content>
+
+  <!-- Chatbot --><app-homepage-bot></app-homepage-bot>
+
+
+
+</ion-content><app-simple-chatbot></app-simple-chatbot>
+

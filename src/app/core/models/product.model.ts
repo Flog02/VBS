@@ -11,6 +11,7 @@ export interface Product {
   images: string[];
   model3dUrl?: string;
   specifications: Record<string, any>;
+  keyFeatures?: string[]; // ADD THIS LINE - Array of key features
   stock: number;
   featured: boolean;
   rating: number;
@@ -29,6 +30,7 @@ export interface Review {
   comment: string;
   date: Date;
 }
+
 export interface ProductSpecification {
   [key: string]: string | { [key: string]: string };
 }

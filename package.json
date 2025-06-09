@@ -31,11 +31,13 @@
     "@capacitor/status-bar": "7.0.1",
     "@ionic/angular": "^8.0.0",
     "@ionic/storage-angular": "^4.0.0",
+    "@types/three": "^0.177.0",
     "firebase": "^11.7.1",
     "ionicons": "^7.0.0",
     "ngx-mask": "^19.0.7",
     "rxjs": "~7.8.0",
     "swiper": "^11.2.6",
+    "three": "^0.177.0",
     "tslib": "^2.3.0",
     "VBS": "file:",
     "zone.js": "~0.15.0"

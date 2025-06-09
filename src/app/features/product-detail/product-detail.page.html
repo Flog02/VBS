@@ -186,24 +186,30 @@
         </ion-segment>
         
         <div class="segment-content">
-          <!-- Details Tab -->
-          <div *ngIf="selectedSegment === 'details'" class="details-content">
-            <div class="product-features">
-              <h3>Key Features</h3>
-              <ul>
-                <li *ngFor="let i of [1, 2, 3, 4, 5]">
-                  Feature {{ i }} example: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                </li>
-              </ul>
-            </div>
-            
-            <div class="product-details-description">
-              <h3>Product Description</h3>
-              <p>{{ product.description }}</p>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam in mauris euismod, rhoncus nisi a, tincidunt quam. Donec volutpat, nibh sit amet luctus ultricies, ipsum elit facilisis nisi, non semper nibh ex ut sapien.</p>
-              <p>Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Cras ornare risus nisi, quis faucibus quam efficitur sit amet. Proin id purus nisi. Vivamus at molestie magna, eu mollis nibh.</p>
-            </div>
-          </div>
+         <!-- Details Tab -->
+<div *ngIf="selectedSegment === 'details'" class="details-content">
+  <!-- Product Description First -->
+  <div class="product-details-description">
+    <h3>Product Description</h3>
+    <p>{{ product.description }}</p>
+  </div>
+  
+  <!-- Dynamic Key Features Below Description -->
+  <div class="product-features" *ngIf="product.keyFeatures && product.keyFeatures.length > 0">
+    <h3>Key Features</h3>
+    <ul>
+      <li *ngFor="let feature of product.keyFeatures">
+        {{ feature }}
+      </li>
+    </ul>
+  </div>
+  
+  <!-- Fallback if no key features -->
+  <div class="product-features" *ngIf="!product.keyFeatures || product.keyFeatures.length === 0">
+    <h3>Key Features</h3>
+    <p class="no-features-message">No specific key features have been added for this product yet.</p>
+  </div>
+</div>
           
           <!-- Specifications Tab -->
           <div *ngIf="selectedSegment === 'specifications'" class="specifications-content">

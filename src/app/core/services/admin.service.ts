@@ -13,7 +13,8 @@ import {
   updateDoc, 
   deleteDoc,
   serverTimestamp,
-  Timestamp
+  Timestamp,
+  onSnapshot
 } from '@angular/fire/firestore';
 import { Observable, from, of, combineLatest } from 'rxjs';
 import { map, switchMap, catchError } from 'rxjs/operators';
@@ -504,4 +505,35 @@ export class AdminService {
       updatedAt: serverTimestamp()
     }));
   }
+
+  // In your admin service
+listenToAllActiveChats(): Observable<Chat[]> {
+  const activeChatsQuery = query(
+    this.chatsCollection,
+    where('status', 'in', ['active', 'waiting_for_human']),
+    orderBy('updatedAt', 'desc')
+  );
+  
+  return new Observable(observer => {
+    const unsubscribe = onSnapshot(activeChatsQuery, 
+      (snapshot: { docs: any[]; }) => {
+        const chats = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Chat[];
+        observer.next(chats);
+      },
+      (error) => observer.error(error)
+    );
+    
+    return () => unsubscribe();
+  });
+}
+// Add this method to your AdminService class in admin.service.ts
+
+getCurrentUserId(): string | null {
+  return this.authService.getCurrentUserId();
+}
+
+
 }

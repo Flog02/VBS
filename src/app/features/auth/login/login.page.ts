@@ -1,4 +1,4 @@
-// src/app/features/auth/login/login.page.ts
+// Updated login component with simple auto-disappearing messages
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -6,7 +6,8 @@ import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { 
   IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
   IonButton, IonIcon, IonCard, IonCardHeader, IonCardTitle, IonCardContent,
-  IonItem, IonLabel, IonInput, IonCheckbox, IonSpinner, IonText
+  IonItem, IonLabel, IonInput, IonCheckbox, IonSpinner, IonText,
+  ToastController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
@@ -43,7 +44,8 @@ export class LoginPage implements OnInit {
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private toastController: ToastController
   ) {
     addIcons({ 
       lockClosedOutline, mailOutline, eyeOutline, eyeOffOutline 
@@ -52,14 +54,18 @@ export class LoginPage implements OnInit {
   
   ngOnInit() {
     this.createForm();
-    
-    // Get return URL from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    
+    // Show logout message if redirected from logout
+    const loggedOut = this.route.snapshot.queryParams['loggedOut'];
+    if (loggedOut === 'true') {
+      this.showSimpleMessage('Logged out successfully', 'medium');
+    }
     
     // Redirect if already logged in
     this.authService.currentUser$.subscribe(user => {
       if (user) {
-        this.router.navigate([this.returnUrl]);
+        this.redirectBasedOnRole(user.role);
       }
     });
   }
@@ -75,10 +81,33 @@ export class LoginPage implements OnInit {
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
   }
-  
+
+  // Simple auto-disappearing message at bottom
+  private async showSimpleMessage(message: string, color: string = 'success') {
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 2000, // Auto-disappear after 2 seconds
+      position: 'bottom', // ✅ Changed to bottom
+      color: color
+    });
+    await toast.present();
+  }
+
+  // Role-based redirection
+  private redirectBasedOnRole(role: string) {
+    if (role === 'admin') {
+      this.router.navigate(['/admin']);
+    } else {
+      if (this.returnUrl && this.returnUrl !== '/' && !this.returnUrl.includes('/admin')) {
+        this.router.navigate([this.returnUrl]);
+      } else {
+        this.router.navigate(['/home']);
+      }
+    }
+  }
+
   onSubmit() {
     if (this.loginForm.invalid) {
-      // Mark all fields as touched to trigger validation messages
       Object.keys(this.loginForm.controls).forEach(key => {
         const control = this.loginForm.get(key);
         control?.markAsTouched();
@@ -91,28 +120,36 @@ export class LoginPage implements OnInit {
     
     const { email, password } = this.loginForm.value;
     
-    this.authService.login(email, password).subscribe(
-      () => {
-        this.isLoading = false;
-        this.router.navigate([this.returnUrl]);
-      },
-      error => {
+    this.authService.login(email, password).subscribe({
+      next: async (user) => {
         this.isLoading = false;
         
-        // Handle specific error cases
+        // Show simple "Logged in" message
+        await this.showSimpleMessage('Logged in successfully', 'success');
+        
+        // Small delay then redirect
+        setTimeout(() => {
+          this.redirectBasedOnRole(user.role);
+        }, 1000);
+      },
+      error: async (error) => {
+        this.isLoading = false;
+        
+        let errorMessage = 'Login failed';
         if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-          this.errorMessage = 'Invalid email or password. Please try again.';
+          errorMessage = 'Invalid email or password';
         } else if (error.code === 'auth/too-many-requests') {
-          this.errorMessage = 'Too many unsuccessful login attempts. Please try again later.';
-        } else {
-          this.errorMessage = 'An error occurred during login. Please try again.';
+          errorMessage = 'Too many attempts. Try again later';
         }
         
-        console.error('Login error:', error);
+        // Show error message
+        await this.showSimpleMessage(errorMessage, 'danger');
+        this.errorMessage = errorMessage;
       }
-    );
+    });
   }
   
-  // Convenience getter for easy access to form fields
-  get f() { return this.loginForm.controls; }
+  get f() { 
+    return this.loginForm.controls; 
+  }
 }

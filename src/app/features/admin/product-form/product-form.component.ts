@@ -1,36 +1,42 @@
-// /Users/admin/Documents/GitHub/VBS/src/app/features/admin/product-form/product-form.component.ts
+// Fixed product-form.component.ts - Key changes for 3D model handling
 
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router'; // Add Router import
-import { ToastController } from '@ionic/angular'; // Add ToastController import
+import { Router, ActivatedRoute } from '@angular/router';
+import { ToastController } from '@ionic/angular';
 import { 
   IonInput, IonItem, IonLabel, IonTextarea, IonSelect, IonSelectOption,
   IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCheckbox, IonList,
   IonCard, IonCardHeader, IonCardTitle, IonCardContent, IonChip,
-  IonSpinner, IonBadge, IonToggle, IonContent } from '@ionic/angular/standalone';
+  IonSpinner, IonBadge, IonToggle, IonContent, IonHeader, IonToolbar, IonTitle, IonButtons
+} from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
   imageOutline, addOutline, closeOutline, trashOutline, 
-  saveOutline, reloadOutline, checkmarkOutline, cubeOutline } from 'ionicons/icons';
+  saveOutline, reloadOutline, checkmarkOutline, cubeOutline, arrowBackOutline, 
+  informationCircleOutline, bulbOutline, listOutline 
+} from 'ionicons/icons';
 
 import { Product } from '../../../core/models/product.model';
 import { ProductService } from '../../../core/services/product.service';
+import { FormsModule } from '@angular/forms';
+import { HeaderComponent } from '../../../shared/components/header/header.component';
 
 @Component({
   selector: 'app-product-form',
   templateUrl: './product-form.component.html',
   styleUrls: ['./product-form.component.scss'],
   standalone: true,
-  imports: [IonContent, 
+  imports: [
+    IonContent, IonHeader, IonToolbar, IonTitle, IonButtons,
     CommonModule,
     ReactiveFormsModule,
     IonInput, IonItem, IonLabel, IonTextarea, IonSelect, IonSelectOption,
     IonButton, IonIcon, IonGrid, IonRow, IonCol,
     IonCard, IonCardHeader, IonCardTitle, IonCardContent,
-    IonSpinner, IonToggle
-]
+    IonSpinner, IonToggle, FormsModule, HeaderComponent
+  ]
 })
 export class ProductFormComponent implements OnInit {
   @Input() product: Product | null = null;
@@ -40,16 +46,22 @@ export class ProductFormComponent implements OnInit {
   
   productForm!: FormGroup;
   isSubmitting = false;
+  isLoading = false;
+  keyFeatures: string[] = [];
+  newFeature: string = '';
+  productId: string | null = null;
   
   // Image uploads
   selectedImages: File[] = [];
   imagePreviewUrls: string[] = [];
   uploadProgress: number[] = [];
   
-  // 3D model upload
+  // 3D model upload - FIXED: Better state management
   selectedModel: File | null = null;
   modelPreviewUrl: string = '';
   modelUploadProgress = 0;
+  existingModelUrl: string | null = null; // Track existing model URL
+  keepExistingModel = true; // Flag to keep existing model
   
   // Available categories
   categories = [
@@ -61,24 +73,54 @@ export class ProductFormComponent implements OnInit {
     { id: 'computers', name: 'Computers' }
   ];
   
-  // Specification keys
   specKeys: string[] = [];
   
   constructor(
     private formBuilder: FormBuilder,
     private productService: ProductService,
-    private router: Router, // Inject Router service
-    private toastController: ToastController // Inject ToastController
+    private router: Router,
+    private activatedRoute: ActivatedRoute,
+    private toastController: ToastController
   ) {
-    addIcons({closeOutline,imageOutline,cubeOutline,addOutline,trashOutline,saveOutline,reloadOutline,checkmarkOutline});
+    addIcons({
+      arrowBackOutline, addOutline, informationCircleOutline, trashOutline,
+      bulbOutline, closeOutline, imageOutline, cubeOutline, listOutline,
+      saveOutline, reloadOutline, checkmarkOutline
+    });
   }
   
   ngOnInit() {
     this.createForm();
     
-    if (this.product && this.isEdit) {
-      this.populateForm();
-    }
+    this.activatedRoute.params.subscribe(params => {
+      const productId = params['id'];
+      if (productId) {
+        console.log('Loading product for edit:', productId);
+        this.isEdit = true;
+        this.loadProductForEdit(productId);
+      } else {
+        console.log('Create new product mode');
+        this.isEdit = false;
+      }
+    });
+  }
+  
+  loadProductForEdit(productId: string) {
+    this.isLoading = true;
+    
+    this.productService.getProductById(productId).subscribe({
+      next: (product) => {
+        console.log('Product loaded:', product);
+        this.product = product;
+        this.populateFormWithProduct();
+        this.isLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading product:', error);
+        this.isLoading = false;
+        this.router.navigate(['/admin/products']);
+      }
+    });
   }
   
   createForm() {
@@ -93,12 +135,26 @@ export class ProductFormComponent implements OnInit {
       stock: [0, [Validators.required, Validators.min(0)]],
       featured: [false],
       rating: [0, [Validators.required, Validators.min(0), Validators.max(5)]],
+      keyFeatures: this.formBuilder.array([]),
       specifications: this.formBuilder.group({})
     });
   }
   
-  populateForm() {
+  populateFormWithProduct() {
     if (!this.product) return;
+    
+    // Handle key features
+    if (this.product.keyFeatures && Array.isArray(this.product.keyFeatures)) {
+      this.keyFeatures = [...this.product.keyFeatures];
+    }
+    
+    // FIXED: Handle existing 3D model
+    if (this.product.model3dUrl) {
+      this.existingModelUrl = this.product.model3dUrl;
+      this.modelPreviewUrl = `Existing 3D Model: ${this.getModelFileName(this.product.model3dUrl)}`;
+      this.keepExistingModel = true;
+      console.log('Existing 3D model found:', this.existingModelUrl);
+    }
     
     this.productForm.patchValue({
       name: this.product.name,
@@ -113,7 +169,7 @@ export class ProductFormComponent implements OnInit {
       rating: this.product.rating
     });
     
-    // Set spec keys and values
+    // Handle specifications
     if (this.product.specifications) {
       const specGroup = this.productForm.get('specifications') as FormGroup;
       this.specKeys = Object.keys(this.product.specifications);
@@ -123,14 +179,20 @@ export class ProductFormComponent implements OnInit {
       });
     }
     
-    // Set image previews
-    if (this.product.images && this.product.images.length > 0) {
+    // Handle images
+    if (this.product.images) {
       this.imagePreviewUrls = [...this.product.images];
     }
-    
-    // Set 3D model preview
-    if (this.product.model3dUrl) {
-      this.modelPreviewUrl = this.product.model3dUrl;
+  }
+
+  // FIXED: Helper method to extract filename from URL
+  getModelFileName(url: string): string {
+    try {
+      const urlParts = url.split('/');
+      const filename = urlParts[urlParts.length - 1];
+      return filename.split('?')[0]; // Remove query parameters
+    } catch (error) {
+      return 'Unknown file';
     }
   }
   
@@ -141,7 +203,6 @@ export class ProductFormComponent implements OnInit {
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         
-        // Preview image
         const reader = new FileReader();
         reader.onload = () => {
           this.imagePreviewUrls.push(reader.result as string);
@@ -154,38 +215,58 @@ export class ProductFormComponent implements OnInit {
     }
   }
   
+  // FIXED: Better 3D model file handling
   onModelFileChange(event: any) {
     if (event.target.files && event.target.files.length) {
       const file = event.target.files[0];
-      this.selectedModel = file;
       
-      // Preview model filename (can't really preview 3D models easily)
-      this.modelPreviewUrl = 'Selected: ' + file.name;
+      // Validate file type (optional but recommended)
+      const validExtensions = ['.glb', '.gltf', '.obj', '.fbx'];
+      const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+      
+      if (!validExtensions.includes(fileExtension)) {
+        this.showErrorToast('Please select a valid 3D model file (.glb, .gltf, .obj, .fbx)');
+        return;
+      }
+      
+      this.selectedModel = file;
+      this.modelPreviewUrl = `New 3D Model: ${file.name}`;
       this.modelUploadProgress = 0;
+      this.keepExistingModel = false; // User selected a new model
+      
+      console.log('New 3D model selected:', file.name);
     }
   }
   
   removeImage(index: number) {
-    if (this.isEdit && index < (this.product?.images.length || 0)) {
-      // Remove from product images array (will be updated on save)
+    if (this.isEdit && this.product && index < (this.product.images.length || 0)) {
       this.imagePreviewUrls.splice(index, 1);
     } else {
-      // Remove from selected images
-      const adjustedIndex = this.isEdit ? index - (this.product?.images.length || 0) : index;
-      this.selectedImages.splice(adjustedIndex, 1);
+      const adjustedIndex = this.isEdit && this.product ? index - (this.product.images.length || 0) : index;
+      if (adjustedIndex >= 0 && adjustedIndex < this.selectedImages.length) {
+        this.selectedImages.splice(adjustedIndex, 1);
+        this.uploadProgress.splice(adjustedIndex, 1);
+      }
       this.imagePreviewUrls.splice(index, 1);
-      this.uploadProgress.splice(adjustedIndex, 1);
     }
   }
   
+  // FIXED: Better model removal handling
   removeModel() {
     this.selectedModel = null;
-    this.modelPreviewUrl = this.isEdit && this.product?.model3dUrl ? '' : '';
+    this.modelPreviewUrl = '';
     this.modelUploadProgress = 0;
+    
+    if (this.isEdit && this.existingModelUrl) {
+      // User wants to remove the existing model
+      this.keepExistingModel = false;
+      this.existingModelUrl = null;
+      console.log('Existing 3D model marked for removal');
+    }
   }
   
   addSpecification() {
-    const newKey = `spec_${this.specKeys.length + 1}`;
+    const newKey = `spec_${Date.now()}`;
     this.specKeys.push(newKey);
     
     const specGroup = this.productForm.get('specifications') as FormGroup;
@@ -204,24 +285,41 @@ export class ProductFormComponent implements OnInit {
     const oldKey = this.specKeys[index];
     const newKey = event.target.value.trim();
     
-    if (newKey && newKey !== oldKey) {
+    if (newKey && newKey !== oldKey && !this.specKeys.includes(newKey)) {
       const specGroup = this.productForm.get('specifications') as FormGroup;
       const value = specGroup.get(oldKey)?.value;
       
-      // Remove old control
       specGroup.removeControl(oldKey);
-      
-      // Add new control with the same value
       specGroup.addControl(newKey, this.formBuilder.control(value));
-      
-      // Update the key in the array
       this.specKeys[index] = newKey;
     }
   }
-  
+
+  // Key Features Management
+  onFeatureInputChange(event: any) {
+    this.newFeature = event.detail.value || '';
+  }
+
+  addKeyFeature() {
+    if (this.newFeature && this.newFeature.trim()) {
+      this.keyFeatures.push(this.newFeature.trim());
+      this.newFeature = '';
+    }
+  }
+
+  removeKeyFeature(index: number) {
+    this.keyFeatures.splice(index, 1);
+  }
+
+  updateKeyFeature(index: number, event: any) {
+    const value = event.detail?.value || '';
+    if (value) {
+      this.keyFeatures[index] = value;
+    }
+  }
+
   async onSubmit() {
     if (this.productForm.invalid) {
-      // Show validation toast
       await this.showValidationToast();
       return;
     }
@@ -230,11 +328,15 @@ export class ProductFormComponent implements OnInit {
     
     try {
       const formData = this.productForm.value;
+      console.log('Submitting form data:', formData);
       
       // Process specifications
       const specifications: Record<string, any> = {};
       this.specKeys.forEach(key => {
-        specifications[key] = formData.specifications[key];
+        const value = formData.specifications[key];
+        if (value && value.trim()) {
+          specifications[key] = value;
+        }
       });
       
       // Create product object
@@ -247,27 +349,26 @@ export class ProductFormComponent implements OnInit {
         stock: Number(formData.stock),
         featured: formData.featured,
         rating: Number(formData.rating),
+        keyFeatures: this.keyFeatures,
         specifications
       };
       
       // Optional fields
-      if (formData.salePrice) {
+      if (formData.salePrice && formData.salePrice > 0) {
         productData.salePrice = Number(formData.salePrice);
       }
       
-      if (formData.subcategory) {
+      if (formData.subcategory && formData.subcategory.trim()) {
         productData.subcategory = formData.subcategory;
       }
       
       // Handle existing images
       let images: string[] = [];
-      if (this.isEdit && this.product) {
-        // Keep the remaining images after any removals
+      if (this.isEdit && this.product && this.product.images) {
         const remainingOriginalImagesCount = Math.min(
           this.imagePreviewUrls.length, 
           this.product.images.length
         );
-        
         images = this.imagePreviewUrls.slice(0, remainingOriginalImagesCount);
       }
       
@@ -286,140 +387,94 @@ export class ProductFormComponent implements OnInit {
         }
       }
       
-      // Add images to product data
       productData.images = images;
       
-      // Handle 3D model upload
+      // FIXED: Better 3D model handling logic
       if (this.selectedModel) {
+        // User selected a new 3D model
         const productId = this.isEdit && this.product ? this.product.id : 'temp';
         try {
+          console.log('Uploading new 3D model...');
           const modelUrl = await this.uploadModel(this.selectedModel, productId);
           productData.model3dUrl = modelUrl;
+          console.log('New 3D model uploaded successfully:', modelUrl);
         } catch (error) {
           console.error('Error uploading 3D model:', error);
+          await this.showErrorToast('Failed to upload 3D model');
         }
-      } else if (this.isEdit && this.product && this.product.model3dUrl && this.modelPreviewUrl) {
+      } else if (this.isEdit && this.keepExistingModel && this.existingModelUrl) {
         // Keep existing model URL
-        productData.model3dUrl = this.product.model3dUrl;
+        productData.model3dUrl = this.existingModelUrl;
+        console.log('Keeping existing 3D model:', this.existingModelUrl);
+      } else {
+        // No model or user removed it
+        productData.model3dUrl = null;
+        console.log('No 3D model or model removed');
       }
       
       // Create or update product
       if (this.isEdit && this.product) {
+        console.log('Updating product:', this.product.id, 'with data:', productData);
         await this.productService.updateProduct(this.product.id, productData).toPromise();
         this.formSubmitted.emit({ action: 'update', product: { id: this.product.id, ...productData } });
       } else {
+        console.log('Creating new product with data:', productData);
         const productId = await this.productService.createProduct(productData).toPromise();
         this.formSubmitted.emit({ action: 'create', product: { id: productId, ...productData } });
       }
       
       this.isSubmitting = false;
-      
-      // Show success toast
       await this.showSuccessToast();
       
-      // Clear form data after successful save
-      this.clearFormData();
-      
-      // Navigate to admin page after successful submission
       setTimeout(() => {
-        this.router.navigate(['/admin']);
-      }, 1500); // Delay navigation to let user see the success toast
+        this.router.navigate(['/admin/products']);
+      }, 1500);
       
     } catch (error) {
       console.error('Error saving product:', error);
       this.isSubmitting = false;
-      
-      // Show error toast
       await this.showErrorToast();
     }
   }
   
   cancel() {
-    // Emit the cancelEdit event (for parent component handling if needed)
     this.cancelEdit.emit();
-    
-    // Navigate to admin page
-    this.router.navigate(['/admin']);
+    this.router.navigate(['/admin/products']);
+  }
+  
+  goBack() {
+    this.router.navigate(['/admin/products']);
   }
   
   async uploadImage(file: File, productId: string, index: number): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.productService.uploadProductImage(file, productId).subscribe(
-        url => {
+      this.productService.uploadProductImage(file, productId).subscribe({
+        next: (url: string) => {
           this.uploadProgress[index] = 100;
           resolve(url);
         },
-        error => {
+        error: (error: any) => {
           reject(error);
         }
-      );
+      });
     });
   }
   
   async uploadModel(file: File, productId: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      this.productService.upload3DModel(file, productId).subscribe(
-        url => {
+      this.productService.upload3DModel(file, productId).subscribe({
+        next: (url: string) => {
           this.modelUploadProgress = 100;
           resolve(url);
         },
-        error => {
+        error: (error: any) => {
           reject(error);
         }
-      );
+      });
     });
   }
   
-  
-  // Clear all form data
-  clearFormData() {
-    try {
-      // Clear image data
-      this.selectedImages = [];
-      this.imagePreviewUrls = [];
-      this.uploadProgress = [];
-      
-      // Clear 3D model data
-      this.selectedModel = null;
-      this.modelPreviewUrl = '';
-      this.modelUploadProgress = 0;
-      
-      // Clear specification keys and controls
-      this.specKeys.forEach(key => {
-        const specGroup = this.productForm.get('specifications') as FormGroup;
-        if (specGroup && specGroup.get(key)) {
-          specGroup.removeControl(key);
-        }
-      });
-      this.specKeys = [];
-      
-      // Reset the form to initial state
-      this.productForm.reset();
-      
-      // Set default values explicitly
-      this.productForm.patchValue({
-        name: '',
-        description: '',
-        price: 0,
-        salePrice: null,
-        category: '',
-        subcategory: '',
-        brand: '',
-        stock: 0,
-        featured: false,
-        rating: 0
-      });
-      
-      // Reset form validation state
-      this.productForm.markAsUntouched();
-      this.productForm.markAsPristine();
-      
-    } catch (error) {
-      console.error('Error clearing form data:', error);
-    }
-  }
-  
-  // Show validation toast
+  // Toast methods
   async showValidationToast() {
     try {
       const invalidFields = this.getInvalidFields();
@@ -440,7 +495,6 @@ export class ProductFormComponent implements OnInit {
 
       await toast.present();
       
-      // Mark all fields as touched to show validation errors
       Object.keys(this.productForm.controls).forEach(key => {
         const control = this.productForm.get(key);
         control?.markAsTouched();
@@ -450,7 +504,6 @@ export class ProductFormComponent implements OnInit {
     }
   }
   
-  // Show success toast
   async showSuccessToast() {
     try {
       const toast = await this.toastController.create({
@@ -467,11 +520,10 @@ export class ProductFormComponent implements OnInit {
     }
   }
   
-  // Show error toast
-  async showErrorToast() {
+  async showErrorToast(message?: string) {
     try {
       const toast = await this.toastController.create({
-        message: '❌ Error saving product. Please try again.',
+        message: message || '❌ Error saving product. Please try again.',
         duration: 4000,
         position: 'bottom',
         color: 'danger',
@@ -490,7 +542,6 @@ export class ProductFormComponent implements OnInit {
     }
   }
   
-  // Get list of invalid field names
   getInvalidFields(): string[] {
     const invalidFields: string[] = [];
     
@@ -533,6 +584,5 @@ export class ProductFormComponent implements OnInit {
     return invalidFields.length > 0 ? invalidFields : ['Please check all required fields'];
   }
 
-  // Convenience getter for easy access to form fields
   get f() { return this.productForm.controls; }
 }

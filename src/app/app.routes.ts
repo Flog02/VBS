@@ -10,9 +10,9 @@ export const routes: Routes = [
     pathMatch: 'full',
   },
   {
-  path: 'debug',
-  loadComponent: () => import('./debug/debug.component').then(m=>m.DebugComponent)
-},
+    path: 'debug',
+    loadComponent: () => import('./debug/debug.component').then(m => m.DebugComponent)
+  },
   {
     path: 'home',
     loadComponent: () => import('./features/home/home.page').then(m => m.HomePage)
@@ -25,11 +25,6 @@ export const routes: Routes = [
     path: 'products/:id',
     loadComponent: () => import('./features/product-detail/product-detail.page').then(m => m.ProductDetailPage)
   },
-  // {
-  //   path: 'products/:id/review',
-  //   loadComponent: () => import('./features/product-review/product-review.page').then(m => m.ProductReviewPage),
-  //   canActivate: [AuthGuard]
-  // },
   {
     path: 'cart',
     loadComponent: () => import('./features/cart/cart.page').then(m => m.CartPage)
@@ -120,13 +115,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/chat-management/chat-management.page').then(m => m.ChatManagementPage)
       }
     ],
-    // canActivate: [AdminGuard]
+    canActivate: [AdminGuard] // ✅ FIXED: Uncommented and enabled AdminGuard
   },
   {
     path: '**',
-    loadComponent: () => import('./features/home/home.page').then(m=>m.HomePage)
-
-    // loadComponent: () => import('./shared/components/not-found/not-found.component').then(m => m.NotFoundComponent)
-  },
-  
+    loadComponent: () => import('./features/home/home.page').then(m => m.HomePage)
+  }
 ];

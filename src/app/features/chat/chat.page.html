@@ -32,8 +32,27 @@
         
         <div *ngIf="isLoggedIn && chatHistory.length > 0" class="history-list">
           <div *ngFor="let chat of chatHistory" class="history-item">
-            <div class="history-date">{{ formatDate(chat.createdAt) }}</div>
-            <div class="history-preview">{{ chat.messages[chat.messages.length - 1].content | slice:0:50 }}{{ chat.messages[chat.messages.length - 1].content.length > 50 ? '...' : '' }}</div>
+            <div class="history-content" (click)="viewHistoryChat(chat)">
+              <div class="history-date">{{ formatDate(chat.createdAt) }}</div>
+              <div class="history-preview">{{ getLastMessagePreview(chat) }}</div>
+            </div>
+            <ion-button 
+              fill="clear" 
+              size="small" 
+              class="delete-btn"
+              (click)="confirmDeleteChat(chat, $event)"
+              [disabled]="deletingChatId === chat.id">
+              <ion-icon 
+                *ngIf="deletingChatId !== chat.id" 
+                name="close-circle-outline" 
+                color="medium">
+              </ion-icon>
+              <ion-spinner 
+                *ngIf="deletingChatId === chat.id" 
+                name="crescent" 
+                color="medium">
+              </ion-spinner>
+            </ion-button>
           </div>
         </div>
       </div>
@@ -74,26 +93,39 @@
           <!-- Chat Header -->
           <div class="chat-header">
             <div class="chat-status">
-              <ion-icon [name]="currentChat.agentId ? 'happy-outline' : 'cube-outline'"></ion-icon>
-              <span>{{ currentChat.agentId ? 'Talking with Customer Support' : 'Chatbot Assistant' }}</span>
+              <ion-icon [name]="getChatStatusIcon()"></ion-icon>
+              <span>{{ getChatStatusText() }}</span>
             </div>
             
-            <div *ngIf="!currentChat.agentId" class="escalate-option">
-              <ion-button fill="clear" color="primary" (click)="escalateToHuman()">
+            <div class="chat-actions">
+              <ion-button 
+                *ngIf="shouldShowEscalateButton()" 
+                fill="clear" 
+                color="primary" 
+                (click)="escalateToHuman()">
                 Talk to a Human
+              </ion-button>
+              
+              <ion-button 
+                fill="clear" 
+                color="danger" 
+                size="small"
+                (click)="closeCurrentChat()">
+                End Chat
               </ion-button>
             </div>
           </div>
           
           <!-- Chat Messages -->
           <div class="chat-messages">
-            <div *ngFor="let message of currentChat.messages" [ngClass]="getMessageClass(message)">
+            <div *ngFor="let message of getSortedMessages(); trackBy: trackByMessageId" 
+                 [ngClass]="getMessageClass(message)">
               <div class="message-avatar">
                 <ion-icon [name]="getMessageIcon(message.sender)"></ion-icon>
               </div>
               <div class="message-content">
                 <div class="message-text">{{ message.content }}</div>
-                <div class="message-time">{{ formatDate(message.timestamp) }}</div>
+                <div class="message-time">{{ formatTime(message.timestamp) }}</div>
               </div>
             </div>
             
@@ -107,6 +139,8 @@
                 </div>
               </div>
             </div>
+            
+            <div #messagesEnd></div>
           </div>
           
           <!-- Chat Input -->
@@ -118,11 +152,15 @@
               autoGrow="true"
               maxlength="500"
               rows="1"
-              (keyup.enter)="sendMessage()"
-              [disabled]="sendingMessage">
+              (keypress)="onKeyPress($event)"
+              [disabled]="sendingMessage || currentChat.status === 'closed'">
             </ion-textarea>
             
-            <ion-button fill="clear" color="primary" (click)="sendMessage()" [disabled]="!message.trim() || sendingMessage">
+            <ion-button 
+              fill="clear" 
+              color="primary" 
+              (click)="sendMessage()" 
+              [disabled]="!message.trim() || sendingMessage || currentChat.status === 'closed'">
               <ion-icon name="send-outline"></ion-icon>
             </ion-button>
           </div>
@@ -130,6 +168,14 @@
       </div>
     </div>
   </div>
+  
+  <!-- Delete Chat Confirmation Alert -->
+  <ion-alert
+    [isOpen]="showDeleteAlert"
+    header="Delete Chat"
+    message="Are you sure you want to delete this chat history? This action cannot be undone."
+    [buttons]="deleteAlertButtons">
+  </ion-alert>
 </ion-content>
 
 <!-- <app-footer></app-footer> -->

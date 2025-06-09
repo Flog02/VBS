@@ -6,13 +6,15 @@ import {
   addDoc, 
   updateDoc, 
   getDocs, 
-  getDoc, // Add this import
+  getDoc,
+  onSnapshot, // Add this for real-time listening
   query, 
   where, 
   orderBy, 
   limit, 
   serverTimestamp,
-  DocumentReference
+  DocumentReference,
+  Unsubscribe // Add this type
 } from '@angular/fire/firestore';
 import { Functions, httpsCallable } from '@angular/fire/functions';
 import { BehaviorSubject, Observable, from, of } from 'rxjs';
@@ -28,6 +30,7 @@ export class ChatbotService {
   public currentChat$ = this.currentChatSubject.asObservable();
   
   private chatsCollection = collection(this.firestore, 'chats');
+  private currentChatListener: Unsubscribe | null = null; // Track the listener
 
   constructor(
     private firestore: Firestore,
@@ -39,6 +42,7 @@ export class ChatbotService {
       if (user) {
         this.findActiveChat(user.uid);
       } else {
+        this.stopListeningToCurrentChat(); // Stop listening when user logs out
         this.currentChatSubject.next(null);
       }
     });
@@ -48,7 +52,7 @@ export class ChatbotService {
     const activeChatsQuery = query(
       this.chatsCollection,
       where('userId', '==', userId),
-      where('status', '==', 'active'),
+      where('status', 'in', ['active', 'waiting_for_human']), // Include waiting_for_human status
       orderBy('updatedAt', 'desc'),
       limit(1)
     );
@@ -56,10 +60,43 @@ export class ChatbotService {
     const snapshot = await getDocs(activeChatsQuery);
     if (!snapshot.empty) {
       const chatData = snapshot.docs[0].data() as Omit<Chat, 'id'>;
-      this.currentChatSubject.next({
+      const chat = {
         id: snapshot.docs[0].id,
         ...chatData
-      } as Chat);
+      } as Chat;
+      
+      this.currentChatSubject.next(chat);
+      this.startListeningToCurrentChat(chat.id); // Start real-time listening
+    }
+  }
+
+  // Start listening to real-time updates for the current chat
+  private startListeningToCurrentChat(chatId: string): void {
+    this.stopListeningToCurrentChat(); // Stop any existing listener
+    
+    const chatDocRef = doc(this.firestore, `chats/${chatId}`);
+    
+    this.currentChatListener = onSnapshot(chatDocRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const chatData = docSnapshot.data() as Omit<Chat, 'id'>;
+        const updatedChat = {
+          id: chatId,
+          ...chatData
+        } as Chat;
+        
+        console.log('Real-time chat update received:', updatedChat);
+        this.currentChatSubject.next(updatedChat);
+      }
+    }, (error) => {
+      console.error('Error listening to chat updates:', error);
+    });
+  }
+
+  // Stop listening to the current chat
+  private stopListeningToCurrentChat(): void {
+    if (this.currentChatListener) {
+      this.currentChatListener();
+      this.currentChatListener = null;
     }
   }
 
@@ -119,10 +156,13 @@ export class ChatbotService {
           updatedAt: serverTimestamp()
         })).pipe(
           tap(docRef => {
-            this.currentChatSubject.next({
+            const chatWithId = {
               id: docRef.id,
               ...newChat
-            } as Chat);
+            } as Chat;
+            
+            this.currentChatSubject.next(chatWithId);
+            this.startListeningToCurrentChat(docRef.id); // Start listening to new chat
           }),
           map(docRef => docRef.id)
         );
@@ -132,9 +172,11 @@ export class ChatbotService {
 
   closeActiveChat(): Observable<void> {
     const currentChat = this.currentChatSubject.value;
-    if (!currentChat || currentChat.status !== 'active') {
+    if (!currentChat || (currentChat.status !== 'active' && currentChat.status !== 'waiting_for_human')) {
       return of(undefined);
     }
+
+    this.stopListeningToCurrentChat(); // Stop listening when closing chat
 
     const chatDoc = doc(this.firestore, `chats/${currentChat.id}`);
     return from(updateDoc(chatDoc, {
@@ -169,20 +211,12 @@ export class ChatbotService {
         
         const updatedMessages = [...currentChat.messages, userMessage];
         
-        // Update chat in Firestore
+        // Update chat in Firestore - real-time listener will handle local updates
         const chatDoc = doc(this.firestore, `chats/${chatId}`);
         return from(updateDoc(chatDoc, {
           messages: updatedMessages,
           updatedAt: serverTimestamp()
         })).pipe(
-          tap(() => {
-            // Update local chat object
-            this.currentChatSubject.next({
-              ...currentChat,
-              messages: updatedMessages,
-              updatedAt: new Date()
-            });
-          }),
           // Process message with chatbot or send to human agent
           switchMap(() => this.processMessage(chatId, content))
         );
@@ -191,36 +225,23 @@ export class ChatbotService {
   }
 
   private processMessage(chatId: string, content: string): Observable<void> {
-    // Call Firebase Function to process message
+    const currentChat = this.currentChatSubject.value;
+    
+    // If chat has an agent or is waiting for human, don't process with bot
+    if (currentChat && (currentChat.agentId || currentChat.status === 'waiting_for_human')) {
+      return of(undefined);
+    }
+    
+    // Call Firebase Function to process message with bot
     const processChatMessage = httpsCallable(this.functions, 'processChatMessage');
     return from(processChatMessage({ chatId, message: content })).pipe(
-      switchMap(() => {
-        // Refresh chat to get bot response
-        return this.refreshChat(chatId);
-      })
-    );
-  }
-
-  private refreshChat(chatId: string): Observable<void> {
-    // Fix: Use getDoc instead of calling .get() on the reference
-    const chatDocRef = doc(this.firestore, `chats/${chatId}`);
-    return from(getDoc(chatDocRef)).pipe(
-      map(docSnapshot => {
-        if (docSnapshot.exists()) {
-          const chatData = docSnapshot.data() as Omit<Chat, 'id'>;
-          this.currentChatSubject.next({
-            id: chatId,
-            ...chatData
-          } as Chat);
-        }
-        return undefined;
-      })
+      map(() => undefined) // Real-time listener will handle the response
     );
   }
 
   private ensureActiveChat(): Observable<string> {
     const currentChat = this.currentChatSubject.value;
-    if (currentChat && currentChat.status === 'active') {
+    if (currentChat && (currentChat.status === 'active' || currentChat.status === 'waiting_for_human')) {
       return of(currentChat.id);
     } else {
       return this.startNewChat();
@@ -243,21 +264,14 @@ export class ChatbotService {
     
     const updatedMessages = [...currentChat.messages, systemMessage];
     
-    // Update chat in Firestore
+    // Update chat in Firestore - real-time listener will handle local updates
     const chatDoc = doc(this.firestore, `chats/${currentChat.id}`);
     return from(updateDoc(chatDoc, {
       messages: updatedMessages,
-      agentId: null, // Will be assigned by admin
+      status: 'waiting_for_human',
+      agentId: 'pending', // Indicates escalation is pending
       updatedAt: serverTimestamp()
     })).pipe(
-      tap(() => {
-        // Update local chat object
-        this.currentChatSubject.next({
-          ...currentChat,
-          messages: updatedMessages,
-          updatedAt: new Date()
-        });
-      }),
       // Call function to notify admins
       switchMap(() => {
         const notifyAdmins = httpsCallable(this.functions, 'notifyAdminsOfChatEscalation');
@@ -265,5 +279,10 @@ export class ChatbotService {
       }),
       map(() => undefined)
     );
+  }
+
+  // Method to clean up listeners when service is destroyed
+  ngOnDestroy(): void {
+    this.stopListeningToCurrentChat();
   }
 }

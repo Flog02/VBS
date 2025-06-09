@@ -1,3 +1,4 @@
+//src/app/core/services/product.service.ts - Fixed getProductsByIds method
 import { Injectable } from '@angular/core';
 import { 
   Firestore, 
@@ -18,11 +19,12 @@ import {
   addDoc,
   DocumentData,
   QueryDocumentSnapshot,
-  DocumentSnapshot
+  DocumentSnapshot,
+  documentId  // <-- ADD THIS IMPORT
 } from '@angular/fire/firestore';
 import { Storage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from '@angular/fire/storage';
 import { Observable, from, combineLatest, of } from 'rxjs';
-import { map, switchMap, take } from 'rxjs/operators';
+import { map, switchMap, take, tap, catchError } from 'rxjs/operators';
 import { Product } from '../models/product.model';
 
 @Injectable({
@@ -36,6 +38,106 @@ export class ProductService {
     private storage: Storage
   ) {}
 
+  // FIXED METHOD - this was the main issue
+  getProductsByIds(ids: string[]): Observable<Product[]> {
+    console.log('ProductService: getProductsByIds called with IDs:', ids);
+    
+    if (!ids || ids.length === 0) {
+      console.log('ProductService: No IDs provided, returning empty array');
+      return of([]);
+    }
+
+    // Remove any undefined/null values and duplicates
+    const cleanIds = [...new Set(ids.filter(id => id && typeof id === 'string'))];
+    console.log('ProductService: Cleaned IDs:', cleanIds);
+
+    if (cleanIds.length === 0) {
+      console.log('ProductService: No valid IDs after cleaning, returning empty array');
+      return of([]);
+    }
+
+    // Need to batch in groups of 10 due to Firestore limitations
+    const batchSize = 10;
+    const batches: Observable<Product[]>[] = [];
+
+    for (let i = 0; i < cleanIds.length; i += batchSize) {
+      const batch = cleanIds.slice(i, i + batchSize);
+      console.log(`ProductService: Creating batch ${Math.floor(i/batchSize)} with IDs:`, batch);
+      
+      // FIXED: Use documentId() instead of 'id'
+      const batchQuery = query(
+        this.productsCollection,
+        where(documentId(), 'in', batch)
+      );
+      
+      const batchObservable = collectionData(batchQuery, { idField: 'id' }).pipe(
+        map(items => items as unknown as Product[]),
+        tap(products => {
+          console.log(`ProductService: Batch ${Math.floor(i/batchSize)} returned:`, products.length, 'products');
+          if (products.length > 0) {
+            console.log('ProductService: Product IDs in batch:', products.map(p => p.id));
+          }
+        }),
+        catchError(error => {
+          console.error(`ProductService: Error in batch ${Math.floor(i/batchSize)}:`, error);
+          return of([]);
+        })
+      );
+      
+      batches.push(batchObservable);
+    }
+
+    return batches.length > 0 
+      ? combineLatest(batches).pipe(
+          map(results => {
+            const allProducts = results.reduce((accumulator, currentValue) => {
+              return accumulator.concat(currentValue);
+            }, [] as Product[]);
+            
+            console.log('ProductService: Final result - total products:', allProducts.length);
+            console.log('ProductService: Final product IDs:', allProducts.map(p => p.id));
+            
+            return allProducts;
+          }),
+          catchError(error => {
+            console.error('ProductService: Error combining batches:', error);
+            return of([]);
+          })
+        )
+      : of([]);
+  }
+
+  // Alternative method if the above still doesn't work
+  getProductsByIdsAlternative(ids: string[]): Observable<Product[]> {
+    console.log('ProductService: Alternative method called with IDs:', ids);
+    
+    if (!ids || ids.length === 0) {
+      return of([]);
+    }
+
+    // Fetch each product individually
+    const productObservables = ids.map(id => 
+      this.getProductById(id).pipe(
+        tap(product => {
+          console.log(`ProductService: Individual fetch for ${id}:`, product ? 'found' : 'not found');
+        }),
+        catchError(error => {
+          console.error(`ProductService: Error fetching product ${id}:`, error);
+          return of(null);
+        })
+      )
+    );
+
+    return combineLatest(productObservables).pipe(
+      map(products => {
+        const validProducts = products.filter(p => p !== null) as Product[];
+        console.log('ProductService: Alternative method result:', validProducts.length, 'valid products');
+        return validProducts;
+      })
+    );
+  }
+
+  // Your other existing methods remain the same...
   getProducts(
     category?: string, 
     sortBy: string = 'createdAt', 
@@ -63,7 +165,6 @@ export class ProductService {
       );
     }
     
-    // If we have a last document, start after it
     if (lastVisible) {
       productsQuery = query(
         productsQuery,
@@ -74,17 +175,13 @@ export class ProductService {
     return from(getDocs(productsQuery)).pipe(
       map(snapshot => {
         const products = snapshot.docs.map(docSnapshot => {
-          // Get the document data as a JavaScript object first
           const data = docSnapshot.data() as DocumentData;
-          
-          // Then create a new object with id and all data properties
           return {
             id: docSnapshot.id,
             ...data
           } as unknown as Product;
         });
         
-        // Get the last visible document
         const lastVisibleDoc = snapshot.docs.length > 0 ? 
           snapshot.docs[snapshot.docs.length - 1] : 
           null;
@@ -117,42 +214,7 @@ export class ProductService {
     );
   }
 
-
-getProductsByIds(ids: string[]): Observable<Product[]> {
-  if (!ids.length) {
-    return of([]);
-  }
-
-  // Need to batch in groups of 10 due to Firestore limitations
-  const batchSize = 10;
-  const batches: Observable<Product[]>[] = [];
-
-  for (let i = 0; i < ids.length; i += batchSize) {
-    const batch = ids.slice(i, i + batchSize);
-    const batchQuery = query(
-      this.productsCollection,
-      where('id', 'in', batch)
-    );
-    batches.push(collectionData(batchQuery, { idField: 'id' }).pipe(
-      map(items => items as unknown as Product[])
-    ));
-  }
-
-  return batches.length > 0 
-    ? combineLatest(batches).pipe(
-        map(results => {
-          // Alternative to flat() - using reduce to flatten the array
-          return results.reduce((accumulator, currentValue) => {
-            return accumulator.concat(currentValue);
-          }, [] as Product[]);
-        })
-      )
-    : of([]);
-}
-
   searchProducts(searchTerm: string): Observable<Product[]> {
-    // In a real app, you'd use Algolia, Elasticsearch, or Firestore's full-text search
-    // For simplicity, we'll just filter by name containing the search term
     const searchQuery = query(
       this.productsCollection,
       where('name', '>=', searchTerm),
@@ -186,24 +248,20 @@ getProductsByIds(ids: string[]): Observable<Product[]> {
   deleteProduct(id: string): Observable<void> {
     const productDoc = doc(this.firestore, `products/${id}`);
     
-    // First get the product to delete its images
     return docData(productDoc, { idField: 'id' }).pipe(
       take(1),
       map(data => data as unknown as Product),
       switchMap((product: Product) => {
-        // Delete all product images
         const deleteImagePromises = product.images.map(imageUrl => {
           const imageRef = ref(this.storage, imageUrl);
           return deleteObject(imageRef);
         });
         
-        // Also delete 3D model if exists
         if (product.model3dUrl) {
           const modelRef = ref(this.storage, product.model3dUrl);
           deleteImagePromises.push(deleteObject(modelRef));
         }
         
-        // Execute all delete operations and then delete the product document
         return from(Promise.all(deleteImagePromises)).pipe(
           switchMap(() => deleteDoc(productDoc))
         );
@@ -219,16 +277,13 @@ getProductsByIds(ids: string[]): Observable<Product[]> {
     return new Observable<string>(observer => {
       uploadTask.on('state_changed',
         (snapshot) => {
-          // Handle progress if needed
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           console.log('Upload is ' + progress + '% done');
         },
         (error) => {
-          // Handle unsuccessful uploads
           observer.error(error);
         },
         () => {
-          // Handle successful uploads
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             observer.next(downloadURL);
             observer.complete();
@@ -246,16 +301,13 @@ getProductsByIds(ids: string[]): Observable<Product[]> {
     return new Observable<string>(observer => {
       uploadTask.on('state_changed',
         (snapshot) => {
-          // Handle progress if needed
           const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
           console.log('Upload is ' + progress + '% done');
         },
         (error) => {
-          // Handle unsuccessful uploads
           observer.error(error);
         },
         () => {
-          // Handle successful uploads
           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
             observer.next(downloadURL);
             observer.complete();

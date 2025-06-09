@@ -1,0 +1,246 @@
+<!-- src/app/features/admin/dashboard/dashboard.page.html -->
+<app-header></app-header>
+
+<ion-content>
+  <div class="admin-container">
+    <div class="admin-header">
+      <h1>Admin Dashboard</h1>
+      <p>Welcome to the VBS admin panel. Manage your store, products, orders, and customers.</p>
+    </div>
+    
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="loading-container">
+      <app-loading-spinner message="Loading dashboard data..."></app-loading-spinner>
+    </div>
+    
+    <!-- Dashboard Stats -->
+    <div *ngIf="!isLoading && dashboardStats" class="dashboard-content">
+      <!-- Stats Cards -->
+      <ion-grid>
+        <ion-row>
+          <ion-col size="12" size-md="3">
+            <ion-card class="stats-card">
+              <ion-card-content>
+                <div class="stats-icon users">
+                  <ion-icon name="person-outline"></ion-icon>
+                </div>
+                <div class="stats-info">
+                  <h2>{{ dashboardStats.usersCount }}</h2>
+                  <p>Registered Users</p>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+          
+          <ion-col size="12" size-md="3">
+            <ion-card class="stats-card">
+              <ion-card-content>
+                <div class="stats-icon orders">
+                  <ion-icon name="cart-outline"></ion-icon>
+                </div>
+                <div class="stats-info">
+                  <h2>{{ dashboardStats.orderStatusCounts.pending + dashboardStats.orderStatusCounts.processing }}</h2>
+                  <p>Active Orders</p>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+          
+          <ion-col size="12" size-md="3">
+            <ion-card class="stats-card">
+              <ion-card-content>
+                <div class="stats-icon products">
+                  <ion-icon name="cube-outline"></ion-icon>
+                </div>
+                <div class="stats-info">
+                  <h2>{{ dashboardStats.productsCount || 0 }}</h2>
+                  <p>Products</p>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+          
+          <ion-col size="12" size-md="3">
+            <ion-card class="stats-card">
+              <ion-card-content>
+                <div class="stats-icon chats">
+                  <ion-icon name="chatbubble-outline"></ion-icon>
+                </div>
+                <div class="stats-info">
+                  <h2>{{ dashboardStats.pendingChatsCount }}</h2>
+                  <p>Pending Chats</p>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+      
+      <!-- Revenue and Orders Summary -->
+      <ion-grid>
+        <ion-row>
+          <ion-col size="12" size-md="6">
+            <ion-card>
+              <ion-card-header>
+                <ion-card-title>Revenue Summary</ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <div class="revenue-stats">
+                  <div class="revenue-item">
+                    <div class="revenue-label">Total Revenue</div>
+                    <div class="revenue-value">{{ formatCurrency(dashboardStats.revenueStats.totalRevenue) }}</div>
+                  </div>
+                  <div class="revenue-item">
+                    <div class="revenue-label">This Month</div>
+                    <div class="revenue-value">{{ formatCurrency(dashboardStats.revenueStats.monthlyRevenue) }}</div>
+                  </div>
+                  <div class="revenue-item">
+                    <div class="revenue-label">Last Month</div>
+                    <div class="revenue-value">{{ formatCurrency(dashboardStats.revenueStats.lastMonthRevenue) }}</div>
+                  </div>
+                  <div class="revenue-item">
+                    <div class="revenue-label">Monthly Growth</div>
+                    <div class="revenue-value" [ngClass]="{'positive': dashboardStats.revenueStats.monthlyGrowth > 0, 'negative': dashboardStats.revenueStats.monthlyGrowth < 0}">
+                      {{ dashboardStats.revenueStats.monthlyGrowth > 0 ? '+' : '' }}{{ dashboardStats.revenueStats.monthlyGrowth.toFixed(2) }}%
+                    </div>
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+          
+          <ion-col size="12" size-md="6">
+            <ion-card>
+              <ion-card-header>
+                <ion-card-title>Orders Status</ion-card-title>
+              </ion-card-header>
+              <ion-card-content>
+                <div class="orders-status">
+                  <div class="status-item">
+                    <div class="status-dot status-pending"></div>
+                    <div class="status-label">Pending</div>
+                    <div class="status-count">{{ dashboardStats.orderStatusCounts.pending }}</div>
+                  </div>
+                  <div class="status-item">
+                    <div class="status-dot status-processing"></div>
+                    <div class="status-label">Processing</div>
+                    <div class="status-count">{{ dashboardStats.orderStatusCounts.processing }}</div>
+                  </div>
+                  <div class="status-item">
+                    <div class="status-dot status-shipped"></div>
+                    <div class="status-label">Shipped</div>
+                    <div class="status-count">{{ dashboardStats.orderStatusCounts.shipped }}</div>
+                  </div>
+                  <div class="status-item">
+                    <div class="status-dot status-ready"></div>
+                    <div class="status-label">Ready for Pickup</div>
+                    <div class="status-count">{{ dashboardStats.orderStatusCounts['ready-for-pickup'] }}</div>
+                  </div>
+                  <div class="status-item">
+                    <div class="status-dot status-completed"></div>
+                    <div class="status-label">Completed</div>
+                    <div class="status-count">{{ dashboardStats.orderStatusCounts.completed }}</div>
+                  </div>
+                  <div class="status-item">
+                    <div class="status-dot status-cancelled"></div>
+                    <div class="status-label">Cancelled</div>
+                    <div class="status-count">{{ dashboardStats.orderStatusCounts.cancelled }}</div>
+                  </div>
+                </div>
+              </ion-card-content>
+            </ion-card>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
+      
+      <!-- Recent Orders -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Recent Orders</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="recent-orders">
+            <div class="table-responsive">
+              <table class="orders-table">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let order of dashboardStats.recentOrders">
+                    <td>{{ order.id.substring(0, 8) }}...</td>
+                    <td>{{ formatDate(order.createdAt) }}</td>
+                    <td>{{ order.customerName || 'Unknown' }}</td>
+                    <td>{{ formatCurrency(order.total) }}</td>
+                    <td>
+                      <span class="status-badge" [ngClass]="getStatusClass(order.status)">
+                        <ion-icon [name]="getStatusIcon(order.status)"></ion-icon>
+                        {{ order.status }}
+                      </span>
+                    </td>
+                    <td>
+  <ion-button fill="clear" size="small" (click)="navigateToOrder(order.id)">
+    View
+  </ion-button>
+</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="view-all-link">
+              <ion-button fill="clear" [routerLink]="['/admin/orders']">
+                View All Orders
+                <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+              </ion-button>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+      
+      <!-- Quick Actions -->
+      <ion-card>
+        <ion-card-header>
+          <ion-card-title>Quick Actions</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="quick-actions">
+            <ion-button color="primary" [routerLink]="['/admin/products/new']">
+              <ion-icon slot="start" name="add-circle-outline"></ion-icon>
+              Add New Product
+            </ion-button>
+
+   
+<ion-button color="secondary" [routerLink]="['/admin/products']">
+  <ion-icon slot="start" name="settings-outline"></ion-icon>
+  Manage Products
+</ion-button>
+            
+            <ion-button color="success" [routerLink]="['/admin/orders']">
+              <ion-icon slot="start" name="cart-outline"></ion-icon>
+              Manage Orders
+            </ion-button>
+            
+            <ion-button color="tertiary" [routerLink]="['/admin/chats']">
+              <ion-icon slot="start" name="chatbubble-outline"></ion-icon>
+              Customer Support
+            </ion-button>
+            
+            <ion-button color="warning" [routerLink]="['/admin/users']">
+              <ion-icon slot="start" name="people-outline"></ion-icon>
+              User Management
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+</ion-content>
+
+<!-- <app-footer></app-footer> -->

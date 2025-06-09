@@ -3,11 +3,13 @@ export interface Chat {
   id: string;
   userId: string;
   agentId?: string;
-  status: 'active' | 'closed';
+  status: 'active' | 'closed' | 'waiting_for_human'; // This line
   messages: ChatMessage[];
   createdAt: Date;
   updatedAt: Date;
   closedAt?: Date;
+    escalatedAt?: Date; // Added escalation timestamp
+
 }
 
 export interface ChatMessage {

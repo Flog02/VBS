@@ -5,12 +5,19 @@
   <div class="admin-container">
     <div class="admin-header">
       <h1>Product Management</h1>
-      <p>Manage your products, add new products, and update existing ones.</p>
       
       <ion-button color="primary" (click)="createNewProduct()">
         <ion-icon name="add-outline" slot="start"></ion-icon>
         Add New Product
       </ion-button>
+    </div>
+
+    <!-- Back Navigation -->
+    <div class="back-link">
+       <ion-button fill="clear" (click)="goBack()">
+  <ion-icon slot="start" name="arrow-back-outline"></ion-icon>
+     Back to Dashboard
+</ion-button>
     </div>
     
     <!-- Filters and Search -->
@@ -131,4 +138,4 @@
 </ion-alert>
 </ion-content>
 
-<app-footer></app-footer>
+<!-- REMOVED: <app-footer></app-footer> -->

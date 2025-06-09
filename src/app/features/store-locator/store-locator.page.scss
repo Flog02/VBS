@@ -1,23 +1,38 @@
 /* src/app/features/store-locator/store-locator.page.scss */
+
 .page-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  
+  @media (max-width: 768px) {
+    padding: 15px;
+  }
 }
 
 .page-header {
-  margin-bottom: 20px;
+  text-align: center;
+  margin-bottom: 30px;
   
   h1 {
-    font-size: 1.8rem;
+    font-size: 2.2rem;
     font-weight: 700;
-    color: var(--ion-color-dark);
-    margin-bottom: 5px;
+    color: var(--ion-color-primary);
+    margin-bottom: 8px;
+    
+    @media (max-width: 768px) {
+      font-size: 1.8rem;
+    }
   }
   
   p {
+    font-size: 1.1rem;
     color: var(--ion-color-medium);
     margin: 0;
+    
+    @media (max-width: 768px) {
+      font-size: 1rem;
+    }
   }
 }
 
@@ -28,148 +43,272 @@
   align-items: center;
 }
 
-/* Store Locator Layout */
-.store-locator-container {
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  overflow: hidden;
+.store-container {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  
+  @media (max-width: 768px) {
+    padding: 15px;
+    border-radius: 15px;
+  }
 }
 
-.stores-list-col {
-  padding: 0;
-  background-color: white;
-  border-right: 1px solid #eaeaea;
+/* Layout Utility Classes for Desktop/Mobile Switch */
+.d-none {
+  display: none !important;
+}
+
+.d-block {
+  display: block !important;
+}
+
+@media (min-width: 769px) {
+  .d-md-block {
+    display: block !important;
+  }
+  .d-md-none {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .d-md-block {
+    display: none !important;
+  }
+  .d-md-none {
+    display: block !important;
+  }
+}
+
+/* Desktop Layout - 50/50 Split */
+.desktop-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  min-height: 600px;
   
-  @media (max-width: 767px) {
-    border-right: none;
-    border-bottom: 1px solid #eaeaea;
+  .map-section {
+    display: flex;
+    flex-direction: column;
+    min-height: 600px;
+  }
+  
+  .store-details-section {
+    display: flex;
+    flex-direction: column;
+    min-height: 600px;
+  }
+}
+
+/* Mobile Layout - Traditional Vertical Stack */
+.mobile-layout {
+  .map-col {
+    margin-bottom: 20px;
   }
 }
 
 .map-col {
-  padding: 0;
-}
-
-/* Store Search and List */
-.store-search {
-  padding: 10px;
-  border-bottom: 1px solid #eaeaea;
+  padding-right: 15px;
   
-  ion-searchbar {
-    --background: #f5f5f5;
-    --border-radius: 8px;
-    margin: 0;
-    padding: 0;
+  @media (max-width: 768px) {
+    padding-right: 0;
+    margin-bottom: 20px;
   }
 }
 
-.no-stores {
-  padding: 20px;
-  text-align: center;
-  color: var(--ion-color-medium);
+.details-col {
+  padding-left: 15px;
+  
+  @media (max-width: 768px) {
+    padding-left: 0;
+  }
 }
 
-.stores-list {
-  max-height: 500px;
-  overflow-y: auto;
+.map-container {
+  width: 100%;
+  height: 100%;
+  min-height: 500px;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border: 3px solid white;
+  position: relative;
+  flex: 1;
   
-  ion-list {
-    padding: 0;
+  @media (max-width: 768px) {
+    height: 350px;
+    min-height: 350px;
+    flex: 1;
   }
   
-  ion-item {
-    --padding-start: 0;
-    --inner-padding-end: 0;
+  .map-content {
+    width: 100%;
+    height: 100%;
+    min-height: 500px;
+    border-radius: 12px;
     
-    &.selected {
-      --background: #f0f7ff;
-      --color: var(--ion-color-primary);
+    @media (max-width: 768px) {
+      min-height: 350px;
+    }
+  }
+  
+  .map-info {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+    
+    ion-badge {
+      font-size: 0.8rem;
+      padding: 6px 12px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      background: rgba(40, 167, 69, 0.9);
+      color: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+  }
+  
+  .google-maps-btn {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    
+    ion-button {
+      --border-radius: 20px;
+      --box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      --padding-start: 12px;
+      --padding-end: 16px;
+      backdrop-filter: blur(10px);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0.3px;
       
-      &::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 4px;
-        background-color: var(--ion-color-primary);
+      ion-icon {
+        font-size: 1rem;
+        margin-right: 4px;
+      }
+      
+      &:hover {
+        transform: translateY(-1px);
+        --box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      }
+      
+      @media (max-width: 768px) {
+        font-size: 0.8rem;
+        --padding-start: 10px;
+        --padding-end: 14px;
       }
     }
   }
 }
 
-.store-list-item {
-  width: 100%;
-  padding: 12px 16px;
+.store-details {
+  height: 100%;
+  
+  ion-card {
+    height: 100%;
+    margin: 0;
+    border-radius: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border: 3px solid white;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    
+    @media (max-width: 768px) {
+      height: auto;
+    }
+    
+    ion-card-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}
+
+.store-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 5px;
   
-  .store-info {
-    h3 {
-      margin: 0 0 5px 0;
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--ion-color-dark);
-    }
-    
-    p {
-      margin: 0;
-      font-size: 0.85rem;
-      color: var(--ion-color-medium);
-    }
-  }
-}
-
-/* Map Container */
-.map-container {
-  width: 100%;
-  height: 400px;
-  
-  .map-content {
-    width: 100%;
-    height: 100%;
-  }
-}
-
-/* Store Details */
-.store-details {
-  padding: 20px;
-  
-  ion-card {
+  ion-card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--ion-color-primary);
     margin: 0;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  }
-  
-  ion-card-header {
-    padding-bottom: 0;
     
-    ion-card-title {
-      font-size: 1.4rem;
-      font-weight: 700;
+    @media (max-width: 768px) {
+      font-size: 1.3rem;
     }
   }
 }
 
-.store-detail-content {
+.status-badge {
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  border-radius: 25px;
+  font-weight: 600;
+  
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
+}
+
+.store-info {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 25px;
+  flex: 1;
+  
+  @media (max-width: 768px) {
+    gap: 20px;
+  }
 }
 
-.store-address {
-  display: flex;
-  gap: 15px;
-  
-  ion-icon {
-    font-size: 1.5rem;
-    color: var(--ion-color-primary);
-    margin-top: 2px;
+.info-section {
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+    
+    ion-icon {
+      font-size: 1.4rem;
+      color: var(--ion-color-primary);
+    }
+    
+    h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--ion-color-dark);
+      margin: 0;
+    }
   }
   
-  p {
+  .section-content {
+    padding-left: 28px;
+    
+    @media (max-width: 768px) {
+      padding-left: 20px;
+    }
+  }
+}
+
+.address-section {
+  .address-line {
     margin: 0 0 5px 0;
     color: var(--ion-color-dark);
+    font-size: 0.95rem;
+    line-height: 1.4;
     
     &:last-child {
       margin-bottom: 0;
@@ -177,24 +316,37 @@
   }
 }
 
-.store-contact {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  
+.contact-section {
   .contact-item {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    background: rgba(var(--ion-color-primary-rgb), 0.05);
+    border-radius: 8px;
+    transition: all 0.2s ease;
     
-    ion-icon {
-      font-size: 1.3rem;
-      color: var(--ion-color-primary);
+    &:hover {
+      background: rgba(var(--ion-color-primary-rgb), 0.1);
+      transform: translateX(3px);
     }
     
-    a {
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    ion-icon {
+      font-size: 1.2rem;
+      color: var(--ion-color-primary);
+      flex-shrink: 0;
+    }
+    
+    .contact-link {
       color: var(--ion-color-primary);
       text-decoration: none;
+      font-weight: 500;
+      font-size: 0.95rem;
       
       &:hover {
         text-decoration: underline;
@@ -203,73 +355,197 @@
   }
 }
 
-.store-hours {
-  h4 {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin: 0 0 10px 0;
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--ion-color-dark);
-    
-    ion-icon {
-      font-size: 1.3rem;
-      color: var(--ion-color-primary);
-    }
-  }
-  
+/* Desktop Horizontal Hours for 50/50 Layout */
+.hours-section {
   .hours-list {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    
+    @media (min-width: 769px) and (max-width: 1024px) {
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
   }
   
   .hours-item {
     display: flex;
     justify-content: space-between;
-    padding: 5px 0;
-    font-size: 0.95rem;
+    align-items: center;
+    padding: 10px 12px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    
+    @media (max-width: 768px) {
+      font-size: 0.9rem;
+    }
+    
+    &:hover {
+      transform: scale(1.01);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
     
     &.today {
+      background: linear-gradient(135deg, rgba(var(--ion-color-primary-rgb), 0.1) 0%, rgba(var(--ion-color-primary-rgb), 0.2) 100%);
+      border: 1px solid rgba(var(--ion-color-primary-rgb), 0.3);
       font-weight: 600;
       color: var(--ion-color-primary);
-      background-color: rgba(var(--ion-color-primary-rgb), 0.1);
-      padding: 5px 8px;
-      border-radius: 4px;
+      transform: scale(1.02);
     }
     
     .day {
-      min-width: 100px;
+      font-weight: 500;
+      min-width: 60px;
+      
+      @media (max-width: 768px) {
+        min-width: 80px;
+      }
+    }
+    
+    .time {
+      font-weight: 400;
+      text-align: right;
+      font-size: 0.8rem;
+      
+      @media (max-width: 768px) {
+        font-size: 0.85rem;
+      }
     }
   }
 }
 
-.store-actions {
-  margin-top: 10px;
+.action-section {
+  margin-top: auto;
+  padding-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   
-  ion-button {
-    --border-radius: 8px;
-    margin: 0;
-  }
-}
-
-/* Google Maps Info Window Styling */
-::ng-deep .gm-style .gm-style-iw-c {
-  padding: 12px !important;
-}
-
-::ng-deep .info-window {
-  h3 {
-    margin: 0 0 5px 0;
-    font-size: 1rem;
+  .directions-btn {
+    --border-radius: 12px;
+    --box-shadow: 0 4px 15px rgba(var(--ion-color-primary-rgb), 0.3);
+    height: 50px;
     font-weight: 600;
-    color: var(--ion-color-dark);
+    font-size: 1rem;
+    text-transform: none;
+    
+    @media (max-width: 768px) {
+      height: 45px;
+      font-size: 0.9rem;
+    }
+    
+    ion-icon {
+      font-size: 1.2rem;
+    }
+    
+    &:hover {
+      transform: translateY(-1px);
+      --box-shadow: 0 6px 20px rgba(var(--ion-color-primary-rgb), 0.4);
+    }
+  }
+
+  
+  
+  .alt-directions-btn {
+    --border-radius: 12px;
+    height: 45px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    text-transform: none;
+    
+    @media (max-width: 768px) {
+      height: 42px;
+      font-size: 0.85rem;
+    }
+    
+    ion-icon {
+      font-size: 1.1rem;
+    }
+    
+    &:hover {
+      transform: translateY(-1px);
+      --background: rgba(var(--ion-color-secondary-rgb), 0.1);
+    }
+  }
+}
+
+/* Responsive Design Enhancements */
+@media (max-width: 576px) {
+  .store-container {
+    padding: 10px;
   }
   
-  p {
-    margin: 0;
-    font-size: 0.85rem;
-    color: var(--ion-color-medium);
+  .info-section .section-content {
+    padding-left: 0;
   }
+  
+  .contact-section .contact-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .hours-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    
+    .time {
+      text-align: left;
+    }
+  }
+  
+  .action-section {
+    gap: 8px;
+    
+    .directions-btn, .alt-directions-btn {
+      height: 40px;
+      font-size: 0.8rem;
+    }
+  }
+}
+
+/* Leaflet Map Specific Styles */
+::ng-deep .leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+::ng-deep .leaflet-popup-content {
+  margin: 0;
+  padding: 0;
+}
+
+::ng-deep .leaflet-popup-tip {
+  background: white;
+}
+
+::ng-deep .leaflet-marker-icon {
+  filter: hue-rotate(220deg) saturate(1.2);
+}
+
+::ng-deep .leaflet-control-zoom a {
+  background-color: white;
+  border: 2px solid rgba(var(--ion-color-primary-rgb), 0.3);
+  color: var(--ion-color-primary);
+  border-radius: 6px;
+  
+  &:hover {
+    background-color: var(--ion-color-primary);
+    color: white;
+    transform: scale(1.02);
+  }
+}
+
+::ng-deep .leaflet-control-attribution {
+  font-size: 0.7rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 4px;
 }

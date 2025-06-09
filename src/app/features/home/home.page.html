@@ -1,25 +1,39 @@
-<!-- Updated home.page.html with Swiper instead of ion-slides -->
+<!-- Updated home.page.html with Footer at END -->
 <app-header></app-header>
 
 <ion-content>
   <!-- Hero Slider using Swiper -->
-  <swiper-container pager="true" [options]="heroSlideOpts" class="hero-slider">
-    <swiper-slide>
-      <div class="slide-content slide-1">
-        <div class="slide-overlay"></div>
-        <div class="slide-text">
-          <h1>Welcome to VBS Electronics</h1>
-          <p>Your one-stop shop for mobile, TV services, and electronics</p>
-          <ion-button color="light" (click)="router.navigate(['/products'])">
-            Shop Now
-            <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
-          </ion-button>
-        </div>
+<swiper-container 
+  pager="true" 
+  navigation="true" 
+  [options]="heroSlideOpts" 
+  class="hero-slider">
+
+  <swiper-slide>
+    <div class="slide-content slide-1">
+      <video autoplay muted loop playsinline class="background-video">
+        <source src="/assets/images/hero-6.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+      <div class="slide-overlay"></div>
+      <div class="slide-text">
+        <h1>Welcome to VBS Electronics</h1>
+        <p>Your one-stop shop for mobile, TV services, and electronics</p>
+        <ion-button color="light" (click)="router.navigate(['/products'])">
+          Shop Now
+          <ion-icon name="arrow-forward-outline" slot="end"></ion-icon>
+        </ion-button>
       </div>
-    </swiper-slide>
+    </div>
+  </swiper-slide>
+
     
     <swiper-slide>
       <div class="slide-content slide-2">
+        <video autoplay muted loop playsinline class="background-video">
+        <source src="/assets/images/hero-5.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
         <div class="slide-overlay"></div>
         <div class="slide-text">
           <h1>Latest Mobile Phones</h1>
@@ -34,6 +48,10 @@
     
     <swiper-slide>
       <div class="slide-content slide-3">
+        <video autoplay muted loop playsinline class="background-video">
+        <source src="/assets/images/hero-3.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
         <div class="slide-overlay"></div>
         <div class="slide-text">
           <h1>Premium TV Solutions</h1>
@@ -105,9 +123,13 @@
     </section>
     
     <!-- Promotional Banner -->
-    <section class="promo-banner">
+    <section class="promo-banner"><video autoplay muted loop playsinline class="background-video">
+        <source src="/assets/images/hero-4.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
       <div class="promo-content">
         <div class="promo-text">
+          
           <h2>Special Offers</h2>
           <p>Save up to 40% on selected items this month!</p>
           <ion-button color="light" (click)="router.navigate(['/products'], { queryParams: { onSale: true } })">
@@ -202,69 +224,69 @@
       </swiper-container>
     </section>
     
-    <!-- Store Locations Section -->
-    <section class="store-section">
-      <div class="section-header centered">
-        <h2>Our Store Locations</h2>
-        <p>Visit us at one of our physical stores for personalized service</p>
-      </div>
-      
-      <div *ngIf="isLoadingStores" class="loading-container">
-        <app-loading-spinner message="Loading store locations..."></app-loading-spinner>
-      </div>
-      
-      <div *ngIf="!isLoadingStores && storeLocations.length > 0" class="stores-grid">
-        <div *ngFor="let store of storeLocations" class="store-card">
-          <div class="store-image">
-            <img [src]="store.image || 'assets/images/store-placeholder.jpg'" [alt]="store.name">
-          </div>
-          <div class="store-details">
-            <h3>{{ store.name }}</h3>
-            <p class="store-address">
-              {{ store.address.street }}, {{ store.address.city }}, {{ store.address.state }} {{ store.address.zip }}
-            </p>
-            <p class="store-contact">
-              <ion-icon name="call-outline"></ion-icon>
-              {{ store.phone }}
-            </p>
-            <ion-button size="small" fill="outline" color="primary" [routerLink]="['/stores', store.id]">
-              View Details
-            </ion-button>
-          </div>
-        </div>
-      </div>
-      
-      <div class="view-all-stores">
-        <ion-button routerLink="/stores">
-          View All Locations
-          <ion-icon name="chevron-forward-outline" slot="end"></ion-icon>
-        </ion-button>
-      </div>
-    </section>
-    
-    <!-- Newsletter Section -->
-    <section class="newsletter-section">
-      <div class="newsletter-content">
-        <div class="newsletter-text">
-          <h2>Subscribe to Our Newsletter</h2>
-          <p>Stay updated with our latest offers, products, and news</p>
-        </div>
-        
-        <div class="newsletter-form">
-          <ion-item lines="none">
-            <ion-icon name="mail-outline" slot="start"></ion-icon>
-            <ion-input placeholder="Your email address"></ion-input>
-          </ion-item>
-          <ion-button color="primary">
-            Subscribe
-          </ion-button>
-        </div>
-      </div>
-    </section>
+   <!-- Store Locations Section -->
+<section class="store-section">
+  <div class="section-header centered">
+    <h2>Visit Our Store</h2>
+    <p>Experience our products firsthand at our flagship location</p>
   </div>
   
-  <!-- Chatbot -->
-  <!-- <app-chatbot></app-chatbot> -->
-</ion-content>
+  <div class="single-store-container">
+    <div class="store-hero">
+      <div class="store-hero-content">
+        <h3>VBS Electronics - Main Store</h3>
+        <p>Your premier destination for mobile phones, TV services, and cutting-edge electronics</p>
+        <div class="store-features">
+          <div class="feature">
+            <ion-icon name="storefront-outline"></ion-icon>
+            <span>Expert Staff</span>
+          </div>
+          <div class="feature">
+            <ion-icon name="construct-outline"></ion-icon>
+            <span>Repair Services</span>
+          </div>
+          <div class="feature">
+            <ion-icon name="car-outline"></ion-icon>
+            <span>Free Parking</span>
+          </div>
+        </div>
+        <ion-button size="large" color="primary" routerLink="/stores">
+          <ion-icon name="location-outline" slot="start"></ion-icon>
+          View Store Location & Hours
+        </ion-button>
+      </div>
+    </div>
+  </div>
+</section> 
+  </div>
 
-<!-- <app-footer></app-footer> -->
+  <!-- Newsletter Section - MOVED INSIDE ion-content and home-container -->
+  <section class="newsletter-section">
+    <div class="newsletter-content">
+      <div class="newsletter-text">
+        <h2>Subscribe to Our Newsletter</h2>
+        <p>Stay updated with our latest offers, products, and news</p>
+      </div>
+      
+      <div class="newsletter-form">
+        <ion-item lines="none">
+          <ion-icon name="mail-outline" slot="start"></ion-icon>
+          <ion-input placeholder="Your email address"></ion-input>
+        </ion-item>
+        <ion-button color="primary">
+          Subscribe
+        </ion-button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Footer MOVED INSIDE ion-content as LAST SECTION -->
+  <app-footer></app-footer>
+
+  <!-- Chatbot --><app-homepage-bot></app-homepage-bot>
+
+
+
+</ion-content><app-simple-chatbot></app-simple-chatbot>
+

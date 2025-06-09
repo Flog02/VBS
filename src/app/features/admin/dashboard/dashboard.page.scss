@@ -1,4 +1,6 @@
 /* src/app/features/admin/dashboard/dashboard.page.scss */
+
+// Base structure from first file
 .admin-container {
   max-width: 1200px;
   margin: 0 auto;
@@ -23,65 +25,147 @@
 
 .loading-container {
   min-height: 400px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
+// Stats Cards - Structure from first + Visual effects from second
 .stats-card {
   margin: 0;
-  height: 100%;
+  height: 140px; // Increased for better text fit
+  position: relative;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  
+  // Hover effects from second file
+  &.clickable-card {
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+  }
   
   ion-card-content {
     padding: 20px;
     display: flex;
     align-items: center;
+    height: 100%;
+    position: relative;
   }
   
   .stats-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 8px;
+    width: 60px; // Larger from second file
+    height: 60px;
+    border-radius: 12px; // Rounded corners from second file
     display: flex;
     justify-content: center;
     align-items: center;
     margin-right: 15px;
+    flex-shrink: 0;
     
     ion-icon {
-      font-size: 24px;
+      font-size: 2rem; // Larger from second file
       color: white;
     }
     
+    // Gradient backgrounds from second file
     &.users {
-      background-color: #4CAF50;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
     
     &.orders {
-      background-color: #2196F3;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     }
     
     &.products {
-      background-color: #FF9800;
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
     }
     
     &.chats {
-      background-color: #9C27B0;
+      background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
     }
   }
   
   .stats-info {
+    flex: 1;
+    min-width: 0;
+    
     h2 {
       font-size: 1.8rem;
       font-weight: 700;
       margin: 0 0 5px 0;
       color: var(--ion-color-dark);
+      line-height: 1.2;
     }
     
     p {
       margin: 0;
       color: var(--ion-color-medium);
+      font-size: 0.85rem;
+      line-height: 1.3;
+      word-wrap: break-word;
+    }
+  }
+  
+  // Card action from second file
+  .card-action {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+    
+    ion-icon {
+      font-size: 1.2rem;
+      color: var(--ion-color-medium);
+    }
+  }
+  
+  &:hover .card-action {
+    opacity: 1;
+  }
+}
+
+// System Status - Simple from second file
+.status-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background: var(--ion-color-light);
+  border-radius: 8px;
+  
+  ion-icon {
+    font-size: 1.5rem;
+    margin-right: 1rem;
+  }
+  
+  .status-info {
+    .status-label {
+      font-weight: 600;
+      color: var(--ion-color-dark);
       font-size: 0.9rem;
+    }
+    
+    .status-value {
+      font-size: 0.8rem;
+      
+      &.success {
+        color: var(--ion-color-success);
+      }
+      
+      &.warning {
+        color: var(--ion-color-warning);
+      }
+      
+      &.danger {
+        color: var(--ion-color-danger);
+      }
     }
   }
 }
 
+// Revenue Stats - Grid structure from first file
 .revenue-stats {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -100,7 +184,7 @@
     
     .revenue-value {
       font-size: 1.2rem;
-      font-weight: 700;
+      font-weight: 600;
       color: var(--ion-color-dark);
       
       &.positive {
@@ -114,6 +198,7 @@
   }
 }
 
+// Orders Status - Grid structure from first file + hover effects from second
 .orders-status {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -124,6 +209,17 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
+    padding: 0.75rem;
+    border-radius: 8px;
+    background: var(--ion-color-light);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    
+    // Hover effects from second file
+    &:hover {
+      background: var(--ion-color-step-100);
+      transform: translateY(-2px);
+    }
     
     .status-dot {
       width: 15px;
@@ -170,6 +266,7 @@
   }
 }
 
+// Table styling from first file
 .table-responsive {
   overflow-x: auto;
   
@@ -242,18 +339,55 @@
   text-align: right;
 }
 
+// Quick Actions - Organized layout from second file
 .quick-actions {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
   gap: 10px;
   
   ion-button {
     --border-radius: 8px;
+    height: 3.5rem;
+    font-weight: 500;
     margin: 0;
+    
+    ion-icon {
+      margin-right: 0.5rem;
+    }
   }
 }
 
+// Responsive design combining both approaches
 @media (max-width: 768px) {
+  .admin-container {
+    padding: 15px;
+  }
+  
+  .stats-card {
+    height: auto !important;
+    
+    ion-card-content {
+      padding: 15px;
+    }
+    
+    .stats-icon {
+      width: 50px !important;
+      height: 50px !important;
+      
+      ion-icon {
+        font-size: 1.5rem !important;
+      }
+    }
+    
+    .stats-info h2 {
+      font-size: 1.5rem !important;
+    }
+    
+    .card-action {
+      display: none;
+    }
+  }
+  
   .revenue-stats {
     grid-template-columns: 1fr;
   }
@@ -261,14 +395,29 @@
   .orders-status {
     grid-template-columns: repeat(2, 1fr);
   }
+  
+  .quick-actions {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    
+    ion-button {
+      height: 3rem;
+      font-size: 0.9rem;
+    }
+  }
 }
 
 @media (max-width: 480px) {
+  .admin-container {
+    padding: 10px;
+  }
+  
   .quick-actions {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     
     ion-button {
       width: 100%;
+      height: 3rem;
     }
   }
 }

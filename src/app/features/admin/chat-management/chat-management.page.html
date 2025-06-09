@@ -5,9 +5,16 @@
   <div class="admin-container">
     <div class="admin-header">
       <h1>Chat Support Management</h1>
-      <p>Handle customer inquiries and support requests.</p>
     </div>
-    
+
+
+     <!-- Back Navigation -->
+    <div class="back-link">
+       <ion-button fill="clear" (click)="goBack()">
+  <ion-icon slot="start" name="arrow-back-outline"></ion-icon>
+  Back to Dashboard
+</ion-button>
+    </div>
     <ion-segment [(ngModel)]="selectedSegment" (ionChange)="segmentChanged($event)">
       <ion-segment-button value="pending">
         <ion-label>
@@ -150,6 +157,34 @@
       </div>
     </div>
   </div>
+  <!-- In your admin chat template -->
+<div class="pending-chats">
+  <h3>Chats Waiting for Human</h3>
+  
+  <div *ngFor="let chat of waitingChats" class="pending-chat-item">
+    <div class="chat-info">
+      <p><strong>Chat ID:</strong> {{ chat.id.substring(0, 8) }}</p>
+      <p><strong>User:</strong> {{ chat.userId }}</p>
+      <p><strong>Escalated:</strong> {{ formatDate(chat.escalatedAt || chat.updatedAt) }}</p>
+      <p><strong>Last Message:</strong> {{ getLastMessage(chat) }}</p>
+    </div>
+    
+    <div class="chat-actions">
+      <ion-button 
+        color="primary" 
+        (click)="takeOverChat(chat.id)"
+        [disabled]="takingOver">
+        Take This Chat
+      </ion-button>
+      
+      <ion-button 
+        fill="outline" 
+        (click)="viewChatHistory(chat)">
+        View History
+      </ion-button>
+    </div>
+  </div>
+</div>
   
   <!-- Close Chat Confirmation Alert -->
   <ion-alert

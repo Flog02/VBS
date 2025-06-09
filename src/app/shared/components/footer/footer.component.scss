@@ -1,103 +1,139 @@
 /* src/app/shared/components/footer/footer.component.scss */
-.footer-top {
-  background-color: var(--ion-color-primary);
-  color: white;
-  padding: 40px 0;
+
+// Component host - ensure it's NOT fixed/sticky
+:host {
+  display: block;
+  position: static;
+  width: 100%;
+  z-index: 1;
 }
 
-.footer-section {
-  margin-bottom: 20px;
+// Main footer element
+.page-footer {
+  background: linear-gradient(      135deg,      #0d4baa -900%,      #0055A0 100%);
+  color: white;
+  position: static; // NOT fixed or absolute
+  width: 100%;
+  margin: 0;
+  padding: 0;
   
+}
+
+// Main footer content
+.footer-main {
+  padding: 40px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// Grid layout
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+}
+
+// Footer columns
+.footer-col {
   h3 {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1.3rem;
+    font-weight: bold;
     margin-bottom: 15px;
+    color: white;
   }
   
   h4 {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 600;
     margin-bottom: 15px;
-    position: relative;
-    
-    &:after {
-      content: '';
-      position: absolute;
-      bottom: -8px;
-      left: 0;
-      width: 40px;
-      height: 2px;
-      background-color: white;
-    }
+    color: white;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+    padding-bottom: 5px;
+    display: inline-block;
   }
   
   p {
-    margin-bottom: 15px;
     font-size: 0.9rem;
-    line-height: 1.5;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 15px;
   }
-}
-
-.social-icons {
-  display: flex;
   
-  ion-button {
-    margin-right: 10px;
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
     
-    ion-icon {
-      font-size: 1.3rem;
-    }
-  }
-}
-
-.footer-links {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  
-  li {
-    margin-bottom: 10px;
-    
-    a {
-      color: white;
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: opacity 0.3s;
-      cursor: pointer;
+    li {
+      margin-bottom: 8px;
       
-      &:hover {
-        opacity: 0.8;
-        text-decoration: underline;
+      a {
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.3s;
+        
+        &:hover {
+          color: white;
+          text-decoration: underline;
+        }
       }
     }
   }
 }
 
-.contact-info {
-  p {
+// Contact list
+.contact-list {
+  .contact-row {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
     font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.9);
     
     ion-icon {
       margin-right: 10px;
-      font-size: 1.1rem;
+      font-size: 1rem;
+      color: white;
     }
   }
 }
 
-.footer-bottom {
-  background-color: var(--ion-color-tertiary);
+// Copyright section
+.footer-copyright {
+  background: rgba(0, 0, 0, 0.2);
   padding: 15px 0;
+  text-align: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
   
-  .copyright {
-    display: block;
-    text-align: center;
+  p {
+    margin: 0;
     font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.8);
+  }
+}
+
+// Mobile responsiveness
+@media (max-width: 768px) {
+  .footer-main {
+    padding: 30px 15px;
+  }
+  
+  .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  
+  .footer-col {
+    text-align: center;
     
-    p {
-      margin: 0;
+    h4 {
+      display: block;
+      width: 100%;
+    }
+    
+    .contact-row {
+      justify-content: center;
     }
   }
 }

@@ -1,5 +1,15 @@
 <!-- src/app/features/admin/user-management/user-management.page.html -->
-<app-header></app-header>
+
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>User Management</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+
 
 <ion-content>
   <div class="admin-container">
@@ -8,20 +18,28 @@
       <p>View and manage user accounts.</p>
     </div>
     
-    <!-- Filters and Search -->
+
+     <!-- Back Navigation -->
+    <div class="back-link">
+       <ion-button fill="clear" (click)="goBack()">
+  <ion-icon slot="start" name="arrow-back-outline"></ion-icon>
+     Back to Dashboard
+</ion-button>
+    </div>
+
+<!-- Filters and Search -->
     <div class="filters-container">
       <ion-searchbar 
         placeholder="Search by name or email..." 
-        [(ngModel)]="searchTerm"
-        (ionChange)="onSearchChange($event)"
+        [debounce]="300"
+        (ionInput)="onSearchChange($event)"
         class="user-search">
       </ion-searchbar>
       
       <div class="filter-actions">
         <ion-select 
           interface="popover" 
-          placeholder="User Role" 
-          [(ngModel)]="selectedRole"
+          placeholder="Filter by Role" 
           (ionChange)="onRoleChange($event)">
           <ion-select-option *ngFor="let option of roleOptions" [value]="option.value">
             {{ option.label }}
@@ -30,25 +48,20 @@
       </div>
     </div>
     
-    <!-- Loading Spinner -->
+    <!-- Loading State -->
     <div *ngIf="isLoading" class="loading-container">
-      <app-loading-spinner message="Loading users..."></app-loading-spinner>
+      <p>Loading users...</p>
     </div>
     
     <!-- Users Table -->
     <div *ngIf="!isLoading" class="users-table-container">
-      <div *ngIf="users.length === 0" class="no-users">
-        <app-empty-state
-          icon="person-outline"
-          title="No Users Found"
-          message="No users match your search criteria."
-          buttonText="Back to Dashboard"
-          buttonLink="/admin">
-        </app-empty-state>
+      <!-- Empty State -->
+      <div *ngIf="filteredUsers.length === 0" class="no-users">
+        <p>No users found matching your criteria.</p>
       </div>
       
-      <div *ngIf="users.length > 0" class="table-responsive">
-       <!-- Continuation of src/app/features/admin/user-management/user-management.page.html -->
+      <!-- Users Table -->
+      <div *ngIf="filteredUsers.length > 0" class="table-responsive">
         <table class="users-table">
           <thead>
             <tr>
@@ -61,7 +74,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let user of users">
+            <tr *ngFor="let user of filteredUsers; trackBy: trackByUid">
               <td>{{ user.displayName || 'Not Set' }}</td>
               <td>{{ user.email }}</td>
               <td>
@@ -72,8 +85,15 @@
               <td>{{ formatDate(user.createdAt) }}</td>
               <td>{{ formatDate(user.lastLoginAt) }}</td>
               <td class="actions-cell">
-                <ion-button fill="clear" color="primary" (click)="confirmRoleChange(user)">
-                  <ion-icon [name]="user.role === 'admin' ? 'person-outline' : 'shield-outline'"></ion-icon>
+                <ion-button 
+                  fill="clear" 
+                  color="primary" 
+                  size="small"
+                  (click)="confirmRoleChange(user)">
+                  <ion-icon 
+                    [name]="user.role === 'admin' ? 'person-outline' : 'shield-outline'" 
+                    slot="start">
+                  </ion-icon>
                   {{ user.role === 'admin' ? 'Make Customer' : 'Make Admin' }}
                 </ion-button>
               </td>
@@ -85,12 +105,10 @@
   </div>
   
   <!-- Role Change Confirmation Alert -->
- <ion-alert
-  [isOpen]="showRoleAlert"
-  header="Confirm Role Change"
-  [message]="'Are you sure you want to change ' + (userToUpdate?.displayName || userToUpdate?.email || 'this user') + '\'s role to ' + newRole + '?'"
-  [buttons]="roleChangeAlertButtons">
-</ion-alert>
+  <ion-alert
+    [isOpen]="showRoleAlert"
+    header="Confirm Role Change"
+    [message]="getRoleChangeMessage()"
+    [buttons]="roleChangeAlertButtons">
+  </ion-alert>
 </ion-content>
-
-<!-- <app-footer></app-footer> -->

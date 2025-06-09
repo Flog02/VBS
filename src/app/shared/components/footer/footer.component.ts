@@ -1,23 +1,10 @@
 // src/app/shared/components/footer/footer.component.ts
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
-import { 
-  IonFooter, 
-  IonToolbar, 
-  IonGrid, 
-  IonRow, 
-  IonCol,
-  IonButton,
-  IonIcon,
-  IonText
-} from '@ionic/angular/standalone';
+import { RouterModule } from '@angular/router';
+import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
-  logoFacebook, 
-  logoTwitter, 
-  logoInstagram, 
-  logoYoutube,
   mailOutline, 
   callOutline, 
   locationOutline
@@ -31,25 +18,14 @@ import {
   imports: [
     CommonModule,
     RouterModule,
-    IonFooter,
-    IonToolbar,
-    IonGrid,
-    IonRow,
-    IonCol,
-    IonButton,
-    IonIcon,
-    IonText
+    IonIcon
   ]
 })
 export class FooterComponent {
   currentYear = new Date().getFullYear();
   
-  constructor(public router: Router) {
+  constructor() {
     addIcons({ 
-      logoFacebook, 
-      logoTwitter, 
-      logoInstagram, 
-      logoYoutube,
       mailOutline,
       callOutline,
       locationOutline

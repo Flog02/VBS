@@ -1,46 +1,54 @@
-// src/app/features/checkout/checkout.page.scss
+/* src/app/features/checkout/checkout.page.scss */
 
 // Variables
 :host {
-  --page-padding: 20px;
-  --section-spacing: 30px;
-  --border-radius: 8px;
-  --border-color: #e0e0e0;
+  --page-padding: 24px;
+  --section-spacing: 32px;
+  --card-border-radius: 12px;
+  --card-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --border-color: rgba(0, 0, 0, 0.08);
   --background-color: #ffffff;
-  --primary-text: #333333;
-  --secondary-text: #666666;
-  --light-gray: #f5f5f5;
-  --hover-color: #f0f7ff;
+  --primary-text: var(--ion-color-dark);
+  --secondary-text: var(--ion-color-medium);
+  --light-gray: #f8f9fa;
+  --hover-color: rgba(var(--ion-color-primary-rgb), 0.04);
   --error-color: var(--ion-color-danger);
+  --success-color: var(--ion-color-success);
 }
 
 // Main container
 .page-container {
   padding: var(--page-padding);
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
+  min-height: calc(100vh - 120px);
 }
 
-// Ensure content background is white
+// Content background
 ion-content {
-  --background: #f8f9fa;
+  --background: var(--light-gray);
 }
 
 // Page header
 .page-header {
   margin-bottom: var(--section-spacing);
+  text-align: center;
   
   h1 {
-    margin: 0;
-    font-size: 28px;
-    font-weight: 600;
+    font-size: 2.25rem;
+    font-weight: 700;
     color: var(--primary-text);
+    margin: 0 0 8px 0;
+    
+    @media (max-width: 768px) {
+      font-size: 1.75rem;
+    }
   }
   
   p {
-    margin: 8px 0 0;
+    font-size: 1.1rem;
     color: var(--secondary-text);
-    font-size: 16px;
+    margin: 0;
   }
 }
 
@@ -49,72 +57,381 @@ ion-content {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 200px;
+  min-height: 400px;
+}
+
+// Checkout content animation
+.checkout-content {
+  animation: fadeInUp 0.5s ease-out;
 }
 
 // Card styles
 ion-card {
-  margin-bottom: 20px;
-  border-radius: var(--border-radius);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  margin-bottom: 24px;
+  border-radius: var(--card-border-radius);
+  box-shadow: var(--card-shadow);
   background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
   
   ion-card-header {
-    padding: 16px;
+    background: linear-gradient(135deg, var(--light-gray) 0%, #e9ecef 100%);
+    padding: 20px;
+    border-bottom: 1px solid var(--border-color);
     
     ion-card-title {
-      font-size: 18px;
-      font-weight: 600;
+      font-size: 1.25rem;
+      font-weight: 700;
       color: var(--primary-text);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      
+      .title-icon {
+        margin-right: 12px;
+        font-size: 1.5rem;
+        color: var(--ion-color-primary);
+      }
     }
   }
   
   ion-card-content {
-    padding: 16px;
+    padding: 24px;
+  }
+}
+
+// Delivery method card
+.delivery-method-card {
+  border: 2px solid var(--ion-color-primary);
+  
+  ion-card-header {
+    background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-primary-shade) 100%);
+    color: white;
+    
+    ion-card-title {
+      color: white;
+      
+      .title-icon {
+        color: white;
+      }
+    }
+  }
+}
+
+// Delivery options
+.delivery-options {
+  .delivery-option {
+    margin-bottom: 16px;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    
+    &:hover {
+      border-color: var(--ion-color-primary);
+      box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.15);
+    }
+    
+    .option-item {
+      --background: transparent;
+      --padding-start: 20px;
+      --padding-end: 20px;
+      --min-height: auto;
+      padding: 20px;
+      
+      .option-content {
+        width: 100%;
+        
+        .option-header {
+          display: flex;
+          align-items: center;
+          margin-bottom: 8px;
+          
+          ion-icon {
+            font-size: 1.8rem;
+            margin-right: 12px;
+            color: var(--ion-color-primary);
+          }
+          
+          h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+            flex: 1;
+            color: var(--primary-text);
+          }
+          
+          .option-badge {
+            background: var(--ion-color-success);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            
+            &.delivery-badge {
+              background: var(--ion-color-warning);
+            }
+          }
+        }
+        
+        p {
+          margin: 0 0 4px 0;
+          color: var(--secondary-text);
+          font-size: 0.95rem;
+          padding-left: 44px;
+        }
+        
+        small {
+          color: var(--ion-color-medium);
+          font-size: 0.85rem;
+          font-weight: 500;
+          padding-left: 44px;
+        }
+      }
+    }
+    
+    // Highlight selected option
+    &:has(ion-radio[aria-checked="true"]) {
+      border-color: var(--ion-color-primary);
+      background: rgba(var(--ion-color-primary-rgb), 0.02);
+      box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.15);
+      
+      .option-content {
+        .option-header h3 {
+          color: var(--ion-color-primary);
+        }
+      }
+    }
+  }
+}
+
+// Special pickup info card
+.pickup-info-card {
+  background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%);
+  border: 2px solid var(--ion-color-tertiary);
+  animation: slideDown 0.4s ease-out;
+  
+  ion-card-header {
+    background: linear-gradient(135deg, var(--ion-color-tertiary) 0%, var(--ion-color-tertiary-shade) 100%);
+    color: white;
+    
+    ion-card-title {
+      color: white;
+      
+      .title-icon {
+        color: white;
+      }
+    }
+  }
+  
+  .store-location {
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--primary-text);
+      margin: 0 0 12px 0;
+    }
+    
+    p {
+      margin: 0 0 4px 0;
+      color: var(--secondary-text);
+      line-height: 1.5;
+    }
+    
+    .pickup-hours {
+      margin: 20px 0;
+      padding: 16px;
+      background: rgba(var(--ion-color-tertiary-rgb), 0.1);
+      border-radius: 8px;
+      border-left: 4px solid var(--ion-color-tertiary);
+      
+      h4 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--primary-text);
+        margin: 0 0 8px 0;
+      }
+      
+      p {
+        margin: 0 0 4px 0;
+        font-weight: 500;
+      }
+    }
+    
+    .pickup-note {
+      display: flex;
+      align-items: center;
+      margin-top: 16px;
+      padding: 12px;
+      background: rgba(var(--ion-color-warning-rgb), 0.1);
+      border-radius: 8px;
+      
+      ion-icon {
+        color: var(--ion-color-warning);
+        font-size: 1.2rem;
+        margin-right: 8px;
+        flex-shrink: 0;
+      }
+      
+      span {
+        color: var(--primary-text);
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+// Delivery address card
+.delivery-address-card {
+  background: linear-gradient(135deg, #fff3cd 0%, #fef7e0 100%);
+  border: 2px solid var(--ion-color-warning);
+  animation: slideDown 0.4s ease-out;
+  
+  ion-card-header {
+    background: linear-gradient(135deg, var(--ion-color-warning) 0%, var(--ion-color-warning-shade) 100%);
+    color: white;
+    
+    ion-card-title {
+      color: white;
+      
+      .title-icon {
+        color: white;
+      }
+    }
   }
 }
 
 // Form elements
-ion-item {
+.form-grid {
+  --ion-grid-padding: 0;
+}
+
+.form-item {
   --padding-start: 0;
+  --padding-end: 0;
   --border-color: var(--border-color);
   --background: var(--background-color);
   --background-hover: var(--hover-color);
-  margin-bottom: 10px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
   
-  &:last-child {
-    margin-bottom: 0;
+  &:hover {
+    border-color: var(--ion-color-primary);
+    --background: var(--hover-color);
+  }
+  
+  &:focus-within {
+    border-color: var(--ion-color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--ion-color-primary-rgb), 0.1);
   }
   
   ion-label {
-    --color: var(--ion-color-medium);
-    font-size: 14px;
+    --color: var(--secondary-text);
+    font-size: 0.9rem;
     font-weight: 500;
   }
   
-  ion-input, ion-textarea, ion-select {
-    --padding-start: 0;
-    font-size: 16px;
-    --background: var(--background-color);
-  }
-
-  ion-checkbox {
-    margin-right: 10px;
+  ion-input, ion-select {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    font-size: 1rem;
+    --background: transparent;
   }
 }
 
-// Specific to checkbox in terms & conditions
+// Payment options
+.payment-options {
+  .payment-option {
+    margin-bottom: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      border-color: var(--ion-color-primary);
+      background: var(--hover-color);
+    }
+    
+    ion-item {
+      --background: transparent;
+      --padding-start: 16px;
+      --padding-end: 16px;
+      --min-height: 56px;
+      
+      .payment-label {
+        display: flex;
+        align-items: center;
+        
+        ion-icon {
+          font-size: 1.5rem;
+          margin-right: 12px;
+          color: var(--ion-color-primary);
+        }
+        
+        span {
+          font-weight: 500;
+          font-size: 1rem;
+        }
+      }
+    }
+    
+    // Highlight selected option
+    &:has(ion-radio[aria-checked="true"]) {
+      border-color: var(--ion-color-primary);
+      background: rgba(var(--ion-color-primary-rgb), 0.05);
+    }
+  }
+}
+
+// Credit card details
+.card-details {
+  margin-top: 24px;
+  padding: 20px;
+  background: var(--light-gray);
+  border-radius: 8px;
+  animation: slideDown 0.3s ease-out;
+  
+  .card-form {
+    .card-expiry-grid {
+      --ion-grid-padding: 0;
+      margin-top: 12px;
+    }
+  }
+}
+
+// Terms checkbox
+.terms-card {
+  background: rgba(var(--ion-color-success-rgb), 0.02);
+  border: 1px solid rgba(var(--ion-color-success-rgb), 0.2);
+}
+
 .terms-checkbox {
-  --inner-padding-end: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+  --background: transparent;
+  
+  ion-checkbox {
+    margin-right: 12px;
+    --size: 20px;
+  }
   
   ion-label {
-    margin-left: 10px;
-    font-size: 14px;
-    white-space: normal;
+    font-size: 0.9rem;
+    line-height: 1.5;
     
     a {
       color: var(--ion-color-primary);
       text-decoration: none;
+      font-weight: 600;
       
       &:hover {
         text-decoration: underline;
@@ -126,9 +443,9 @@ ion-item {
 // Validation errors
 .validation-error {
   color: var(--error-color);
-  font-size: 12px;
-  margin: -6px 0 10px 0;
-  padding-left: 16px;
+  font-size: 0.8rem;
+  margin: 8px 0 0 0;
+  padding: 0 12px;
   
   span {
     display: block;
@@ -137,48 +454,54 @@ ion-item {
     &:last-child {
       margin-bottom: 0;
     }
+    
+    &::before {
+      content: "• ";
+      margin-right: 4px;
+    }
   }
 }
 
-// Store selection
-.store-selection {
-  margin-top: 15px;
-  padding-left: 35px;
-}
-
-// Credit card detail section
-.card-details {
-  margin-top: 15px;
-  padding-left: 35px;
-}
-
-// Order summary styling
+// Order summary
 .order-summary {
   position: sticky;
-  top: 20px;
+  top: 24px;
+  
+  @media (max-width: 992px) {
+    position: relative;
+    top: 0;
+  }
 }
 
 // Order items
 .order-items {
-  margin-bottom: 20px;
-  max-height: 300px;
+  margin-bottom: 24px;
+  max-height: 320px;
   overflow-y: auto;
   
   .order-item {
     display: flex;
     align-items: center;
-    padding: 10px 0;
+    padding: 16px 0;
     border-bottom: 1px solid var(--border-color);
+    transition: background-color 0.2s ease;
+    
+    &:hover {
+      background: var(--hover-color);
+      border-radius: 8px;
+      margin: 0 -8px;
+      padding: 16px 8px;
+    }
     
     &:last-child {
       border-bottom: none;
     }
     
     .item-image {
-      width: 50px;
-      height: 50px;
-      min-width: 50px;
-      border-radius: 4px;
+      width: 60px;
+      height: 60px;
+      min-width: 60px;
+      border-radius: 8px;
       overflow: hidden;
       border: 1px solid var(--border-color);
       background-color: var(--background-color);
@@ -192,30 +515,36 @@ ion-item {
     
     .item-details {
       flex: 1;
-      padding: 0 10px;
+      padding: 0 16px;
       
       .item-name {
-        font-size: 14px;
-        font-weight: 500;
-        margin-bottom: 4px;
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin-bottom: 6px;
         color: var(--primary-text);
+        line-height: 1.3;
       }
       
       .item-meta {
         display: flex;
-        font-size: 12px;
+        font-size: 0.85rem;
         color: var(--secondary-text);
         
         .item-price {
-          margin-right: 8px;
+          margin-right: 12px;
+          font-weight: 500;
+        }
+        
+        .item-quantity {
+          font-weight: 500;
         }
       }
     }
     
     .item-total {
-      font-weight: 600;
-      font-size: 14px;
-      color: var(--primary-text);
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--ion-color-primary);
     }
   }
 }
@@ -225,27 +554,30 @@ ion-item {
   .total-row {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 10px;
-    font-size: 14px;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 8px 0;
+    font-size: 0.95rem;
     
     .total-label {
       color: var(--secondary-text);
+      font-weight: 500;
     }
     
     .total-value {
-      font-weight: 500;
+      font-weight: 600;
       color: var(--primary-text);
     }
     
     &.grand-total {
-      margin-top: 15px;
-      padding-top: 15px;
-      border-top: 1px solid var(--border-color);
-      font-size: 18px;
-      font-weight: 600;
+      margin-top: 16px;
+      padding: 16px 0;
+      border-top: 2px solid var(--ion-color-primary);
+      font-size: 1.25rem;
+      font-weight: 700;
       
       .total-label, .total-value {
-        color: var(--primary-text);
+        color: var(--ion-color-primary);
       }
     }
   }
@@ -253,59 +585,63 @@ ion-item {
 
 // Place order button
 .place-order-btn {
-  margin-top: 20px;
-  height: 48px;
-  font-weight: 600;
-  --border-radius: 4px;
+  margin: 24px 0 16px 0;
+  height: 56px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  --border-radius: 12px;
+  text-transform: none;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  
+  &:not([disabled]):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(var(--ion-color-primary-rgb), 0.3);
+  }
   
   ion-spinner {
-    margin-right: 8px;
+    margin-right: 12px;
+    --color: white;
+  }
+  
+  ion-icon {
+    margin-left: 8px;
+    transition: transform 0.3s ease;
+  }
+  
+  &:hover ion-icon {
+    transform: translateX(4px);
   }
 }
 
 // Order note
 .order-note {
-  margin-top: 15px;
-  font-size: 12px;
+  margin-top: 16px;
+  font-size: 0.85rem;
   color: var(--secondary-text);
-  text-align: center;
   
   p {
-    margin: 0;
-  }
-}
-
-// Responsive adjustments
-@media (max-width: 767px) {
-  .page-header {
-    h1 {
-      font-size: 24px;
+    margin: 0 0 8px 0;
+    display: flex;
+    align-items: center;
+    
+    ion-icon {
+      margin-right: 8px;
+      color: var(--success-color);
+      font-size: 1rem;
     }
     
-    p {
-      font-size: 14px;
+    &:last-child {
+      margin-bottom: 0;
     }
-  }
-  
-  .order-summary {
-    position: relative;
-    top: 0;
-  }
-  
-  .order-items {
-    max-height: none;
-  }
-  
-  .card-details, .store-selection {
-    padding-left: 0;
   }
 }
 
-// Animation
-@keyframes fadeIn {
+// Animations
+@keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -313,23 +649,113 @@ ion-item {
   }
 }
 
-.checkout-content {
-  animation: fadeIn 0.3s ease-out;
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 500px;
+  }
 }
 
-// Fix for radio button display issues
-ion-radio-group {
-  ion-item {
-    --min-height: 48px;
+// Radio button customization
+ion-radio {
+  --color: var(--ion-color-primary);
+  --color-checked: var(--ion-color-primary);
+  margin-right: 12px;
+  
+  &::part(container) {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--ion-color-medium);
+  }
+  
+  &::part(mark) {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--ion-color-primary);
+  }
+}
+
+// Checkbox customization
+ion-checkbox {
+  --background: transparent;
+  --background-checked: var(--ion-color-primary);
+  --border-color: var(--ion-color-medium);
+  --border-color-checked: var(--ion-color-primary);
+  --checkmark-color: white;
+  --size: 20px;
+  
+  &::part(container) {
+    border-radius: 4px;
+    border-width: 2px;
+  }
+}
+
+// Responsive design
+@media (max-width: 992px) {
+  .page-container {
+    padding: 16px;
+  }
+  
+  ion-card {
+    margin-bottom: 20px;
     
-    ion-radio {
-      margin-right: 10px;
+    ion-card-header {
+      padding: 16px;
+    }
+    
+    ion-card-content {
+      padding: 16px;
     }
   }
 }
 
-// Fix for checkout button in order summary
-.place-order-btn {
-  margin: 20px 0 10px 0;
-  width: 100%;
+@media (max-width: 768px) {
+  .page-header {
+    margin-bottom: 24px;
+    
+    h1 {
+      font-size: 1.5rem;
+    }
+    
+    p {
+      font-size: 1rem;
+    }
+  }
+  
+  .order-items {
+    max-height: none;
+  }
+  
+  .card-details {
+    padding: 16px;
+  }
+  
+  .delivery-options .delivery-option .option-item {
+    padding: 16px;
+    
+    .option-content {
+      .option-header {
+        ion-icon {
+          font-size: 1.5rem;
+        }
+        
+        h3 {
+          font-size: 1rem;
+        }
+      }
+      
+      p, small {
+        padding-left: 36px;
+        font-size: 0.9rem;
+      }
+    }
+  }
 }

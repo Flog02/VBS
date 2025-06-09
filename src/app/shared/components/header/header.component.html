@@ -9,14 +9,7 @@
       <h1>VBS</h1>
     </ion-title>
     
-    <ion-searchbar 
-      [(ngModel)]="searchTerm" 
-      (keyup.enter)="onSearch()"
-      placeholder="Search products..."
-      animated
-      slot="end" 
-      class="search-bar">
-    </ion-searchbar>
+    <!-- REMOVED: Search bar completely -->
     
     <ion-buttons slot="end">
       <ion-button (click)="navigateTo('/wishlist')">

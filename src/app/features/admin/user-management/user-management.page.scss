@@ -317,6 +317,19 @@ ion-badge {
 
 // Add tooltip for role badges
 // Replace the problematic tooltip code with this corrected version:
+.back-link {
+  margin-bottom: 16px;
+  
+  ion-button {
+    --padding-start: 0;
+    margin: 0;
+    font-size: 14px;
+    
+    ion-icon {
+      margin-right: 4px;
+    }
+  }
+}
 
 // Add tooltip for role badges
 ion-badge {

@@ -1,4 +1,15 @@
 <!-- src/app/features/admin/product-form/product-form.component.html -->
+<app-header> </app-header>
+
+  
+<ion-toolbar>
+    <ion-title>{{ isEdit ? 'Edit Product' : 'Add New Product' }}</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar> 
 <ion-content>
 <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
   <ion-grid>
@@ -113,6 +124,106 @@
             </ion-item>
           </ion-card-content>
         </ion-card>
+
+
+        <!-- ADD THIS KEY FEATURES SECTION HERE -->
+<ion-card>
+  <ion-card-header>
+    <ion-card-title>
+      Key Features
+      <ion-button 
+        fill="clear" 
+        color="primary" 
+        (click)="addKeyFeature()" 
+        [disabled]="!newFeature || newFeature.trim().length === 0">
+        <ion-icon name="add-outline"></ion-icon>
+        Add Feature
+      </ion-button>
+    </ion-card-title>
+  </ion-card-header>
+  <ion-card-content>
+    <!-- Add New Feature Input -->
+    <ion-item>
+      <ion-label position="floating">New Key Feature</ion-label>
+      <ion-input 
+        [(ngModel)]="newFeature"
+        [ngModelOptions]="{standalone: true}"
+        placeholder="Enter a key feature"
+        (keyup.enter)="addKeyFeature()"
+        (ionInput)="onFeatureInputChange($event)">
+      </ion-input>
+    </ion-item>
+    
+    <!-- Debug: Show current newFeature value -->
+    <p *ngIf="newFeature" style="font-size: 12px; color: gray;">
+      Current input: "{{ newFeature }}" (Length: {{ newFeature.length }})
+    </p>
+    
+    <!-- Existing Features List -->
+    <div *ngIf="keyFeatures.length === 0" class="no-features">
+      <ion-item lines="none">
+        <ion-icon name="information-circle-outline" slot="start" color="medium"></ion-icon>
+        <ion-label color="medium">
+          <p>No key features added yet. Add features that highlight what makes this product special.</p>
+        </ion-label>
+      </ion-item>
+    </div>
+    
+    <div *ngFor="let feature of keyFeatures; let i = index" class="feature-item">
+      <div class="feature-row">
+        <ion-item class="feature-input">
+          <ion-label position="floating">Feature {{ i + 1 }}</ion-label>
+          <ion-input 
+            [value]="feature"
+            (ionInput)="updateKeyFeature(i, $event)"
+            placeholder="Enter key feature">
+          </ion-input>
+        </ion-item>
+        
+        <ion-button fill="clear" color="danger" (click)="removeKeyFeature(i)">
+          <ion-icon name="trash-outline"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+    
+    <div class="features-hint" *ngIf="keyFeatures.length === 0">
+      <ion-item lines="none">
+        <ion-icon name="bulb-outline" slot="start" color="tertiary"></ion-icon>
+        <ion-label>
+          <p><strong>Examples:</strong> "Fast charging", "Water resistant", "HD display", "Long battery life"</p>
+        </ion-label>
+      </ion-item>
+    </div>
+  </ion-card-content>
+</ion-card>
+
+<!-- ADD FORM ACTIONS HERE - Right after Key Features
+<ion-card>
+  <ion-card-content>
+    <div class="form-actions">
+      <ion-button 
+        fill="outline" 
+        color="medium" 
+        (click)="cancel()" 
+        [disabled]="isSubmitting">
+        <ion-icon name="close-outline" slot="start"></ion-icon>
+        Cancel
+      </ion-button>
+      
+      <ion-button 
+        type="submit" 
+        color="primary" 
+        [disabled]="isSubmitting">
+        <ion-spinner name="dots" *ngIf="isSubmitting"></ion-spinner>
+        <span *ngIf="!isSubmitting">
+          <ion-icon name="save-outline" slot="start"></ion-icon>
+          {{ isEdit ? 'Update Product' : 'Create Product' }}
+        </span>
+      </ion-button>
+    </div>
+  </ion-card-content>
+</ion-card> -->
+
       </ion-col>
       
       <!-- Media and Specifications -->

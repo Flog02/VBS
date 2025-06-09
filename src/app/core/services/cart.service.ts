@@ -30,7 +30,13 @@ export class CartService {
     private firestore: Firestore,
     private authService: AuthService,
     private productService: ProductService
-  ) {
+  ) 
+  
+  
+  
+  
+  {
+    
     // Initialize cart when user logs in
     this.authService.currentUser$.subscribe(user => {
       if (user) {

@@ -1,11 +1,14 @@
-import { Component, OnInit, ViewChild, ElementRef, CUSTOM_ELEMENTS_SCHEMA, AfterViewInit } from '@angular/core';
+//src/app/features/product-detail/product-detail.page.ts
+
+import { Component, OnInit, ViewChild, ElementRef, CUSTOM_ELEMENTS_SCHEMA, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { 
   IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
   IonButton, IonIcon, IonGrid, IonRow, IonCol, IonText, IonBadge, IonChip,
   IonLabel, IonSegment, IonSegmentButton,
-  IonAccordionGroup, IonAccordion, IonItem
+  IonAccordionGroup, IonAccordion, IonItem,
+  ToastController
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
@@ -26,6 +29,7 @@ import { Product, ProductSpecification } from '../../core/models/product.model';
 import { ChatbotPage } from 'src/app/shared/components/chatbot/chatbot.page';
 import { register } from 'swiper/element/bundle';
 import { Swiper } from 'swiper';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-product-detail',
@@ -44,9 +48,10 @@ import { Swiper } from 'swiper';
     Product3dViewerComponent, ProductCardComponent, ChatbotPage
   ]
 })
-export class ProductDetailPage implements OnInit, AfterViewInit {
+export class ProductDetailPage implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('productSlides') swiperElement: ElementRef | undefined;
   private swiper: Swiper | undefined;
+  private subscriptions: Subscription[] = [];
   
   // Add activeSlideIndex property
   activeSlideIndex = 0;
@@ -81,7 +86,9 @@ export class ProductDetailPage implements OnInit, AfterViewInit {
     private productService: ProductService,
     private cartService: CartService,
     private wishlistService: WishlistService,
-    private authService: AuthService
+    private authService: AuthService,
+    private toastController: ToastController,
+    private cdr: ChangeDetectorRef
   ) {
     // Register Swiper custom elements
     register();
@@ -95,9 +102,12 @@ export class ProductDetailPage implements OnInit, AfterViewInit {
   ngOnInit() {
     this.loadProduct();
     
-    this.authService.isLoggedIn$.subscribe(isLoggedIn => {
+    // Subscribe to auth state
+    const authSub = this.authService.isLoggedIn$.subscribe(isLoggedIn => {
       this.isLoggedIn = isLoggedIn;
+      this.cdr.detectChanges();
     });
+    this.subscriptions.push(authSub);
   }
   
   ngAfterViewInit() {
@@ -116,38 +126,44 @@ export class ProductDetailPage implements OnInit, AfterViewInit {
     }, 500); // Small delay to ensure Swiper is properly initialized
   }
   
+  ngOnDestroy() {
+    // Clean up subscriptions
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+  
   // Add slideTo method
   slideTo(index: number) {
     if (this.swiper) {
       this.swiper.slideTo(index);
     }
   }
+  
   /**
- * Safely get product specifications with proper typing
- */
-getProductSpecifications(): ProductSpecification {
-  if (this.product && this.product.specifications) {
-    return this.product.specifications;
+   * Safely get product specifications with proper typing
+   */
+  getProductSpecifications(): ProductSpecification {
+    if (this.product && this.product.specifications) {
+      return this.product.specifications;
+    }
+    return {};
   }
-  return {};
-}
 
-/**
- * Convert specification value to an object for keyvalue pipe
- */
-getSpecificationDetails(value: any): { [key: string]: string } {
-  if (typeof value === 'object' && value !== null) {
-    return value as { [key: string]: string };
+  /**
+   * Convert specification value to an object for keyvalue pipe
+   */
+  getSpecificationDetails(value: any): { [key: string]: string } {
+    if (typeof value === 'object' && value !== null) {
+      return value as { [key: string]: string };
+    }
+    return {};
   }
-  return {};
-}
 
-/**
- * Check if a value is an object
- */
-isObject(val: any): boolean {
-  return typeof val === 'object' && val !== null;
-}
+  /**
+   * Check if a value is an object
+   */
+  isObject(val: any): boolean {
+    return typeof val === 'object' && val !== null;
+  }
   
   loadProduct() {
     this.isLoading = true;
@@ -165,9 +181,12 @@ isObject(val: any): boolean {
         
         // Check if product is in wishlist
         if (this.isLoggedIn) {
-          this.wishlistService.isInWishlist(productId).subscribe(isInWishlist => {
+          const wishlistSub = this.wishlistService.isInWishlist(productId).subscribe(isInWishlist => {
+            console.log(`Product ${productId} wishlist status:`, isInWishlist);
             this.isInWishlist = isInWishlist;
+            this.cdr.detectChanges();
           });
+          this.subscriptions.push(wishlistSub);
         }
         
         // Load related products
@@ -214,7 +233,7 @@ isObject(val: any): boolean {
     }
   }
   
-  addToCart() {
+  async addToCart() {
     if (!this.product) return;
     
     if (!this.isLoggedIn) {
@@ -224,19 +243,21 @@ isObject(val: any): boolean {
       return;
     }
     
-    // Add to cart with specified quantity
-    for (let i = 0; i < this.quantity; i++) {
-      this.cartService.addToCart(this.product.id).subscribe(
-        () => {
-          if (i === this.quantity - 1) {
-            // Success notification would be added here
-          }
-        },
-        error => {
-          console.error('Error adding to cart:', error);
-          // Error notification would be added here
-        }
-      );
+    if (this.product.stock <= 0) {
+      await this.showToast('❌ Product out of stock', 'danger');
+      return;
+    }
+    
+    try {
+      // Add to cart with specified quantity
+      for (let i = 0; i < this.quantity; i++) {
+        await this.cartService.addToCart(this.product.id).toPromise();
+      }
+      
+      await this.showToast(`✅ Added ${this.quantity} item(s) to cart!`, 'success');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      await this.showToast('❌ Error adding to cart', 'danger');
     }
   }
   
@@ -245,8 +266,11 @@ isObject(val: any): boolean {
     this.router.navigate(['/cart']);
   }
   
-  toggleWishlist() {
+  async toggleWishlist() {
     if (!this.product) return;
+    
+    console.log('Toggle wishlist clicked for product:', this.product.id);
+    console.log('Current wishlist status before toggle:', this.isInWishlist);
     
     if (!this.isLoggedIn) {
       this.router.navigate(['/auth/login'], { 
@@ -255,14 +279,55 @@ isObject(val: any): boolean {
       return;
     }
     
-    this.wishlistService.toggleWishlistItem(this.product.id).subscribe(
-      () => {
-        this.isInWishlist = !this.isInWishlist;
-      },
-      error => {
-        console.error('Error toggling wishlist:', error);
-      }
-    );
+    // Store the current state to show accurate message
+    const wasInWishlist = this.isInWishlist;
+    
+    try {
+      // Call the toggle service
+      await this.wishlistService.toggleWishlistItem(this.product.id).toPromise();
+      
+      // Wait a moment for the service to update
+      setTimeout(() => {
+        // Check the new state from the service
+        const checkStateSub = this.wishlistService.isInWishlist(this.product!.id).subscribe(newState => {
+          console.log('New wishlist status after toggle:', newState);
+          this.isInWishlist = newState;
+          this.cdr.detectChanges();
+          
+          // Show accurate toast based on actual state change
+          if (wasInWishlist && !newState) {
+            // Was in wishlist, now removed
+            this.showToast('💔 Removed from wishlist', 'medium');
+          } else if (!wasInWishlist && newState) {
+            // Was not in wishlist, now added
+            this.showToast('💖 Added to wishlist!', 'success');
+          } else if (wasInWishlist && newState) {
+            // Was already in wishlist, still there (shouldn't happen)
+            this.showToast('💖 Already in wishlist', 'medium');
+          } else {
+            // Fallback message
+            this.showToast(newState ? '💖 Added to wishlist!' : '💔 Removed from wishlist', newState ? 'success' : 'medium');
+          }
+        });
+        
+        // Unsubscribe immediately after getting the value
+        setTimeout(() => checkStateSub.unsubscribe(), 100);
+      }, 100);
+      
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+      await this.showToast('❌ Error updating wishlist', 'danger');
+    }
+  }
+  
+  private async showToast(message: string, color: string) {
+    const toast = await this.toastController.create({
+      message,
+      duration: 2000,
+      position: 'bottom',
+      color
+    });
+    await toast.present();
   }
   
   shareProduct() {
@@ -285,8 +350,8 @@ isObject(val: any): boolean {
       document.execCommand('copy');
       document.body.removeChild(tempInput);
       
-      // Show notification (would be replaced with a proper notification system)
-      alert('Link copied to clipboard');
+      // Show notification
+      this.showToast('🔗 Link copied to clipboard', 'success');
     }
   }
   
@@ -299,17 +364,28 @@ isObject(val: any): boolean {
     return 0;
   }
   
-  addRelatedToCart(product: Product) {
-    this.cartService.addToCart(product.id).subscribe(
-      () => {
-        // Success notification would be added here
-      },
-      error => {
-        console.error('Error adding to cart:', error);
-        // Error notification would be added here
-      }
-    );
+  async addRelatedToCart(product: Product) {
+    try {
+      await this.cartService.addToCart(product.id).toPromise();
+      await this.showToast('✅ Added to cart!', 'success');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      await this.showToast('❌ Error adding to cart', 'danger');
+    }
   }
   
-
+  // Helper method to get heart icon name
+  getHeartIcon(): string {
+    return this.isInWishlist ? 'heart' : 'heart-outline';
+  }
+  
+  // Helper method to get wishlist button text
+  getWishlistButtonText(): string {
+    return this.isInWishlist ? 'Added to Wishlist' : 'Add to Wishlist';
+  }
+  
+  // Helper method to get wishlist button color
+  getWishlistButtonColor(): string {
+    return this.isInWishlist ? 'danger' : 'medium';
+  }
 }

@@ -1,3 +1,5 @@
+
+//src/main.ts
 import { bootstrapApplication } from '@angular/platform-browser';
 import { RouteReuseStrategy, provideRouter, withPreloading, PreloadAllModules } from '@angular/router';
 import { IonicRouteStrategy, provideIonicAngular } from '@ionic/angular/standalone';
@@ -16,20 +18,20 @@ import { environment } from './environments/environment';
 // main.ts
 import { getDatabase, provideDatabase } from '@angular/fire/database';
 
-// Add this to your providers array
+// Remove the duplicate provideDatabase line
 bootstrapApplication(AppComponent, {
   providers: [
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
     provideIonicAngular(),
     provideRouter(routes, withPreloading(PreloadAllModules)),
     
-    // Firebase providers - add them directly instead of using importProvidersFrom
-    provideDatabase(() => getDatabase()),
+    // Firebase providers - proper order
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAuth(() => getAuth()),
     provideFirestore(() => getFirestore()),
     provideStorage(() => getStorage()),
     provideFunctions(() => getFunctions()),
-    provideAnalytics(() => getAnalytics())
+    provideAnalytics(() => getAnalytics()),
+    // Remove this duplicate: provideDatabase(() => getDatabase()),
   ],
 });

@@ -10,10 +10,10 @@ import { addIcons } from 'ionicons';
 import { 
   arrowForwardOutline, searchOutline, phonePortraitOutline, tvOutline,
   watchOutline, headsetOutline, laptopOutline, flashOutline, storefront,
-  chevronForwardOutline, mailOutline, callOutline, cubeOutline, shieldCheckmarkOutline } from 'ionicons/icons';
+  chevronForwardOutline, mailOutline, callOutline, cubeOutline, shieldCheckmarkOutline, storefrontOutline, constructOutline, carOutline, locationOutline, sparklesOutline } from 'ionicons/icons';
 
 import { HeaderComponent } from '../../shared/components/header/header.component';
-import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component'; // ADD THIS IMPORT
 import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 import { ChatbotPage } from 'src/app/shared/components/chatbot/chatbot.page';
@@ -25,6 +25,7 @@ import { StoreLocation } from '../../core/models/store-location.model';
 import { FormsModule } from '@angular/forms';
 // Import Swiper core and required modules
 import { register } from 'swiper/element/bundle';
+import { SimpleChatbotComponent } from '../../shared/simple-chatbot/simple-chatbot.component';
 
 @Component({
   selector: 'app-home',
@@ -38,7 +39,8 @@ import { register } from 'swiper/element/bundle';
     IonContent,
     IonButton, IonIcon,
     IonSearchbar, IonItem, IonInput,
-    HeaderComponent, ProductCardComponent, LoadingSpinnerComponent
+    HeaderComponent, FooterComponent, SimpleChatbotComponent,   
+ProductCardComponent,  LoadingSpinnerComponent // ADD FooterComponent HERE
 ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA] // Add this for Swiper custom elements
 })
@@ -116,22 +118,7 @@ export class HomePage implements OnInit {
     register();
     
     // Add Ionicons
-    addIcons({
-      arrowForwardOutline,
-      chevronForwardOutline,
-      cubeOutline,
-      flashOutline,
-      shieldCheckmarkOutline,
-      headsetOutline,
-      callOutline,
-      mailOutline,
-      searchOutline,
-      phonePortraitOutline,
-      tvOutline,
-      watchOutline,
-      laptopOutline,
-      storefront
-    });
+    addIcons({phonePortraitOutline,arrowForwardOutline,sparklesOutline,tvOutline,flashOutline,chevronForwardOutline,cubeOutline,shieldCheckmarkOutline,headsetOutline,storefrontOutline,constructOutline,carOutline,locationOutline,mailOutline,callOutline,searchOutline,watchOutline,laptopOutline,storefront});
   }
   
   ngOnInit() {

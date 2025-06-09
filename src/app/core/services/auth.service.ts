@@ -7,6 +7,9 @@ import {
   signOut,
   sendPasswordResetEmail,
   updateProfile,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
   UserCredential,
   onAuthStateChanged,
   User as FirebaseUser
@@ -43,6 +46,39 @@ export class AuthService {
     private router: Router
   ) {
     this.initAuthListener();
+  }
+
+  // ADD THIS METHOD - Password change functionality
+  changePassword(passwordData: { oldPassword: string; newPassword: string }): Observable<void> {
+    return new Observable(observer => {
+      const user = this.auth.currentUser;
+      
+      if (!user || !user.email) {
+        observer.error(new Error('No user logged in'));
+        return;
+      }
+      
+      console.log('Starting password change process for user:', user.email);
+      
+      // Re-authenticate user with current password
+      const credential = EmailAuthProvider.credential(user.email, passwordData.oldPassword);
+      
+      reauthenticateWithCredential(user, credential)
+        .then(() => {
+          console.log('Re-authentication successful, updating password...');
+          // If re-authentication successful, update password
+          return updatePassword(user, passwordData.newPassword);
+        })
+        .then(() => {
+          console.log('Password updated successfully');
+          observer.next();
+          observer.complete();
+        })
+        .catch(error => {
+          console.error('Password change error:', error);
+          observer.error(error);
+        });
+    });
   }
 
   // Refresh user data from Firestore - useful when roles change
@@ -137,10 +173,29 @@ export class AuthService {
       // Create reference to the user document
       const userDocRef = doc(this.firestore, `users/${uid}`);
       
-      // Fetch the document
-      const userDoc = await getDoc(userDocRef);
+      // Fetch the document with retry logic
+      let userDoc;
+      let retryCount = 0;
+      const maxRetries = 3;
       
-      if (userDoc.exists()) {
+      while (retryCount < maxRetries) {
+        try {
+          userDoc = await getDoc(userDocRef);
+          break; // Success, exit retry loop
+        } catch (retryError: any) {
+          retryCount++;
+          console.warn(`Attempt ${retryCount}/${maxRetries} failed:`, retryError.message);
+          
+          if (retryCount >= maxRetries) {
+            throw retryError; // Final attempt failed
+          }
+          
+          // Wait before retry (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
+        }
+      }
+      
+      if (userDoc && userDoc.exists()) {
         console.log('User document found');
         const userData = userDoc.data();
         
@@ -152,6 +207,12 @@ export class AuthService {
       }
     } catch (error: any) {
       console.error('Error getting user data:', error);
+      
+      // Don't return null immediately for certain recoverable errors
+      if (error.code === 'unavailable' || error.code === 'deadline-exceeded') {
+        console.error('Temporary Firebase error, will retry later');
+        throw error; // Let the caller handle retry
+      }
       
       if (error.code) {
         console.error('Firebase error code:', error.code);
@@ -167,10 +228,6 @@ export class AuthService {
           default:
             console.error('Other Firebase error code:', error.code);
         }
-      }
-      
-      if (error.message && error.message.includes('network')) {
-        console.error('Network connectivity issue detected');
       }
       
       return null;
@@ -214,32 +271,62 @@ export class AuthService {
 
   async ensureUserExists(firebaseUser: FirebaseUser): Promise<User> {
     try {
+      console.log('Ensuring user exists for:', firebaseUser.uid);
+      
       // Try to get existing user data
       const userData = await this.getUserData(firebaseUser.uid);
       
       // If user data exists, return it
       if (userData) {
+        console.log('User document found, role:', userData.role);
         return userData;
       }
       
-      // User document doesn't exist, create it
+      // Double-check: Try to get the document directly to be absolutely sure it doesn't exist
+      const userRef = doc(this.firestore, `users/${firebaseUser.uid}`);
+      const userDoc = await getDoc(userRef);
+      
+      if (userDoc.exists()) {
+        // Document exists but getUserData failed - return the existing data
+        console.log('User document exists (direct check), using existing data');
+        const existingData = userDoc.data();
+        return { uid: firebaseUser.uid, ...existingData } as User;
+      }
+      
+      // User document truly doesn't exist, create it
       console.log('Creating new user document for:', firebaseUser.uid);
       const newUser: Omit<User, 'uid'> = {
         email: firebaseUser.email || 'unknown',
         displayName: firebaseUser.displayName || 'User',
-        role: 'customer', // Default role
+        role: 'customer', // Default role for new users only
         createdAt: new Date(),
         lastLoginAt: new Date(),
         updatedAt: new Date()
       };
       
-      // Create the user document
-      const userRef = doc(this.firestore, `users/${firebaseUser.uid}`);
-      await setDoc(userRef, newUser);
+      // Use setDoc with merge option to avoid overwriting existing fields
+      await setDoc(userRef, newUser, { merge: true });
+      console.log('New user document created with customer role');
       
       return { uid: firebaseUser.uid, ...newUser } as User;
     } catch (error) {
       console.error('Error ensuring user exists:', error);
+      
+      // If there's an error, try one more time to get existing user data
+      // This prevents role reset in case of temporary network issues
+      try {
+        const userRef = doc(this.firestore, `users/${firebaseUser.uid}`);
+        const userDoc = await getDoc(userRef);
+        
+        if (userDoc.exists()) {
+          console.log('Fallback: Found existing user document');
+          const existingData = userDoc.data();
+          return { uid: firebaseUser.uid, ...existingData } as User;
+        }
+      } catch (fallbackError) {
+        console.error('Fallback getUserData also failed:', fallbackError);
+      }
+      
       throw error;
     }
   }
@@ -257,15 +344,6 @@ export class AuthService {
       tap(user => {
         this.currentUserSubject.next(user);
         console.log('User logged in, role:', user.role);
-      })
-    );
-  }
-
-  logout(): Observable<void> {
-    return from(signOut(this.auth)).pipe(
-      tap(() => {
-        this.currentUserSubject.next(null);
-        this.router.navigate(['/auth/login']);
       })
     );
   }
@@ -304,12 +382,30 @@ export class AuthService {
   getCurrentUserRole(): string | null {
     return this.currentUserSubject.value?.role || null;
   }
+
   getCurrentUserSync(): User | null {
-  return this.currentUserSubject.getValue();
-}
+    return this.currentUserSubject.getValue();
+  }
   
   // Check if current user is an admin - useful for guards and components
   isAdmin(): boolean {
     return this.currentUserSubject.value?.role === 'admin';
+  }
+
+  getCurrentUser(): Observable<User | null> {
+    return this.currentUser$;
+  }
+
+  logout(): Observable<void> {
+    return from(signOut(this.auth)).pipe(
+      tap(() => {
+        this.currentUserSubject.next(null);
+        
+        // Redirect to login with logout parameter
+        this.router.navigate(['/auth/login'], { 
+          queryParams: { loggedOut: 'true' } 
+        });
+      })
+    );
   }
 }

@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { 
-  IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton,
+  IonContent, 
   IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardHeader,
   IonCardTitle, IonCardContent, IonItem, IonLabel, IonBadge, IonList
 } from '@ionic/angular/standalone';
@@ -14,7 +14,6 @@ import {
 } from 'ionicons/icons';
 
 import { HeaderComponent } from 'src/app/shared/components/header/header.component';
-import { FooterComponent } from 'src/app/shared/components/footer/footer.component';
 import { LoadingSpinnerComponent } from 'src/app/shared/components/loading-spinner/loading-spinner.component';
 import { OrderService } from 'src/app/core/services/order.service';
 import { Order } from 'src/app/core/models/order.model';

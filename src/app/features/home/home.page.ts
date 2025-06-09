@@ -2,9 +2,9 @@ import { Component, OnInit, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { 
-  IonContent, IonHeader, IonToolbar, IonTitle, IonButtons, IonMenuButton,
-  IonButton, IonIcon, IonGrid, IonRow, IonCol, IonCard, IonCardHeader,
-  IonCardTitle, IonCardContent, IonBadge, IonText,
+  IonContent, 
+  IonButton, IonIcon, 
+  
   IonSearchbar, AnimationController, IonItem, IonInput } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
 import { 
@@ -16,7 +16,6 @@ import { HeaderComponent } from '../../shared/components/header/header.component
 import { FooterComponent } from '../../shared/components/footer/footer.component'; // ADD THIS IMPORT
 import { ProductCardComponent } from '../../shared/components/product-card/product-card.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
-import { ChatbotPage } from 'src/app/shared/components/chatbot/chatbot.page';
 import { ProductService } from '../../core/services/product.service';
 import { CartService } from '../../core/services/cart.service';
 import { StoreLocationService } from '../../core/services/store-location.service';

@@ -115,7 +115,9 @@
               <ion-item lines="none" class="terms-checkbox">
                 <ion-checkbox formControlName="termsAccepted"></ion-checkbox>
                 <ion-label>
-                  I agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a>
+                  <!-- I agree to the <a href="/terms">Terms of Service</a> and <a href="/privacy">Privacy Policy</a> -->
+                    I agree to the Terms of Service & Privacy Policy
+
                 </ion-label>
               </ion-item>
               <div class="validation-message" *ngIf="f['termsAccepted'].touched && f['termsAccepted'].invalid">

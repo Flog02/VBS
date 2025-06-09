@@ -238,28 +238,56 @@ export class UserProfilePage implements OnInit {
   }
 ];
   
-  changePassword() {
-    if (this.passwordForm.invalid) {
-      // Mark all fields as touched to trigger validation messages
-      Object.keys(this.passwordForm.controls).forEach(key => {
-        const control = this.passwordForm.get(key);
-        control?.markAsTouched();
-      });
-      return;
-    }
-    
-    this.isSaving = true;
-    this.successMessage = '';
-    this.errorMessage = '';
-    
-    // In a real app, you would call a service to change the password
-    // For demo purposes, we'll just show a success message
-    setTimeout(() => {
+ // Replace your changePassword method in user-profile.page.ts with this:
+
+changePassword() {
+  if (this.passwordForm.invalid) {
+    // Mark all fields as touched to trigger validation messages
+    Object.keys(this.passwordForm.controls).forEach(key => {
+      const control = this.passwordForm.get(key);
+      control?.markAsTouched();
+    });
+    return;
+  }
+  
+  this.isSaving = true;
+  this.successMessage = '';
+  this.errorMessage = '';
+  
+  const passwordData = {
+    oldPassword: this.passwordForm.value.oldPassword,
+    newPassword: this.passwordForm.value.newPassword
+  };
+  
+  // Call the actual password change service
+  this.authService.changePassword(passwordData).subscribe({
+    next: () => {
       this.isSaving = false;
       this.successMessage = 'Password changed successfully';
       this.passwordForm.reset();
-    }, 1500);
-  }
+      // Reset password visibility flags
+      this.showOldPassword = false;
+      this.showNewPassword = false;
+    },
+    error: (error) => {
+      console.error('Error changing password:', error);
+      this.isSaving = false;
+      
+      // Handle specific error messages
+      if (error.code === 'auth/wrong-password') {
+        this.errorMessage = 'Current password is incorrect';
+      } else if (error.code === 'auth/weak-password') {
+        this.errorMessage = 'New password is too weak. Please choose a stronger password.';
+      } else if (error.code === 'auth/requires-recent-login') {
+        this.errorMessage = 'Please log out and log back in before changing your password';
+      } else if (error.message && error.message.includes('No user logged in')) {
+        this.errorMessage = 'You must be logged in to change your password';
+      } else {
+        this.errorMessage = 'An error occurred while changing your password. Please try again.';
+      }
+    }
+  });
+}
   
   confirmLogout() {
     this.showLogoutAlert = true;
